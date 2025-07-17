@@ -1,0 +1,356 @@
+<div class="ms-3 me-3 mt-2 mb-2">
+  <div class="mt-1 row">
+    <div class="col-2">
+      <button
+        (click)="toggleShowPlanner()"
+        class="me-1 mt-1 btn btn-sm btn-primary"
+      >
+        {{ "Show Planner For " + year }}
+      </button>
+    </div>
+    <div class="col-2">
+      <button
+        (click)="toggleCreatePlanner()"
+        class="me-1 mt-1 btn btn-sm btn-primary"
+      >
+        {{ "Add Planner For " + year }}
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    @if (editPlanner) {
+    <form [formGroup]="plannerEntry" (ngSubmit)="save()">
+      <div class="row mt-5 offset-1 mb-3">
+        <div class="col-1">
+          <input type="text" class="form-control" readonly placeholder="2025" />
+        </div>
+        <div class="col-2">
+          <select
+            required
+            formControlName="type"
+            class="form-select"
+            (change)="showCategories()"
+          >
+            <option value="" disabled selected>Type</option>
+            <option
+              *ngFor="let option of allTypes | keyvalue"
+              [value]="option.key"
+            >
+              {{ option.key }}
+            </option>
+          </select>
+        </div>
+        <div class="col-3">
+          <select required formControlName="category" class="form-select">
+            <option value="" disabled selected>Category</option>
+            <option *ngFor="let option of categories" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+        <div class="col-3">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">&#8377;</span>
+            </div>
+            <input
+              type="text"
+              formControlName="amount"
+              class="form-control"
+              placeholder="Enter amount"
+            />
+          </div>
+        </div>
+        <div class="col-1">
+          <button
+            type="submit"
+            [disabled]="!plannerEntry.valid"
+            class="btn btn-primary"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
+    <div class="col-4 offset-4 bg-secondary text-white mt-4 card">
+      <h4 class="text-center">
+        Remaining Balance <br />{{ remainingBalanceToPlan }}
+      </h4>
+    </div>
+    <div
+      *ngIf="showHigherAmountAlert"
+      class="offset-3 col-7 alert alert-dismissible fade show"
+      role="alert"
+    >
+      <strong>Adding Planner Failed!!</strong> Entered amount is higher than
+      remaining balance.
+      <button
+        type="button"
+        class="close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      >
+        <span aria-hidden="false">&times;</span>
+      </button>
+    </div>
+    } @if(showPlanner){
+    <div class="row mt-3 offset-1">
+      <div class="col-2">
+        <input
+          type="month"
+          [(ngModel)]="currentMonthYear"
+          (change)="fetchRecords(currentMonthYear)"
+          class="col-sm-10 form-control bg-primary text-white"
+        />
+      </div>
+      <div class="col-2">
+        <div class="card" (click)="toggleShowIncome()">
+          <button class="btn btn-primary">Income</button>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="card" (click)="toggleShowSavings()">
+          <button class="btn btn-primary">Savings</button>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="card" (click)="toggleShowInvestments()">
+          <button class="btn btn-primary">Investments</button>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="card" (click)="toggleShowExpenses()">
+          <button class="btn btn-primary">Expenses</button>
+        </div>
+      </div>
+    </div>
+    <div class="offset-1">
+      <div class="mt-2 me-5" *ngIf="showIncome">
+        <div class="card">
+          <table class="table mb-0 table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Projection</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of incomeRecords">
+                <td>
+                  <div class="mt-1">
+                    {{ record.category }}
+                  </div>
+                </td>
+                <td>
+                  <div class="mt-1">
+                    @if (record.canEdit) {
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="myInput"
+                      [(ngModel)]="record.projected"
+                    />
+                    } @else {
+                    {{ record.projected }}
+                    }
+                  </div>
+                </td>
+                <td>
+                  <div class="col">
+                    <div class="row">
+                      <div class="col">
+                        <button
+                          (click)="editProjection(currentMonthYear, record)"
+                          class="me-1 mt-1 btn btn-sm btn-warning"
+                        >
+                          {{ record.canEdit ? "Save" : "Edit" }}
+                        </button>
+                        <button
+                          (click)="deleteProjection(currentMonthYear, record)"
+                          class="mt-1 btn btn-sm btn-danger"
+                        >
+                          {{ record.canEdit ? "Cancel" : "Delete" }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mt-2 me-5" *ngIf="showSavings">
+        <div class="card">
+          <table class="table mb-0 table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Projection</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of savingsRecords">
+                <td>
+                  <div class="mt-1">
+                    {{ record.category }}
+                  </div>
+                </td>
+                <td>
+                  <div class="mt-1">
+                    @if (record.canEdit) {
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="myInput"
+                      [(ngModel)]="record.projected"
+                    />
+                    } @else {
+                    {{ record.projected }}
+                    }
+                  </div>
+                </td>
+                <td>
+                  <div class="col">
+                    <div class="row">
+                      <div class="col">
+                        <button
+                          (click)="editProjection(currentMonthYear, record)"
+                          class="me-1 mt-1 btn btn-sm btn-warning"
+                        >
+                          {{ record.canEdit ? "Save" : "Edit" }}
+                        </button>
+                        <button
+                          (click)="deleteProjection(currentMonthYear, record)"
+                          class="mt-1 btn btn-sm btn-danger"
+                        >
+                          {{ record.canEdit ? "Cancel" : "Delete" }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mt-2 me-5" *ngIf="showInvestments">
+        <div class="card">
+          <table class="table mb-0 table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Projection</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of investmentsRecords">
+                <td>
+                  <div class="mt-1">
+                    {{ record.category }}
+                  </div>
+                </td>
+                <td>
+                  <div class="mt-1">
+                    @if (record.canEdit) {
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="myInput"
+                      [(ngModel)]="record.projected"
+                    />
+                    } @else {
+                    {{ record.projected }}
+                    }
+                  </div>
+                </td>
+                <td>
+                  <div class="col">
+                    <div class="row">
+                      <div class="col">
+                        <button
+                          (click)="editProjection(currentMonthYear, record)"
+                          class="me-1 mt-1 btn btn-sm btn-warning"
+                        >
+                          {{ record.canEdit ? "Save" : "Edit" }}
+                        </button>
+                        <button
+                          (click)="deleteProjection(currentMonthYear, record)"
+                          class="mt-1 btn btn-sm btn-danger"
+                        >
+                          {{ record.canEdit ? "Cancel" : "Delete" }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mt-2 me-5" *ngIf="showExpenses">
+        <div class="card">
+          <table class="table mb-0 table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Projection</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let record of expenseRecords">
+                <td>
+                  <div class="mt-1">
+                    {{ record.category }}
+                  </div>
+                </td>
+                <td>
+                  <div class="mt-1">
+                    @if (record.canEdit) {
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="myInput"
+                      [(ngModel)]="record.projected"
+                    />
+                    } @else {
+                    {{ record.projected }}
+                    }
+                  </div>
+                </td>
+                <td>
+                  <div class="col">
+                    <div class="row">
+                      <div class="col">
+                        <button
+                          (click)="editProjection(currentMonthYear, record)"
+                          class="me-1 mt-1 btn btn-sm btn-warning"
+                        >
+                          {{ record.canEdit ? "Save" : "Edit" }}
+                        </button>
+                        <button
+                          (click)="deleteProjection(currentMonthYear, record)"
+                          class="mt-1 btn btn-sm btn-danger"
+                        >
+                          {{ record.canEdit ? "Cancel" : "Delete" }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>

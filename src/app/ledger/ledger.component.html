@@ -1,0 +1,205 @@
+<div class="ms-3 me-3 mt-2 mb-2">
+  <div class="row mt-2 col-12">
+    <div class="col-2">
+      <h4>Enter Expense</h4>
+    </div>
+    <div class="col-2">
+      <div class="mb-1">
+        <input
+          type="month"
+          [(ngModel)]="currentMonthYear"
+          (change)="populateLedgers(currentMonthYear)"
+          class="col-sm-10 form-control"
+        />
+      </div>
+    </div>
+    <form [formGroup]="ledgerEntry" (ngSubmit)="saveLedger()">
+      <div class="row mt-2">
+        <div class="col-2">
+          <div class="input-group has-validation mb-1">
+            <input
+              id="calendar"
+              type="date"
+              min="{{ minDate }}"
+              max="{{ maxDate }}"
+              formControlName="date"
+              class="col-sm-10 form-control"
+            />
+          </div>
+        </div>
+        <div class="col-2">
+          <select
+            formControlName="type"
+            class="form-select"
+            aria-label="Default select example"
+            (change)="showDropdowns()"
+          >
+            <option value="" disabled selected>Type</option>
+            <option
+              *ngFor="let option of allTypes | keyvalue"
+              [value]="option.key"
+            >
+              {{ option.key }}
+            </option>
+          </select>
+        </div>
+        <div class="col-2">
+          <select
+            formControlName="category"
+            class="form-select"
+            aria-label="Default select example"
+            (change)="showSubCategories()"
+          >
+            <option value="" disabled selected>Category</option>
+            <option *ngFor="let option of categories" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+        <div class="col-3">
+          <select
+            formControlName="subCategory"
+            class="form-select"
+            aria-label="Default select example"
+          >
+            <option value="" disabled selected>Sub Category</option>
+            <option *ngFor="let option of subCategories" [value]="option">
+              {{ option }}
+            </option>
+          </select>
+        </div>
+        <div class="col-2">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text">&#8377;</span>
+            </div>
+            <input
+              type="text"
+              formControlName="amount"
+              class="form-control"
+              placeholder="Enter amount"
+            />
+          </div>
+        </div>
+        <div class="col-1">
+          <button
+            type="submit"
+            [disabled]="!ledgerEntry.valid"
+            class="btn btn-primary"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <hr class="col-12 bg-success border-2 border-top border-success" />
+
+  <div class="">
+    <table class="table table- table-hover mb-0">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Category</th>
+          <th scope="col">Sub Category</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of records.values()">
+          <td>
+            <div class="mt-1">
+              @if (entry.canEdit) {
+              <input
+                type="text"
+                class="form-control"
+                id="myInput"
+                [(ngModel)]="entry.date"
+              />
+              } @else {
+              {{ entry.date }}
+              }
+            </div>
+          </td>
+          <td>
+            <div class="mt-1">
+              @if (entry.canEdit) {
+              <input
+                type="text"
+                class="form-control"
+                id="myInput"
+                [(ngModel)]="entry.type"
+              />
+              } @else {
+              {{ entry.type }}
+              }
+            </div>
+          </td>
+          <td>
+            <div class="mt-1">
+              @if (entry.canEdit) {
+              <input
+                type="text"
+                class="form-control"
+                id="myInput"
+                [(ngModel)]="entry.category"
+              />
+              } @else {
+              {{ entry.category }}
+              }
+            </div>
+          </td>
+          <td>
+            <div class="mt-1">
+              @if (entry.canEdit) {
+              <input
+                type="text"
+                class="form-control"
+                id="myInput"
+                [(ngModel)]="entry.subCategory"
+              />
+              } @else {
+              {{ entry.subCategory }}
+              }
+            </div>
+          </td>
+          <td>
+            <div class="mt-1">
+              @if (entry.canEdit) {
+              <input
+                type="text"
+                class="form-control"
+                id="myInput"
+                [(ngModel)]="entry.amount"
+              />
+              } @else {
+              {{ entry.amount }}
+              }
+            </div>
+          </td>
+          <td>
+            <div class="row">
+              <div class="col">
+                <button
+                  class="me-1 mt-1 btn btn-sm btn-warning"
+                  (click)="updateLedger(entry)"
+                >
+                  {{ entry.canEdit ? "Save" : "Edit" }}
+                </button>
+                <button
+                  class="mt-1 btn btn-sm btn-danger"
+                  (click)="deleteLedger(entry)"
+                >
+                  {{ entry.canEdit ? "Cancel" : "Delete" }}
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
