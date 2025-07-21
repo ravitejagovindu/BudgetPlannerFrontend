@@ -8,64 +8,66 @@ import { Planner } from '../model/planner';
 })
 export class ApiService {
 
+  hostUrl="http://budget-planner-alb-1611896233.ap-south-1.elb.amazonaws.com/"
+
   constructor(private http: HttpClient) {}
 
   getAllBudgetTypes() {
-    return this.http.get<any>('http://localhost:8080/budget/types');
+    return this.http.get<any>(this.hostUrl+'budget/types');
   }
 
   getAllPlanners(year: number, month: number) {
     return this.http.get<any>(
-      'http://localhost:8080/planners?month=' + month + '&year=' + year
+      this.hostUrl+'planners?month=' + month + '&year=' + year
     );
   }
 
   createPlanner(planner: Planner) {
-    return this.http.post<any>('http://localhost:8080/planners', planner);
+    return this.http.post<any>(this.hostUrl+'planners', planner);
   }
 
   editPlanner(id: number, planner: Planner) {
-    return this.http.put<any>('http://localhost:8080/planners/' + id, planner);
+    return this.http.put<any>(this.hostUrl+'planners/' + id, planner);
   }
 
   deletePlanner(id: number) {
-    return this.http.delete<any>('http://localhost:8080/planners'+id);
+    return this.http.delete<any>(this.hostUrl+'planners'+id);
   }
 
   getAllLedgersByYear(year: number) {
     return this.http.get<any>(
-      'http://localhost:8080/dashboard/ledgers?year=' + year
+      this.hostUrl+'dashboard/ledgers?year=' + year
     );
   }
 
   getAllExpensesByYear(year: number) {
     return this.http.get<any>(
-      'http://localhost:8080/dashboard/expenses?year=' + year
+      this.hostUrl+'dashboard/expenses?year=' + year
     );
   }
 
   getAllProjectionsByMonthAndYear(month: number, year: number) {
     return this.http.get<any>(
-      'http://localhost:8080/dashboard/projections?month=' + month + '&year=' + year
+      this.hostUrl+'dashboard/projections?month=' + month + '&year=' + year
     );
   }
 
   getAllLedgersByMonthAndYear(year: number, month: number) {
     return this.http.get<any>(
-      'http://localhost:8080/ledgers?month=' + month + '&year=' + year
+      this.hostUrl+'ledgers?month=' + month + '&year=' + year
     );
   }
 
   createLedger(ledger: Ledger) {
-    return this.http.post('http://localhost:8080/ledgers', ledger);
+    return this.http.post(this.hostUrl+'ledgers', ledger);
   }
 
   updateLedger(id: number, ledger: Ledger) {
-    return this.http.put('http://localhost:8080/ledgers/'+id, ledger);
+    return this.http.put(this.hostUrl+'ledgers/'+id, ledger);
   }
 
   deleteLedger(id: number) {
-    return this.http.delete('http://localhost:8080/ledgers/'+id);
+    return this.http.delete(this.hostUrl+'ledgers/'+id);
   }
 
 }
