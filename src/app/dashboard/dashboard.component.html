@@ -1,157 +1,194 @@
-<div class="ms-2 me-2 mb-4">
-  <div class="row mt-2 ms-2">
-    <div class="col-3">
-      <h3 class="mb-1 text-center offset-4">Dashboard for</h3>
-    </div>
-    <div class="col-4">
-      <div class="mb-1">
+<div class="ms-2 me-2 mt-2">
+  <div class="d-flex justify-content-center mb-4">
+    <div
+      class="d-flex align-items-center gap-3"
+      style="flex-wrap: wrap; max-width: 100%"
+    >
+      <!-- Text container -->
+      <h2 class="text-primary mb-0 flex-shrink-0">📊 Dashboard Overview</h2>
+
+      <!-- Month picker container -->
+      <div
+        class="px-3 py-2 rounded-5 shadow flex-shrink-0"
+        style="
+          max-width: 220px;
+          background: rgba(255, 255, 255, 0.75);
+          backdrop-filter: blur(8px);
+          border: 1px solid #e3e6ec;
+          box-shadow: 0 2px 16px 2px rgba(60, 76, 120, 0.08);
+        "
+      >
         <input
+          id="monthPicker"
           type="month"
           min="2025-04"
+          class="form-control bg-white bg-opacity-75 rounded-3 border-0 shadow-none"
+          style="
+            font-size: 1rem;
+            padding: 0.55rem 1rem;
+            outline: none;
+            box-shadow: 0 0 0 0.14rem rgba(79, 94, 234, 0.05);
+            transition: box-shadow 0.15s;
+            color: #384366;
+            font-weight: 500;
+          "
           [(ngModel)]="currentMonthYear"
           (change)="onMonthSelect(currentMonthYear)"
+          autocomplete="off"
         />
-      </div>
-    </div>
-    <div class="col-3 mb-2 me-4">
-      <div class="card bg-info">
-        <strong
-          >Available Balance <br /><span>&#8377;</span
-          >{{ projections?.balanceActual }}</strong
-        >
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h4 class="text-center mt-2">
-      Monthly Budget Breakdown
-      <button
-        (click)="toggleShowOverViewColumnGraph()"
-        class="me-1 mt-1 btn btn-sm btn-secondary"
-      >
-        {{ showOverViewColumnChart ? "Pie Chart" : "Column Chart" }}
-      </button>
-    </h4>
-    <div class="mt-2 mb-4 ms-3 me-3">
-      <div class="row">
-        <div class="col">
-          <table class="table">
-            <thead class="table-secondary">
-              <tr>
-                <th scope="col">Type</th>
-                <th scope="col">Projected</th>
-                <th scope="col">Actual</th>
-                <th scope="col">Difference</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                *ngFor="let projection of projectionsByType"
-                [ngClass]="{
-                  'table-danger':
-                    projection.type == 'EXPENSE' && projection.difference < 0,
-                  'table-warning':
-                    projection.type !== 'EXPENSE' && projection.difference > 0
-                }"
-              >
-                <td>{{ projection.type }}</td>
-                <td><span>&#8377;</span>{{ projection.projected }}</td>
-                <td><span>&#8377;</span>{{ projection.actual }}</td>
-                <td><span>&#8377;</span>{{ projection.difference }}</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr class="table-secondary fw-bold">
-                <td>Balance</td>
-                <td><span>&#8377;</span>{{ projections?.balanceProjected }}</td>
-                <td><span>&#8377;</span>{{ projections?.balanceActual }}</td>
-                <td>
-                  <span>&#8377;</span>{{ projections?.balanceDifference }}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+  <!-- Do not edit after this line  -->
+  <!-- Projection Summary table and charts -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-info text-white fw-bold">
+          Projections Summary
         </div>
-        <div class="col">
-          @if (!showOverViewColumnChart){
-          <div class="row">
-            <div class="col">
-              <div>
-                <highcharts-chart
-                  *ngIf="overviewPieChartProjected"
-                  [Highcharts]="Highcharts"
-                  [options]="overviewPieChartProjected"
-                  style="width: 100%; height: 400px; display: flex"
-                ></highcharts-chart>
-              </div>
-            </div>
-            <div class="col">
-              <div>
-                <highcharts-chart
-                  *ngIf="overviewPieChartActual"
-                  [Highcharts]="Highcharts"
-                  [options]="overviewPieChartActual"
-                  style="width: 100%; height: 400px; display: flex"
-                ></highcharts-chart>
-              </div>
-            </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table
+              class="table table-bordered table-striped table-hover text-center align-middle"
+            >
+              <thead class="table-light">
+                <tr>
+                  <th>Type</th>
+                  <th>Projected</th>
+                  <th>Actual</th>
+                  <th>Difference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let projection of projectionsByType">
+                  <td>{{ projection.type }}</td>
+                  <td>₹{{ projection.projected }}</td>
+                  <td>₹{{ projection.actual }}</td>
+                  <td
+                    [ngClass]="{
+                      'text-success fw-bold': projection.difference >= 0,
+                      'text-danger fw-bold': projection.difference < 0
+                    }"
+                  >
+                    ₹{{ projection.difference }}
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot class="fw-bold table-light">
+                <tr>
+                  <td>Balance</td>
+                  <td>₹{{ projections?.balanceProjected }}</td>
+                  <td>₹{{ projections?.balanceActual }}</td>
+                  <td>₹{{ projections?.balanceDifference }}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
-          } @if (showOverViewColumnChart){
-          <div>
-            <highcharts-chart
-              *ngIf="overviewBarChart"
-              [Highcharts]="Highcharts"
-              [options]="overviewBarChart"
-              style="width: 100%; height: 400px; display: flex"
-            ></highcharts-chart>
-          </div>
-          }
         </div>
       </div>
     </div>
 
-    <div class="row mt-2 mb-4 ms-2 me-2">
-      <div class="col-7">
-        <div class="card">
-          <h4 class="mt-2 text-center">Classification By Categories</h4>
-          <div class="row mt-2 mb-4 ms-2 me-2">
-            <div class="col-4" wire:ignore>
-              <highcharts-chart
-                *ngIf="savingsPieChart"
-                [Highcharts]="Highcharts"
-                [options]="savingsPieChart"
-                style="width: 100%; height: 400px; display: flex"
-              ></highcharts-chart>
-            </div>
-            <div class="col-4">
-              <highcharts-chart
-                *ngIf="investmentPieChart"
-                [Highcharts]="Highcharts"
-                [options]="investmentPieChart"
-                style="width: 100%; height: 400px; display: flex"
-              ></highcharts-chart>
-            </div>
-            <div class="col-4">
-              <highcharts-chart
-                *ngIf="expensePieChart"
-                [Highcharts]="Highcharts"
-                [options]="expensePieChart"
-                style="width: 100%; height: 400px; display: flex"
-              ></highcharts-chart>
+    <div class="col-md-6 mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white fw-bold">
+          <div class="row">
+            <div class="col-md-9">Projection Comparison Chart</div>
+            <div class="col-md-3">
+              <button
+                (click)="toggleShowOverViewColumnGraph()"
+                class="btn btn-sm bg-dark text-white fw-bold"
+              >
+                {{ showOverViewColumnChart ? "Pie Chart" : "Column Chart" }}
+              </button>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-5 card">
-        <div class="row">
-          <div class="row">
-            <div class="col">
-              <h4 class="mt-2 text-center">Expenses By Sub Categories</h4>
+        <div class="card-body">
+          <div>
+            @if (!showOverViewColumnChart){
+            <div class="row">
+              <div class="col">
+                <div>
+                  <highcharts-chart
+                    *ngIf="overviewPieChartProjected"
+                    [Highcharts]="Highcharts"
+                    [options]="overviewPieChartProjected"
+                    style="width: 100%; height: 255px; display: flex"
+                  ></highcharts-chart>
+                </div>
+              </div>
+              <div class="col">
+                <div>
+                  <highcharts-chart
+                    *ngIf="overviewPieChartActual"
+                    [Highcharts]="Highcharts"
+                    [options]="overviewPieChartActual"
+                    style="width: 100%; height: 255px; display: flex"
+                  ></highcharts-chart>
+                </div>
+              </div>
             </div>
-            <div class="col-5 mt-2">
+            } @if (showOverViewColumnChart){
+            <div>
+              <highcharts-chart
+                *ngIf="overviewBarChart"
+                [Highcharts]="Highcharts"
+                [options]="overviewBarChart"
+                style="width: 100%; height: 250px; display: flex"
+              ></highcharts-chart>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Charts -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white fw-bold">
+          <div class="col-md-9">Actuals Comparison Chart</div>
+        </div>
+        <div class="row mt-2 mb-4 ms-2 me-2">
+          <div class="col-4">
+            <highcharts-chart
+              *ngIf="savingsPieChart"
+              [Highcharts]="Highcharts"
+              [options]="savingsPieChart"
+              style="width: 100%; height: 400px; display: flex"
+            ></highcharts-chart>
+          </div>
+          <div class="col-4">
+            <highcharts-chart
+              *ngIf="investmentPieChart"
+              [Highcharts]="Highcharts"
+              [options]="investmentPieChart"
+              style="width: 100%; height: 400px; display: flex"
+            ></highcharts-chart>
+          </div>
+          <div class="col-4">
+            <highcharts-chart
+              *ngIf="expensePieChart"
+              [Highcharts]="Highcharts"
+              [options]="expensePieChart"
+              style="width: 100%; height: 400px; display: flex"
+            ></highcharts-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white fw-bold">
+          <div class="row">
+            <div class="col-md-9">Expense Sub Categories</div>
+            <div class="col-md-3">
               <select
-                class="form-select"
+                class="form-select bg-dark text-white fw-bold"
                 [(ngModel)]="selectedCategory"
                 (change)="refreshSubCategoriesChart()"
               >
@@ -165,58 +202,55 @@
               </select>
             </div>
           </div>
-          <div class="col-9">
-            <div class="row mt-2 mb-4 ms-2 me-2">
-              <div class="col">
-                <highcharts-chart
-                  *ngIf="expensesSubCategoryPieChart"
-                  [Highcharts]="Highcharts"
-                  [options]="expensesSubCategoryPieChart"
-                  style="width: 100%; height: 400px; display: flex"
-                ></highcharts-chart>
-              </div>
-            </div>
-          </div>
+        </div>
+        <div>
+          <highcharts-chart
+            *ngIf="expensesSubCategoryPieChart"
+            [Highcharts]="Highcharts"
+            [options]="expensesSubCategoryPieChart"
+            style="width: 100%; height: 400px; display: flex"
+          ></highcharts-chart>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="row mt-2 mb-4 ms-2 me-2">
-      <div class="col">
-        <div class="mt-2 mb-4 ms-3 me-3">
-          <table class="table table-success">
-            <thead class="table-secondary">
-              <tr>
-                <th scope="col">Type</th>
-                <th scope="col">Category</th>
-                <th scope="col">Projected</th>
-                <th scope="col">Actual</th>
-                <th scope="col">Difference</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                *ngFor="let table of tableData"
+  <!-- Category wise Table -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-header bg-success text-white fw-bold">
+      Detailed Breakdown
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table
+          class="table table-bordered table-striped table-hover text-center align-middle"
+        >
+          <thead class="table-dark">
+            <tr>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Projected</th>
+              <th>Actual</th>
+              <th>Difference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let table of tableData">
+              <td>{{ table.type }}</td>
+              <td>{{ table.category }}</td>
+              <td>₹{{ table.projected }}</td>
+              <td>₹{{ table.actual }}</td>
+              <td
                 [ngClass]="{
-                  'table-danger':
-                    table.type == 'EXPENSE' && table.difference < 0,
-                  'table-warning':
-                    table.type !== 'EXPENSE' && table.difference < 0
+                  'text-success fw-bold': table.difference >= 0,
+                  'text-light fw-bold bg-danger': table.difference < 0
                 }"
               >
-                <td>
-                  {{ table.type }}
-                </td>
-                <td>
-                  {{ table.category }}
-                </td>
-                <td><span>&#8377;</span>{{ table.projected }}</td>
-                <td><span>&#8377;</span>{{ table.actual }}</td>
-                <td><span>&#8377;</span>{{ table.difference }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                ₹{{ table.difference }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

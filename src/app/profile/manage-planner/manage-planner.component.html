@@ -1,0 +1,89 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Manage Categories</h2>
+
+  <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+    <div class="form-group mb-3">
+      <label for="budgetType">Budget Type</label>
+      <select class="form-control" formControlName="budgetType" id="budgetType">
+        <option value="">Select</option>
+        <option *ngFor="let type of budgetTypes" [value]="type">{{ type }}</option>
+      </select>
+    </div>
+
+    <div class="form-group mb-3">
+      <label for="categoryName">Category Name</label>
+      <input
+        type="text"
+        class="form-control"
+        formControlName="categoryName"
+        id="categoryName"
+        placeholder="Enter category name"
+      />
+    </div>
+
+    <div class="form-group mb-3">
+      <div
+        *ngFor="let sub of subCategories.controls; let i = index"
+        class="input-group mb-2"
+      >
+        <input
+          formControlName="sub"
+          type="text"
+          class="form-control"
+          placeholder="Subcategory name"
+        />
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="removeSubCategory(i)"
+        >
+          Remove
+        </button>
+      </div>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="addSubCategory()"
+      >
+        Add Subcategory
+      </button>
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="categoryForm.valid"
+    >
+      Save Category
+    </button>
+  </form>
+
+  <hr class="my-4" />
+
+  <h4>Existing Categories</h4>
+  <table
+    class="table table-striped mt-3"
+    *ngIf="categories.length > 0"
+  >
+    <thead>
+      <tr>
+        <th>Budget Type</th>
+        <th>Category</th>
+        <th>Subcategories</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cat of categories">
+        <td>{{ cat.budgetType }}</td>
+        <td>{{ cat.categoryName }}</td>
+        <td>
+          <ul class="mb-0 ps-3">
+            <li *ngFor="let subcat of cat.subCategories">
+              {{ subcat }}
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

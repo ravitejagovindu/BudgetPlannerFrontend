@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { ChartService } from '../service/chart.service';
 import { Ledger } from '../model/ledger';
 import { ApiService } from '../service/api.service';

@@ -1,8 +1,256 @@
-<div class="card">Home is working!!!</div>
-<div class="card">
-  <highcharts-chart
-    [Highcharts]="Highcharts"
-    [options]="chartOptions"
-    style="width: 100%; height: 400px; display: block"
-  ></highcharts-chart>
-</div>
+<!-- Home Page for Monthly Budget Tracker/Planner Application -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home | Monthly Budget Tracker & Financial Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(90deg, #e9f7fa 0%, #f6f0fe 100%);
+        min-height: 100vh;
+      }
+      .hero {
+        background: rgba(255, 255, 255, 0.76);
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.09);
+      }
+      .feature-card {
+        border: 0;
+        border-radius: 1.5rem;
+        box-shadow: 0 2px 14px 1px rgba(60, 76, 120, 0.08);
+        background: rgba(255, 255, 255, 0.91);
+        transition: box-shadow 0.2s;
+      }
+      .feature-card:hover {
+        box-shadow: 0 8px 28px 2px rgba(62, 145, 255, 0.13);
+      }
+      .dashboard-preview {
+        border-radius: 1.25rem;
+        box-shadow: 0 2px 16px 2px rgba(60, 76, 120, 0.12);
+        overflow: hidden;
+      }
+      .gradient-btn {
+        background: linear-gradient(90deg, #005bea 0%, #3ab6f6 89%);
+        color: #fff;
+        border: none;
+      }
+      .gradient-btn:hover {
+        background: linear-gradient(90deg, #0274c3 0%, #258acb 89%);
+        color: #fff;
+      }
+      @media (max-width: 991px) {
+        .hero-img {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+      <a
+        class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2"
+        href="#"
+      >
+        <i class="bi bi-wallet2 fs-4"></i>
+        Monthly Budget Tracker
+      </a>
+      <div class="ms-auto">
+        <a href="#get-started" class="btn gradient-btn fw-semibold rounded-pill"
+          >Get Started</a
+        >
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="container my-5">
+      <div class="row align-items-center gy-4">
+        <div class="col-lg-7">
+          <div class="hero p-5">
+            <h1 class="display-4 fw-bold text-dark mb-3">
+              <span class="text-primary">Master</span> Your Finances<br />
+              Every Month
+            </h1>
+            <p class="lead text-secondary mb-4">
+              Take charge of your savings, expenses, and goals with the modern
+              <b>Monthly Financial Dashboard</b>—your all-in-one planning and
+              tracking solution.
+              <br />
+              Visualize, manage, and improve your money every month.
+            </p>
+            <div class="d-flex align-items-center gap-3">
+              <a
+                href="#get-started"
+                class="btn gradient-btn btn-lg rounded-pill px-4 me-2"
+              >
+                <i class="bi bi-graph-up-arrow me-2"></i> Get Started
+              </a>
+              <a
+                href="#features"
+                class="btn btn-outline-primary btn-lg rounded-pill px-4"
+              >
+                <i class="bi bi-info-circle me-2"></i> Learn More
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5 text-center hero-img">
+          <img
+            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80"
+            alt="Modern Dashboard Illustration"
+            class="img-fluid dashboard-preview"
+            style="max-height: 350px"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="container my-5">
+      <h2 class="text-center fw-bold text-dark mb-5">Why Choose This App?</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="feature-card p-4 text-center h-100">
+            <i class="bi bi-bar-chart-line-fill fs-1 text-primary mb-3"></i>
+            <h5 class="fw-bold mb-2">Monthly Dashboard</h5>
+            <p class="text-secondary mb-0">
+              See all your <b>income, savings, expenses, and investments</b> at
+              a glance—track, compare, and plan your finances for each month.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="feature-card p-4 text-center h-100">
+            <i class="bi bi-journal-check fs-1 text-success mb-3"></i>
+            <h5 class="fw-bold mb-2">Smart Planner</h5>
+            <p class="text-secondary mb-0">
+              Organize future budgets, set targets, and build your
+              <b>actionable spending & savings plan</b> with ease.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="feature-card p-4 text-center h-100">
+            <i class="bi bi-pie-chart-fill fs-1 text-info mb-3"></i>
+            <h5 class="fw-bold mb-2">Visual Insights</h5>
+            <p class="text-secondary mb-0">
+              Interact with beautiful <b>charts and trends</b>—see where your
+              money goes and how you can do better.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="feature-card p-4 text-center h-100">
+            <i class="bi bi-lock-fill fs-1 text-warning mb-3"></i>
+            <h5 class="fw-bold mb-2">Your Data, Secure</h5>
+            <p class="text-secondary mb-0">
+              All your financial records are kept private and secure—<b
+                >only you have access</b
+              >.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="feature-card p-4 text-center h-100">
+            <i class="bi bi-calendar2-event fs-1 text-danger mb-3"></i>
+            <h5 class="fw-bold mb-2">Plan Ahead</h5>
+            <p class="text-secondary mb-0">
+              <b>Quickly plan your months</b>, set financial milestones, and
+              stay a step ahead for both recurring and one-time events.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="feature-card p-4 text-center h-100">
+            <i class="bi bi-lightning-charge fs-1 text-primary mb-3"></i>
+            <h5 class="fw-bold mb-2">Fast & Intuitive</h5>
+            <p class="text-secondary mb-0">
+              Enjoy a <b>super-fast, modern interface</b>—built with the latest
+              technologies for the smoothest experience.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Illustrative Section: App Dashboard Preview -->
+    <section class="container my-5">
+      <div class="row justify-content-center align-items-center g-4">
+        <div class="col-md-6 order-2 order-md-1">
+          <h3 class="fw-bold mb-3">
+            <i class="bi bi-graph-up text-info me-2"></i>
+            A Visual Financial Story—Every Month!
+          </h3>
+          <p class="lead text-secondary">
+            Get instant clarity on your financial flow.<br />
+            Our dashboard offers: <br />
+          </p>
+          <ul class="text-secondary mb-3">
+            <li>
+              • Clear breakdown of incomes, expenses, savings, and investments
+            </li>
+            <li>• Goal-based planning and projections</li>
+            <li>• Editable, interactive entries—track, review, and analyze</li>
+            <li>• Real-time charts for immediate comparisons and insights</li>
+          </ul>
+          <a
+            href="#get-started"
+            class="btn btn-primary gradient-btn rounded-pill"
+          >
+            <i class="bi bi-rocket-takeoff me-2"></i>
+            Try the Dashboard Now
+          </a>
+        </div>
+        <div class="col-md-6 order-1 order-md-2 text-center">
+          <img
+            src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80"
+            alt="Financial Dashboard Preview"
+            class="img-fluid dashboard-preview"
+            style="max-height: 340px"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Get Started Call-To-Action -->
+    <section id="get-started" class="container my-5">
+      <div
+        class="p-5 rounded-4 shadow text-center"
+        style="background: linear-gradient(90deg, #c3eaff 0%, #e6deff 100%)"
+      >
+        <h3 class="fw-bold mb-3 text-dark">
+          <i class="bi bi-flag-fill text-primary"></i> Ready to Achieve
+          Financial Peace of Mind?
+        </h3>
+        <p class="lead text-secondary mb-4">
+          <b>Start now</b> and see the difference.<br />
+          No clutter, no confusion—just a beautiful, useful, actionable
+          dashboard for your financial life.
+        </p>
+        <a href="#!" class="btn gradient-btn btn-lg px-5 rounded-pill">
+          <i class="bi bi-check2-circle me-2"></i>
+          Start Planning Today!
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-auto bg-white text-center text-secondary">
+      <div class="container">
+        <span>
+          <i class="bi bi-bar-chart-line"></i>
+          Monthly Budget Tracker & Dashboard &mdash; Made for Smart Money Moves
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

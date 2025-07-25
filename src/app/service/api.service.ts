@@ -8,7 +8,8 @@ import { Planner } from '../model/planner';
 })
 export class ApiService {
 
-  hostUrl="http://budget-planner-alb-1611896233.ap-south-1.elb.amazonaws.com/"
+  hostUrl="http://budget-planner-alb-1611896233.ap-south-1.elb.amazonaws.com/";
+  // hostUrl="localhost:8080/";
 
   constructor(private http: HttpClient) {}
 
