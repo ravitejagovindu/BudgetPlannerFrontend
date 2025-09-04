@@ -7,6 +7,7 @@ import { LedgerComponent } from './ledger/ledger.component';
 import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
 import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,7 +19,8 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
