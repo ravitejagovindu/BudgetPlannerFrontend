@@ -8,7 +8,7 @@ import { Planner } from '../model/planner';
 })
 export class ApiService {
 
-  hostUrl="http://budget-planner-alb-1611896233.ap-south-1.elb.amazonaws.com/";
+  hostUrl="https://final-for-the-day-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/";
   // hostUrl="localhost:8080/";
 
   constructor(private http: HttpClient) {}
