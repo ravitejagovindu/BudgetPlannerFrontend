@@ -14,6 +14,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
 import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,7 @@ import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.
     HttpClientModule,
     HighchartsChartModule
   ],
-  providers: [],
+  providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
