@@ -1,100 +1,53 @@
-<div
-  class="container-fluid py-4 px-0"
-  style="background: linear-gradient(90deg, #e9f7fa 0%, #f6f0fe 100%)"
->
-  <div
-    class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3 px-4"
-  >
+<div class="container-fluid py-4 px-0" style="background: linear-gradient(90deg, #e9f7fa 0%, #f6f0fe 100%)">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3 px-4">
     <h2 class="fw-bold text-dark m-0" style="letter-spacing: 0.01em">
       <i class="bi bi-wallet2 me-2 text-primary"></i>
       Expense Dashboard
     </h2>
-    <div
-      class="d-flex align-items-center gap-2 glassy p-2 rounded-4 shadow-sm"
-      style="background: rgba(255, 255, 255, 0.7)"
-    >
-      <label
-        for="monthPicker"
-        class="form-label fw-semibold text-secondary mb-0 d-flex align-items-center"
-        style="gap: 0.3rem"
-      >
+    <div class="d-flex align-items-center gap-2 glassy p-2 rounded-4 shadow-sm"
+      style="background: rgba(255, 255, 255, 0.7)">
+      <label for="monthPicker" class="form-label fw-semibold text-secondary mb-0 d-flex align-items-center"
+        style="gap: 0.3rem">
         <i class="bi bi-calendar-month-fill text-secondary fs-5"></i> Month
       </label>
-      <input
-        type="month"
-        id="monthPicker"
-        [(ngModel)]="currentMonthYear"
-        (change)="populateLedgers(currentMonthYear)"
-        class="form-control form-control-sm border-0 shadow-none text-primary"
-        style="
+      <input type="month" id="monthPicker" [(ngModel)]="currentMonthYear" (change)="populateLedgers(currentMonthYear)"
+        class="form-control form-control-sm border-0 shadow-none text-primary" style="
           min-width: 120px;
           background: rgba(240, 245, 255, 0.7);
           font-weight: 500;
-        "
-        aria-label="Select month"
-      />
+        " aria-label="Select month" />
     </div>
   </div>
 
   <!-- Card start -->
-  <div
-    class="card border-0 shadow-lg mb-4 rounded-4 bg-white"
-    style="max-width: 1200px; margin: auto"
-  >
+  <div class="card border-0 shadow-lg mb-4 rounded-4 bg-white" style="max-width: 1200px; margin: auto">
     <div class="card-body p-4">
       <form [formGroup]="ledgerEntry" (ngSubmit)="saveLedger()" novalidate>
         <div class="row gx-4 gy-2 align-items-end">
           <div class="col-6 col-md-2">
-            <label for="calendar" class="form-label fw-semibold text-secondary"
-              ><i class="bi bi-calendar-event me-1"></i>Date</label
-            >
-            <input
-              type="date"
-              id="calendar"
-              min="{{ minDate }}"
-              max="{{ maxDate }}"
-              formControlName="date"
-              class="form-control form-control-sm"
-              required
-            />
+            <label for="calendar" class="form-label fw-semibold text-secondary"><i
+                class="bi bi-calendar-event me-1"></i>Date</label>
+            <input type="date" id="calendar" min="{{ minDate }}" max="{{ maxDate }}" formControlName="date"
+              class="form-control form-control-sm" required />
           </div>
 
           <div class="col-6 col-md-2">
-            <label
-              for="typeSelect"
-              class="form-label fw-semibold text-secondary"
-              ><i class="bi bi-card-list me-1"></i>Type</label
-            >
-            <select
-              id="typeSelect"
-              formControlName="type"
-              class="form-select form-select-sm"
-              (change)="showDropdowns()"
-              required
-            >
+            <label for="typeSelect" class="form-label fw-semibold text-secondary"><i
+                class="bi bi-card-list me-1"></i>Type</label>
+            <select id="typeSelect" formControlName="type" class="form-select form-select-sm" (change)="showDropdowns()"
+              required>
               <option value="" disabled selected>Type</option>
-              <option
-                *ngFor="let option of allTypes | keyvalue"
-                [value]="option.key"
-              >
+              <option *ngFor="let option of allTypes | keyvalue" [value]="option.key">
                 {{ option.key }}
               </option>
             </select>
           </div>
 
           <div class="col-6 col-md-2">
-            <label
-              for="categorySelect"
-              class="form-label fw-semibold text-secondary"
-              ><i class="bi bi-tags me-1"></i>Category</label
-            >
-            <select
-              id="categorySelect"
-              formControlName="category"
-              class="form-select form-select-sm"
-              (change)="showSubCategories()"
-              required
-            >
+            <label for="categorySelect" class="form-label fw-semibold text-secondary"><i
+                class="bi bi-tags me-1"></i>Category</label>
+            <select id="categorySelect" formControlName="category" class="form-select form-select-sm"
+              (change)="showSubCategories()" required>
               <option value="" disabled selected>Category</option>
               <option *ngFor="let option of categories" [value]="option">
                 {{ option }}
@@ -103,17 +56,9 @@
           </div>
 
           <div class="col-6 col-md-2">
-            <label
-              for="subCategorySelect"
-              class="form-label fw-semibold text-secondary"
-              ><i class="bi bi-puzzle-fill me-1"></i>Subcategory</label
-            >
-            <select
-              id="subCategorySelect"
-              formControlName="subCategory"
-              class="form-select form-select-sm"
-              required
-            >
+            <label for="subCategorySelect" class="form-label fw-semibold text-secondary"><i
+                class="bi bi-puzzle-fill me-1"></i>Subcategory</label>
+            <select id="subCategorySelect" formControlName="subCategory" class="form-select form-select-sm" required>
               <option value="" disabled selected>Sub Category</option>
               <option *ngFor="let option of subCategories" [value]="option">
                 {{ option }}
@@ -122,39 +67,23 @@
           </div>
 
           <div class="col-6 col-md-2">
-            <label
-              for="amountInput"
-              class="form-label fw-semibold text-secondary d-flex align-items-center"
-              style="gap: 0.3rem"
-            >
+            <label for="amountInput" class="form-label fw-semibold text-secondary d-flex align-items-center"
+              style="gap: 0.3rem">
               <i class="bi bi-currency-rupee text-success fs-5"></i> Amount
             </label>
             <div class="input-group input-group-sm">
               <span class="input-group-text text-success">&#8377;</span>
-              <input
-                id="amountInput"
-                type="number"
-                formControlName="amount"
-                class="form-control"
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-                required
-              />
+              <input id="amountInput" type="number" formControlName="amount" class="form-control" placeholder="0.00"
+                min="0" step="0.01" required />
             </div>
           </div>
 
           <div class="col-6 col-md-2 d-grid">
-            <button
-              type="submit"
-              [disabled]="!ledgerEntry.valid"
-              class="btn btn-gradient-primary btn-sm fw-bold py-2 rounded-3"
-              style="
+            <button type="submit" [disabled]="!ledgerEntry.valid"
+              class="btn btn-gradient-primary btn-sm fw-bold py-2 rounded-3" style="
                 background: linear-gradient(90deg, #005bea, #3ab6f6);
                 border: 0;
-              "
-              aria-label="Add expense entry"
-            >
+              " aria-label="Add expense entry">
               <i class="bi bi-plus-circle me-2 fs-5"></i> Add Entry
             </button>
           </div>
@@ -163,19 +92,18 @@
     </div>
   </div>
 
-  <div
-    class="card border-0 shadow-lg mb-4 rounded-4 bg-white"
-    style="max-width: 1200px; margin: auto"
-  >
+  <div class="card border-0 shadow-lg mb-4 rounded-4 bg-white" style="max-width: 1200px; margin: auto">
     <div class="card-body p-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-secondary fw-semibold mb-0">
           <i class="bi bi-journal-text me-2"></i> Expense Records
+          <i class="bi bi-download" style="cursor:pointer; margin-left:0.5em;" title="Download table"
+            (click)="exportLedgerTableToExcel()"></i>
         </h5>
         <!-- Optional filter/search UI could go here -->
       </div>
       <div class="table-responsive">
-        <table class="table align-middle table-striped table-hover mb-0">
+        <table class="table align-middle table-striped table-hover mb-0" id="ledger-table">
           <thead class="table-primary">
             <tr>
               <th>Date</th>
@@ -190,12 +118,8 @@
             <tr *ngFor="let entry of records.values()">
               <td>
                 <ng-container *ngIf="entry.canEdit; else showDate">
-                  <input
-                    type="date"
-                    class="form-control form-control-sm"
-                    [(ngModel)]="entry.date"
-                    aria-label="Edit date"
-                  />
+                  <input type="date" class="form-control form-control-sm" [(ngModel)]="entry.date"
+                    aria-label="Edit date" />
                 </ng-container>
                 <ng-template #showDate>
                   <span class="fw-semibold text-dark">{{ entry.date }}</span>
@@ -203,12 +127,8 @@
               </td>
               <td>
                 <ng-container *ngIf="entry.canEdit; else showType">
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    [(ngModel)]="entry.type"
-                    aria-label="Edit type"
-                  />
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="entry.type"
+                    aria-label="Edit type" />
                 </ng-container>
                 <ng-template #showType>
                   <span>{{ entry.type }}</span>
@@ -216,12 +136,8 @@
               </td>
               <td>
                 <ng-container *ngIf="entry.canEdit; else showCategory">
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    [(ngModel)]="entry.category"
-                    aria-label="Edit category"
-                  />
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="entry.category"
+                    aria-label="Edit category" />
                 </ng-container>
                 <ng-template #showCategory>
                   <span>{{ entry.category }}</span>
@@ -229,12 +145,8 @@
               </td>
               <td>
                 <ng-container *ngIf="entry.canEdit; else showSubCategory">
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    [(ngModel)]="entry.subCategory"
-                    aria-label="Edit sub category"
-                  />
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="entry.subCategory"
+                    aria-label="Edit sub category" />
                 </ng-container>
                 <ng-template #showSubCategory>
                   <span>{{ entry.subCategory }}</span>
@@ -242,13 +154,8 @@
               </td>
               <td class="text-end fw-semibold">
                 <ng-container *ngIf="entry.canEdit; else showAmount">
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control form-control-sm text-end"
-                    [(ngModel)]="entry.amount"
-                    aria-label="Edit amount"
-                  />
+                  <input type="number" step="0.01" class="form-control form-control-sm text-end"
+                    [(ngModel)]="entry.amount" aria-label="Edit amount" />
                 </ng-container>
                 <ng-template #showAmount>
                   <span class="text-success">₹{{ entry.amount }}</span>
@@ -256,30 +163,16 @@
               </td>
               <td class="text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                  <button
-                    type="button"
-                    class="btn btn-outline-warning d-flex align-items-center gap-1"
-                    (click)="updateLedger(entry)"
-                    title="{{ entry.canEdit ? 'Save' : 'Edit' }}"
-                  >
-                    <i
-                      class="bi"
-                      [ngClass]="
+                  <button type="button" class="btn btn-outline-warning d-flex align-items-center gap-1"
+                    (click)="updateLedger(entry)" title="{{ entry.canEdit ? 'Save' : 'Edit' }}">
+                    <i class="bi" [ngClass]="
                         entry.canEdit ? 'bi-check-lg' : 'bi-pencil-square'
-                      "
-                    ></i>
+                      "></i>
                     {{ entry.canEdit ? "Save" : "Edit" }}
                   </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline-danger d-flex align-items-center gap-1"
-                    (click)="deleteLedger(entry)"
-                    title="{{ entry.canEdit ? 'Cancel' : 'Delete' }}"
-                  >
-                    <i
-                      class="bi"
-                      [ngClass]="entry.canEdit ? 'bi-x-lg' : 'bi-trash'"
-                    ></i>
+                  <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-1"
+                    (click)="deleteLedger(entry)" title="{{ entry.canEdit ? 'Cancel' : 'Delete' }}">
+                    <i class="bi" [ngClass]="entry.canEdit ? 'bi-x-lg' : 'bi-trash'"></i>
                     {{ entry.canEdit ? "Cancel" : "Delete" }}
                   </button>
                 </div>

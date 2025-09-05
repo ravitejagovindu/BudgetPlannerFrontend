@@ -8,6 +8,7 @@ import { SubCategoriesChartData } from '../model/subCategoriesChartData';
 import { OverViewChartData } from '../model/overViewChartData';
 import { Projections } from '../model/projections';
 import * as Highcharts from 'highcharts';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,7 +46,7 @@ export class DashboardComponent implements AfterViewInit {
   projections: OverViewChartData | undefined;
   projectionsByType: Projections[] = [];
 
-  showOverViewColumnChart: boolean = false;
+  showOverViewColumnChart: boolean = true;
 
   constructor(
     private chartServcie: ChartService,
@@ -365,5 +366,43 @@ export class DashboardComponent implements AfterViewInit {
 
   toggleShowOverViewColumnGraph() {
     this.showOverViewColumnChart = !this.showOverViewColumnChart;
+  }
+
+  exportDetailedBreakdownTableToExcel(): void {
+    const element = document.getElementById('detailed-breakdown');
+    if (!element) {
+      alert('Table not found.');
+      return;
+    }
+
+    // Extract year and month from your currentMonthYear variable
+    const [year, month] = this.currentMonthYear.split('-');
+    const monthName = new Date(Number(year), Number(month) - 1).toLocaleString(
+      'default',
+      { month: 'long' }
+    );
+
+    const fileName = `${monthName}_${year}_Overview.xlsx`;
+
+    // Convert table to sheet
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+
+    // Find range of the sheet
+    const range = XLSX.utils.decode_range(ws['!ref'] as string);
+
+    // Remove the last column (Actions column)
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      const cell_address = { c: range.e.c, r: R };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      delete ws[cell_ref];
+    }
+
+    // Update the range to exclude last column
+    range.e.c = range.e.c - 1;
+    ws['!ref'] = XLSX.utils.encode_range(range);
+
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Overview');
+    XLSX.writeFile(wb, fileName);
   }
 }

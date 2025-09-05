@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Ledger } from '../model/ledger';
 import { ApiService } from '../service/api.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-ledger',
   standalone: false,
   templateUrl: './ledger.component.html',
-  styleUrl: './ledger.component.css'
+  styleUrl: './ledger.component.css',
 })
 export class LedgerComponent implements OnInit {
   date = new Date();
@@ -25,7 +26,7 @@ export class LedgerComponent implements OnInit {
     amount: new FormControl(null, Validators.required),
   });
 
-  records: Map<number,any>= new Map();
+  records: Map<number, any> = new Map();
 
   categories: Set<string> | undefined;
   subCategories: string[] | undefined;
@@ -64,8 +65,8 @@ export class LedgerComponent implements OnInit {
     this.apiService
       .getAllLedgersByMonthAndYear(selectedYear, selectedMonth)
       .subscribe((response) => {
-        for(let item of response.data){
-          this.records.set(item.id,item);
+        for (let item of response.data) {
+          this.records.set(item.id, item);
         }
       });
   }
@@ -139,7 +140,7 @@ export class LedgerComponent implements OnInit {
     if (!ledger.canEdit) {
       this.apiService
         .updateLedger(ledger.id, ledger)
-        .subscribe((response) => this.records.set(ledger.id,ledger));
+        .subscribe((response) => this.records.set(ledger.id, ledger));
     }
   }
 
@@ -151,5 +152,43 @@ export class LedgerComponent implements OnInit {
     } else {
       ledger.canEdit = !ledger.canEdit;
     }
+  }
+
+  exportLedgerTableToExcel(): void {
+    const element = document.getElementById('ledger-table');
+    if (!element) {
+      alert('Table not found.');
+      return;
+    }
+
+    // Extract year and month from your currentMonthYear variable
+    const [year, month] = this.currentMonthYear.split('-');
+    const monthName = new Date(Number(year), Number(month) - 1).toLocaleString(
+      'default',
+      { month: 'long' }
+    );
+
+    const fileName = `${monthName}_${year}_Ledger.xlsx`;
+
+    // Convert table to sheet
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+
+    // Find range of the sheet
+    const range = XLSX.utils.decode_range(ws['!ref'] as string);
+
+    // Remove the last column (Actions column)
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      const cell_address = { c: range.e.c, r: R };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      delete ws[cell_ref];
+    }
+
+    // Update the range to exclude last column
+    range.e.c = range.e.c - 1;
+    ws['!ref'] = XLSX.utils.encode_range(range);
+
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Ledger');
+    XLSX.writeFile(wb, fileName);
   }
 }
