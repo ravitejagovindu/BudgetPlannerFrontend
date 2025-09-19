@@ -24,12 +24,14 @@ export class LedgerComponent implements OnInit {
     category: new FormControl('', Validators.required),
     subCategory: new FormControl('', Validators.required),
     amount: new FormControl(null, Validators.required),
+    paidBy: new FormControl('', Validators.required),
   });
 
   records: Map<number, any> = new Map();
 
   categories: Set<string> | undefined;
   subCategories: string[] | undefined;
+  paymentModes: Set<string> | undefined;
 
   allData: any;
   allTypes: Map<string, Set<string>> = new Map();
@@ -94,6 +96,14 @@ export class LedgerComponent implements OnInit {
     }
   }
 
+  populatePaidByDropdown(allData: any) {
+    this.paymentModes = new Set();
+    for (let data of allData) {
+      let paidBy = data.paidBy;
+      this.paymentModes.add(paidBy);
+    }
+  }
+
   showDropdowns() {
     let selectedType = this.ledgerEntry.value.type;
     this.categories = this.allTypes.get(selectedType);
@@ -114,6 +124,7 @@ export class LedgerComponent implements OnInit {
     );
     this.ledgerEntry.controls['subCategory'].enable();
     this.ledgerEntry.controls['amount'].enable();
+    this.ledgerEntry.controls['paidBy'].enable();
   }
 
   saveLedger() {
@@ -128,7 +139,8 @@ export class LedgerComponent implements OnInit {
       formData.type,
       formData.category,
       formData.subCategory,
-      formData.amount
+      formData.amount,
+      formData.paidBy
     );
     this.apiService
       .createLedger(ledger)

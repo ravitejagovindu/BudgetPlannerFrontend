@@ -24,14 +24,14 @@
     <div class="card-body p-4">
       <form [formGroup]="ledgerEntry" (ngSubmit)="saveLedger()" novalidate>
         <div class="row gx-4 gy-2 align-items-end">
-          <div class="col-6 col-md-2">
+          <div class="col-6 col-md">
             <label for="calendar" class="form-label fw-semibold text-secondary"><i
                 class="bi bi-calendar-event me-1"></i>Date</label>
             <input type="date" id="calendar" min="{{ minDate }}" max="{{ maxDate }}" formControlName="date"
               class="form-control form-control-sm" required />
           </div>
 
-          <div class="col-6 col-md-2">
+          <div class="col-6 col-md">
             <label for="typeSelect" class="form-label fw-semibold text-secondary"><i
                 class="bi bi-card-list me-1"></i>Type</label>
             <select id="typeSelect" formControlName="type" class="form-select form-select-sm" (change)="showDropdowns()"
@@ -43,7 +43,7 @@
             </select>
           </div>
 
-          <div class="col-6 col-md-2">
+          <div class="col-6 col-md">
             <label for="categorySelect" class="form-label fw-semibold text-secondary"><i
                 class="bi bi-tags me-1"></i>Category</label>
             <select id="categorySelect" formControlName="category" class="form-select form-select-sm"
@@ -55,7 +55,7 @@
             </select>
           </div>
 
-          <div class="col-6 col-md-2">
+          <div class="col-6 col-md">
             <label for="subCategorySelect" class="form-label fw-semibold text-secondary"><i
                 class="bi bi-puzzle-fill me-1"></i>Subcategory</label>
             <select id="subCategorySelect" formControlName="subCategory" class="form-select form-select-sm" required>
@@ -66,7 +66,7 @@
             </select>
           </div>
 
-          <div class="col-6 col-md-2">
+          <div class="col-6 col-md">
             <label for="amountInput" class="form-label fw-semibold text-secondary d-flex align-items-center"
               style="gap: 0.3rem">
               <i class="bi bi-currency-rupee text-success fs-5"></i> Amount
@@ -78,12 +78,22 @@
             </div>
           </div>
 
-          <div class="col-6 col-md-2 d-grid">
+          <div class="col-6 col-md" *ngIf="(ledgerEntry.get('type')?.value || '') !== 'INCOME'">
+            <label for="paidBySelect" class="form-label fw-semibold text-secondary"><i
+                class="bi bi-puzzle-fill me-1"></i>Paid By</label>
+            <select id="paidBySelect" formControlName="paidBy" class="form-select form-select-sm" required>
+              <option value="" disabled selected>Paid By</option>
+              <option *ngFor="let option of paymentModes" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-6 col-md d-grid">
             <button type="submit" [disabled]="!ledgerEntry.valid"
               class="btn btn-gradient-primary btn-sm fw-bold py-2 rounded-3" style="
                 background: linear-gradient(90deg, #005bea, #3ab6f6);
-                border: 0;
-              " aria-label="Add expense entry">
+                border: 0;" aria-label="Add expense entry">
               <i class="bi bi-plus-circle me-2 fs-5"></i> Add Entry
             </button>
           </div>
@@ -111,6 +121,7 @@
               <th>Category</th>
               <th>Subcategory</th>
               <th class="text-end">Amount (₹)</th>
+              <th>Paid By</th>
               <th class="text-center">Actions</th>
             </tr>
           </thead>
@@ -150,6 +161,15 @@
                 </ng-container>
                 <ng-template #showSubCategory>
                   <span>{{ entry.subCategory }}</span>
+                </ng-template>
+              </td>
+              <td>
+                <ng-container *ngIf="entry.canEdit; else showPaidBy">
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="entry.paidBy"
+                    aria-label="Edit paidBy" />
+                </ng-container>
+                <ng-template #showPaidBy>
+                  <span>{{ entry.paidBy }}</span>
                 </ng-template>
               </td>
               <td class="text-end fw-semibold">

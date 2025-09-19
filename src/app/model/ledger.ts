@@ -1,5 +1,4 @@
 export class Ledger {
-
   constructor(
     public id: number,
     public year: number,
@@ -9,7 +8,7 @@ export class Ledger {
     public category: string,
     public subCategory: string,
     public amount: number,
+    public paidBy: string,
     public canEdit: boolean = false
   ) {}
-
 }
