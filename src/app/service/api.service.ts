@@ -17,6 +17,10 @@ export class ApiService {
     return this.http.get<any>(this.hostUrl+'budget/types');
   }
 
+  getAllPaidBys() {
+    return this.http.get<any>(this.hostUrl+'budget/types');
+  }
+
   getAllPlanners(year: number, month: number) {
     return this.http.get<any>(
       this.hostUrl+'planners?month=' + month + '&year=' + year

@@ -46,11 +46,13 @@ export class LedgerComponent implements OnInit {
 
   ngOnInit(): void {
     this.getMinAndMaxDate();
+    this.apiService.getAllPaidBys().subscribe((response) => {
+      this.populatePaidByDropdown(response.data);
+    });
     this.apiService.getAllBudgetTypes().subscribe((response) => {
       this.allData = response.data;
       this.populateTypesAndCategoriesDropdowns(this.allData);
       this.populateCategoriesAndSubCategoriesDropdowns(this.allData);
-      this.populatePaidByDropdown(this.allData);
     });
     this.populateLedgers(this.currentMonthYear);
   }
@@ -101,6 +103,7 @@ export class LedgerComponent implements OnInit {
   populatePaidByDropdown(allData: any) {
     this.paymentModes = new Set();
     for (let data of allData) {
+      console.log(data);
       let paidBy = data.paidBy;
       this.paymentModes.add(paidBy);
     }
