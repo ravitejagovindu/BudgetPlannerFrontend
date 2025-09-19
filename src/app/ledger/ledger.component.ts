@@ -41,6 +41,7 @@ export class LedgerComponent implements OnInit {
     this.ledgerEntry.controls['category'].disable();
     this.ledgerEntry.controls['subCategory'].disable();
     this.ledgerEntry.controls['amount'].disable();
+    this.ledgerEntry.controls['paidBy'].disable();
   }
 
   ngOnInit(): void {
