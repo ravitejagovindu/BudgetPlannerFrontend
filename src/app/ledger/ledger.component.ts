@@ -49,6 +49,7 @@ export class LedgerComponent implements OnInit {
       this.allData = response.data;
       this.populateTypesAndCategoriesDropdowns(this.allData);
       this.populateCategoriesAndSubCategoriesDropdowns(this.allData);
+      this.populatePaidByDropdown(this.allData);
     });
     this.populateLedgers(this.currentMonthYear);
   }
