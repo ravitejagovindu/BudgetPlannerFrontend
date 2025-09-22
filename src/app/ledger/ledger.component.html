@@ -110,23 +110,102 @@
           <i class="bi bi-download" style="cursor:pointer; margin-left:0.5em;" title="Download table"
             (click)="exportLedgerTableToExcel()"></i>
         </h5>
-        <!-- Optional filter/search UI could go here -->
       </div>
+
+      <!-- Filter Section -->
+      <div class="card mb-4 border-0 bg-light">
+        <div class="card-body p-3">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label for="filterTypeSelect" class="form-label fw-semibold text-secondary">
+                <i class="bi bi-card-list me-1"></i>Filter by Type
+              </label>
+              <select id="filterTypeSelect" class="form-select form-select-sm" [(ngModel)]="filterType"
+                (change)="onFilterChange()">
+                <option value="" disabled selected>All Types</option>
+                <option *ngFor="let type of availableTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label for="filterCategorySelect" class="form-label fw-semibold text-secondary">
+                <i class="bi bi-tags me-1"></i>Filter by Category
+              </label>
+              <select id="filterCategorySelect" class="form-select form-select-sm" [(ngModel)]="filterCategory"
+                (change)="onFilterChange()">
+                <option value="" disabled selected>All Categories</option>
+                <option *ngFor="let category of availableCategories" [value]="category">{{ category }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label for="filterSubCategorySelect" class="form-label fw-semibold text-secondary">
+                <i class="bi bi-puzzle-fill me-1"></i>Sub Category
+              </label>
+              <select id="filterSubCategorySelect" class="form-select form-select-sm" [(ngModel)]="filterSubCategory"
+                (change)="onFilterChange()">
+                <option value="" disabled selected>All Sub Categories</option>
+                <option *ngFor="let subCategory of availableSubCategories" [value]="subCategory">{{ subCategory }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label for="filterPaidBySelect" class="form-label fw-semibold text-secondary">
+                <i class="bi bi-credit-card me-1"></i>Paid By
+              </label>
+              <select id="filterPaidBySelect" class="form-select form-select-sm" [(ngModel)]="filterPaidBy"
+                (change)="onFilterChange()">
+                <option value="" disabled selected>All Payment Methods</option>
+                <option *ngFor="let paidBy of availablePaidBy" [value]="paidBy">{{ paidBy }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-2 d-grid">
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">
+                <i class="bi bi-x-circle me-1"></i>Clear All
+              </button>
+            </div>
+          </div>
+
+          <div class="row mt-2" *ngIf="filterType || filterCategory || filterSubCategory || filterPaidBy">
+            <div class="col-12">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Showing {{ filteredRecords.length }} of {{ records.size }} records
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="table-responsive">
         <table class="table align-middle table-striped table-hover mb-0" id="ledger-table">
           <thead class="table-primary">
             <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Category</th>
-              <th>Subcategory</th>
-              <th>Paid By</th>
-              <th class="text-end">Amount (₹)</th>
+              <th style="cursor: pointer;" (click)="onSortChange('date')">
+                Date <i class="bi ms-1" [ngClass]="getSortIcon('date')"></i>
+              </th>
+              <th style="cursor: pointer;" (click)="onSortChange('type')">
+                Type <i class="bi ms-1" [ngClass]="getSortIcon('type')"></i>
+              </th>
+              <th style="cursor: pointer;" (click)="onSortChange('category')">
+                Category <i class="bi ms-1" [ngClass]="getSortIcon('category')"></i>
+              </th>
+              <th style="cursor: pointer;" (click)="onSortChange('subCategory')">
+                Subcategory <i class="bi ms-1" [ngClass]="getSortIcon('subCategory')"></i>
+              </th>
+              <th style="cursor: pointer;" (click)="onSortChange('paidBy')">
+                Paid By <i class="bi ms-1" [ngClass]="getSortIcon('paidBy')"></i>
+              </th>
+              <th class="text-end" style="cursor: pointer;" (click)="onSortChange('amount')">
+                Amount (₹) <i class="bi ms-1" [ngClass]="getSortIcon('amount')"></i>
+              </th>
               <th class="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let entry of records.values()">
+            <tr *ngFor="let entry of filteredRecords">
               <td>
                 <ng-container *ngIf="entry.canEdit; else showDate">
                   <input type="date" class="form-control form-control-sm" [(ngModel)]="entry.date"
@@ -198,10 +277,15 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="!records || records.size === 0">
-              <td colspan="6" class="text-center text-muted py-3">
-                <i class="bi bi-folder-x me-2 fs-4"></i> No records for this
-                month.
+            <tr *ngIf="!filteredRecords || filteredRecords.length === 0">
+              <td colspan="7" class="text-center text-muted py-3">
+                <i class="bi bi-folder-x me-2 fs-4"></i>
+                <span *ngIf="filterType || filterCategory || filterSubCategory || filterPaidBy; else noRecords">
+                  No records match your filters.
+                </span>
+                <ng-template #noRecords>
+                  No records for this month.
+                </ng-template>
               </td>
             </tr>
           </tbody>

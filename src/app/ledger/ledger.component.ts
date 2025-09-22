@@ -28,6 +28,7 @@ export class LedgerComponent implements OnInit {
   });
 
   records: Map<number, any> = new Map();
+  filteredRecords: any[] = [];
 
   categories: Set<string> | undefined;
   subCategories: string[] | undefined;
@@ -36,6 +37,21 @@ export class LedgerComponent implements OnInit {
   allData: any;
   allTypes: Map<string, Set<string>> = new Map();
   allCategories: Map<string, string[]> = new Map();
+
+  // Filter and Sort properties
+  filterText: string = '';
+  filterType: string = '';
+  filterCategory: string = '';
+  filterSubCategory: string = '';
+  filterPaidBy: string = '';
+  sortColumn: string = 'date'; // Default sort by date
+  sortDirection: 'asc' | 'desc' = 'desc'; // Latest dates first
+
+  // Available options for filtering
+  availableTypes: string[] = [];
+  availableCategories: string[] = [];
+  availableSubCategories: string[] = [];
+  availablePaidBy: string[] = [];
 
   constructor(private apiService: ApiService) {
     this.ledgerEntry.controls['category'].disable();
@@ -74,8 +90,11 @@ export class LedgerComponent implements OnInit {
         for (let item of response.data) {
           this.records.set(item.id, item);
         }
+        this.updateFilteredRecords();
+        this.extractFilterOptions();
       });
   }
+
   populateTypesAndCategoriesDropdowns(allData: any) {
     this.allTypes = new Map();
     for (let data of allData) {
@@ -157,7 +176,10 @@ export class LedgerComponent implements OnInit {
     if (!ledger.canEdit) {
       this.apiService
         .updateLedger(ledger.id, ledger)
-        .subscribe((response) => this.records.set(ledger.id, ledger));
+        .subscribe((response) => {
+          this.records.set(ledger.id, ledger);
+          this.updateFilteredRecords();
+        });
     }
   }
 
@@ -165,10 +187,146 @@ export class LedgerComponent implements OnInit {
     if (!ledger.canEdit) {
       this.apiService
         .deleteLedger(ledger.id)
-        .subscribe((response) => this.records.delete(ledger.id));
+        .subscribe((response) => {
+          this.records.delete(ledger.id);
+          this.updateFilteredRecords();
+        });
     } else {
       ledger.canEdit = !ledger.canEdit;
     }
+  }
+
+  // Filter and Sort Methods
+  extractFilterOptions() {
+    const recordsArray = Array.from(this.records.values());
+    this.availableTypes = [...new Set(recordsArray.map(r => r.type))].sort();
+    this.updateCascadingFilterOptions();
+  }
+
+  updateCascadingFilterOptions() {
+    const recordsArray = Array.from(this.records.values());
+
+    // Filter by type first if selected
+    let filteredForCategories = recordsArray;
+    if (this.filterType) {
+      filteredForCategories = recordsArray.filter(r => r.type === this.filterType);
+    }
+
+    this.availableCategories = [...new Set(filteredForCategories.map(r => r.category))].sort();
+
+    // Filter by category if selected
+    let filteredForSubCategories = filteredForCategories;
+    if (this.filterCategory) {
+      filteredForSubCategories = filteredForCategories.filter(r => r.category === this.filterCategory);
+    }
+
+    this.availableSubCategories = [...new Set(filteredForSubCategories.map(r => r.subCategory))].sort();
+    this.availablePaidBy = [...new Set(recordsArray.map(r => r.paidBy).filter(p => p))].sort();
+  }
+
+  updateFilteredRecords() {
+    let records = Array.from(this.records.values());
+
+    // Apply filters
+    if (this.filterText.trim()) {
+      const searchTerm = this.filterText.toLowerCase();
+      records = records.filter(record =>
+        record.date.toLowerCase().includes(searchTerm) ||
+        record.type.toLowerCase().includes(searchTerm) ||
+        record.category.toLowerCase().includes(searchTerm) ||
+        record.subCategory.toLowerCase().includes(searchTerm) ||
+        (record.paidBy && record.paidBy.toLowerCase().includes(searchTerm)) ||
+        record.amount.toString().includes(searchTerm)
+      );
+    }
+
+    if (this.filterType) {
+      records = records.filter(record => record.type === this.filterType);
+    }
+
+    if (this.filterCategory) {
+      records = records.filter(record => record.category === this.filterCategory);
+    }
+
+    if (this.filterSubCategory) {
+      records = records.filter(record => record.subCategory === this.filterSubCategory);
+    }
+
+    if (this.filterPaidBy) {
+      records = records.filter(record => record.paidBy === this.filterPaidBy);
+    }
+
+    // Apply sorting
+    if (this.sortColumn) {
+      records.sort((a, b) => {
+        let valueA = a[this.sortColumn];
+        let valueB = b[this.sortColumn];
+
+        // Handle numeric sorting for amount
+        if (this.sortColumn === 'amount') {
+          valueA = parseFloat(valueA) || 0;
+          valueB = parseFloat(valueB) || 0;
+        } else {
+          // String comparison
+          valueA = valueA ? valueA.toString().toLowerCase() : '';
+          valueB = valueB ? valueB.toString().toLowerCase() : '';
+        }
+
+        let comparison = 0;
+        if (valueA > valueB) {
+          comparison = 1;
+        } else if (valueA < valueB) {
+          comparison = -1;
+        }
+
+        return this.sortDirection === 'desc' ? comparison * -1 : comparison;
+      });
+    }
+
+    this.filteredRecords = records;
+  }
+
+  onFilterChange() {
+    // Reset dependent filters when parent filter changes
+    if (this.filterType === '') {
+      this.filterCategory = '';
+      this.filterSubCategory = '';
+    }
+    if (this.filterCategory === '') {
+      this.filterSubCategory = '';
+    }
+
+    this.updateCascadingFilterOptions();
+    this.updateFilteredRecords();
+  }
+
+  onSortChange(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.updateFilteredRecords();
+  }
+
+  clearFilters() {
+    this.filterText = '';
+    this.filterType = '';
+    this.filterCategory = '';
+    this.filterSubCategory = '';
+    this.filterPaidBy = '';
+    this.sortColumn = 'date';
+    this.sortDirection = 'desc';
+    this.updateCascadingFilterOptions();
+    this.updateFilteredRecords();
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return 'bi-arrow-down-up';
+    }
+    return this.sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down';
   }
 
   exportLedgerTableToExcel(): void {
@@ -184,7 +342,6 @@ export class LedgerComponent implements OnInit {
       'default',
       { month: 'long' }
     );
-
     const fileName = `${monthName}_${year}_Ledger.xlsx`;
 
     // Convert table to sheet
