@@ -29,7 +29,7 @@
   <!-- Do not edit after this line  -->
   <!-- Projection Summary table and charts -->
   <div class="row">
-    <div class="col-md-6 mb-4">
+    <div class="col-md mb-4">
       <div class="card shadow">
         <div class="card-header bg-info text-white fw-bold">
           Projections Summary
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <div class="col-md-6 mb-6">
+    <div class="col-md mb-6">
       <div class="card shadow">
         <!-- <div class="card-header bg-info text-white fw-bold">
           <div class="row">
@@ -117,6 +117,43 @@
         </div>
       </div>
     </div>
+
+    <div class="col-md mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-info text-white fw-bold">
+          Individual Balances
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover text-center align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Account</th>
+                  <th>Income</th>
+                  <th>Spent</th>
+                  <th>Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let individualBalance of individualBalances">
+                  <td>{{ individualBalance.name }}</td>
+                  <td>₹{{ individualBalance.income }}</td>
+                  <td>₹{{ individualBalance.spent }}</td>
+                  <td>₹{{ individualBalance.balance }}</td>
+                </tr>
+                <tr *ngIf="!individualBalances || individualBalances.length === 0">
+                  <td colspan="6" class="text-center text-muted py-3">
+                    <i class="bi bi-folder-x me-2 fs-4"></i> No records for this
+                    month.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Category Charts -->

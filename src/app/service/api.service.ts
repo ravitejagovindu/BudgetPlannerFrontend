@@ -53,6 +53,16 @@ export class ApiService {
     );
   }
 
+  getIndividualBalances(month: number, year: number) {
+    return this.http.get<any>(
+      this.hostUrl +
+        'dashboard/individualBalances?month=' +
+        month +
+        '&year=' +
+        year
+    );
+  }
+
   getAllLedgersByMonthAndYear(year: number, month: number) {
     return this.http.get<any>(
       this.hostUrl + 'ledgers?month=' + month + '&year=' + year

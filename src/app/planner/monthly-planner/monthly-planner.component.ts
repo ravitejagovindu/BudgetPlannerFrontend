@@ -158,12 +158,12 @@ export class MonthlyPlannerComponent implements OnInit {
   }
 
   toggleShowPlanner() {
-    this.showPlanner = !this.showPlanner;
+    this.showPlanner = true;
     this.editPlanner = false;
   }
   toggleCreatePlanner() {
-    this.editPlanner = !this.editPlanner;
-    this.showPlanner = !this.editPlanner;
+    this.editPlanner = true;
+    this.showPlanner = false;
   }
   toggleShowIncome() {
     this.showIncome = !this.showIncome;

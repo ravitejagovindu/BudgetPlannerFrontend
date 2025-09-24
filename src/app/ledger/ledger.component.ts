@@ -24,7 +24,7 @@ export class LedgerComponent implements OnInit {
     category: new FormControl('', Validators.required),
     subCategory: new FormControl('', Validators.required),
     amount: new FormControl(null, Validators.required),
-    paidBy: new FormControl('', Validators.required),
+    paidBy: new FormControl(''),
   });
 
   records: Map<number, any> = new Map();
@@ -146,6 +146,9 @@ export class LedgerComponent implements OnInit {
     this.ledgerEntry.controls['subCategory'].setValue(
       this.subCategories ? this.subCategories[0] : ''
     );
+    this.ledgerEntry.controls['paidBy'].setValue(
+      this.paymentModes ? this.paymentModes.values().next().value : ''
+    );
     this.ledgerEntry.controls['subCategory'].enable();
     this.ledgerEntry.controls['amount'].enable();
     this.ledgerEntry.controls['paidBy'].enable();
@@ -164,33 +167,37 @@ export class LedgerComponent implements OnInit {
       formData.category,
       formData.subCategory,
       formData.amount,
-      formData.paidBy
+      formData.type === 'INCOME' ? null : formData.paidBy
     );
-    this.apiService
-      .createLedger(ledger)
-      .subscribe((response) => this.populateLedgers(this.currentMonthYear));
+    this.apiService.createLedger(ledger).subscribe((response) => {
+      this.ledgerEntry.reset({
+        date: null,
+        type: '',
+        category: '',
+        subCategory: '',
+        amount: null,
+        paidBy: '',
+      });
+      this.populateLedgers(this.currentMonthYear);
+    });
   }
 
   updateLedger(ledger: Ledger) {
     ledger.canEdit = !ledger.canEdit;
     if (!ledger.canEdit) {
-      this.apiService
-        .updateLedger(ledger.id, ledger)
-        .subscribe((response) => {
-          this.records.set(ledger.id, ledger);
-          this.updateFilteredRecords();
-        });
+      this.apiService.updateLedger(ledger.id, ledger).subscribe((response) => {
+        this.records.set(ledger.id, ledger);
+        this.updateFilteredRecords();
+      });
     }
   }
 
   deleteLedger(ledger: Ledger) {
     if (!ledger.canEdit) {
-      this.apiService
-        .deleteLedger(ledger.id)
-        .subscribe((response) => {
-          this.records.delete(ledger.id);
-          this.updateFilteredRecords();
-        });
+      this.apiService.deleteLedger(ledger.id).subscribe((response) => {
+        this.records.delete(ledger.id);
+        this.updateFilteredRecords();
+      });
     } else {
       ledger.canEdit = !ledger.canEdit;
     }
@@ -199,7 +206,7 @@ export class LedgerComponent implements OnInit {
   // Filter and Sort Methods
   extractFilterOptions() {
     const recordsArray = Array.from(this.records.values());
-    this.availableTypes = [...new Set(recordsArray.map(r => r.type))].sort();
+    this.availableTypes = [...new Set(recordsArray.map((r) => r.type))].sort();
     this.updateCascadingFilterOptions();
   }
 
@@ -209,19 +216,29 @@ export class LedgerComponent implements OnInit {
     // Filter by type first if selected
     let filteredForCategories = recordsArray;
     if (this.filterType) {
-      filteredForCategories = recordsArray.filter(r => r.type === this.filterType);
+      filteredForCategories = recordsArray.filter(
+        (r) => r.type === this.filterType
+      );
     }
 
-    this.availableCategories = [...new Set(filteredForCategories.map(r => r.category))].sort();
+    this.availableCategories = [
+      ...new Set(filteredForCategories.map((r) => r.category)),
+    ].sort();
 
     // Filter by category if selected
     let filteredForSubCategories = filteredForCategories;
     if (this.filterCategory) {
-      filteredForSubCategories = filteredForCategories.filter(r => r.category === this.filterCategory);
+      filteredForSubCategories = filteredForCategories.filter(
+        (r) => r.category === this.filterCategory
+      );
     }
 
-    this.availableSubCategories = [...new Set(filteredForSubCategories.map(r => r.subCategory))].sort();
-    this.availablePaidBy = [...new Set(recordsArray.map(r => r.paidBy).filter(p => p))].sort();
+    this.availableSubCategories = [
+      ...new Set(filteredForSubCategories.map((r) => r.subCategory)),
+    ].sort();
+    this.availablePaidBy = [
+      ...new Set(recordsArray.map((r) => r.paidBy).filter((p) => p)),
+    ].sort();
   }
 
   updateFilteredRecords() {
@@ -230,30 +247,35 @@ export class LedgerComponent implements OnInit {
     // Apply filters
     if (this.filterText.trim()) {
       const searchTerm = this.filterText.toLowerCase();
-      records = records.filter(record =>
-        record.date.toLowerCase().includes(searchTerm) ||
-        record.type.toLowerCase().includes(searchTerm) ||
-        record.category.toLowerCase().includes(searchTerm) ||
-        record.subCategory.toLowerCase().includes(searchTerm) ||
-        (record.paidBy && record.paidBy.toLowerCase().includes(searchTerm)) ||
-        record.amount.toString().includes(searchTerm)
+      records = records.filter(
+        (record) =>
+          record.date.toLowerCase().includes(searchTerm) ||
+          record.type.toLowerCase().includes(searchTerm) ||
+          record.category.toLowerCase().includes(searchTerm) ||
+          record.subCategory.toLowerCase().includes(searchTerm) ||
+          (record.paidBy && record.paidBy.toLowerCase().includes(searchTerm)) ||
+          record.amount.toString().includes(searchTerm)
       );
     }
 
     if (this.filterType) {
-      records = records.filter(record => record.type === this.filterType);
+      records = records.filter((record) => record.type === this.filterType);
     }
 
     if (this.filterCategory) {
-      records = records.filter(record => record.category === this.filterCategory);
+      records = records.filter(
+        (record) => record.category === this.filterCategory
+      );
     }
 
     if (this.filterSubCategory) {
-      records = records.filter(record => record.subCategory === this.filterSubCategory);
+      records = records.filter(
+        (record) => record.subCategory === this.filterSubCategory
+      );
     }
 
     if (this.filterPaidBy) {
-      records = records.filter(record => record.paidBy === this.filterPaidBy);
+      records = records.filter((record) => record.paidBy === this.filterPaidBy);
     }
 
     // Apply sorting

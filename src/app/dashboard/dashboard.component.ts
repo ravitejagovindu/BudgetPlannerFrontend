@@ -9,6 +9,7 @@ import { OverViewChartData } from '../model/overViewChartData';
 import { Projections } from '../model/projections';
 import * as Highcharts from 'highcharts';
 import * as XLSX from 'xlsx';
+import { IndividualBalances } from '../model/individualBalances';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,6 +37,7 @@ export class DashboardComponent implements AfterViewInit {
   }`;
   allLedgerData: Map<number, Map<string, ChartTable[]>> = new Map();
   tableData: ChartTable[] = [];
+  individualBalances: IndividualBalances[] = [];
   subCategoriesChartData: SubCategoriesChartData[] = [];
   expenseSubCategories: Map<
     string,
@@ -121,6 +123,11 @@ export class DashboardComponent implements AfterViewInit {
         this.projections = response.data;
         this.projectionsByType.push(...response.data.projectionsByType);
         this.populateOverviewChart(this.projectionsByType);
+      });
+    this.apiService
+      .getIndividualBalances(monthNumber, selectedYear)
+      .subscribe((response) => {
+        this.individualBalances = response.data;
       });
   }
 
