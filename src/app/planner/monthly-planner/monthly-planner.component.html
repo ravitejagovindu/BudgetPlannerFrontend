@@ -1,515 +1,413 @@
-<div
-  class="container-fluid py-4 px-0"
-  style="background: linear-gradient(90deg, #e9f7fa 0%, #f6f0fe 100%)"
->
-  <!-- Planner Action Buttons -->
-  <div
-    class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3 px-4"
-  >
-    <button
-      (click)="toggleShowPlanner()"
-      class="btn btn-outline-primary d-flex align-items-center gap-2 shadow-sm"
-      type="button"
-      aria-label="Show planner for year"
-    >
-      <i class="bi bi-calendar-check text-primary fs-5"></i>
-      {{ "Show Planner For " + year }}
-    </button>
-    <button
-      (click)="toggleCreatePlanner()"
-      class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-      type="button"
-      aria-label="Add planner for year"
-    >
-      <i class="bi bi-plus-circle fs-5"></i>
-      {{ "Add Planner For " + year }}
-    </button>
+<div class="container-fluid planner-container fade-in">
+  <!-- Page Header -->
+  <div class="planner-header">
+    <div class="row align-items-center mb-4">
+      <div class="col-md-10">
+        <h1 class="page-title">
+          <i class="bi bi-calendar-check me-2"></i>Monthly Planner
+        </h1>
+        <p class="page-subtitle">Plan and project your monthly financial goals</p>
+      </div>
+      <div class="col-md-2">
+        <div class="d-flex align-items-center gap-2 glassy p-2 rounded-4 shadow-sm"
+          style="background: rgba(255, 255, 255, 0.7)">
+          <label for="monthPicker" class="form-label fw-semibold text-secondary mb-0 d-flex align-items-center"
+            style="gap: 0.3rem">
+            <i class="bi bi-calendar-fill text-secondary fs-5"></i> Month
+          </label>
+          <input type="month" id="monthPicker" [(ngModel)]="currentMonthYear" (change)="fetchRecords(currentMonthYear)"
+            class="form-control form-control-sm border-0 shadow-none text-primary" style="
+          min-width: 120px;
+          background: rgba(240, 245, 255, 0.7);
+          font-weight: 500;
+        " aria-label="Select month" />
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="px-4">
-    <!-- Planner Entry Form -->
-    <ng-container *ngIf="editPlanner">
-      <div
-        class="card border-0 shadow-lg mb-4 rounded-4 bg-white"
-        style="max-width: 1200px; margin: auto"
-      >
-        <div class="card-body p-4">
-          <form [formGroup]="plannerEntry" (ngSubmit)="save()" novalidate>
-            <div class="row gx-4 gy-2 align-items-end">
-              <div class="col-6 col-md-1">
-                <label
-                  class="form-label fw-semibold text-secondary"
-                  for="yearInput"
-                >
-                  <i class="bi bi-calendar3 me-1"></i>Year
-                </label>
-                <input
-                  type="text"
-                  id="yearInput"
-                  class="form-control form-control-sm bg-light text-primary fw-bold"
-                  readonly
-                  [value]="year"
-                  aria-readonly="true"
-                />
+  <!-- Quick Stats -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="stats-overview">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="stat-card savings-stat">
+              <div class="stat-icon">
+                <i class="bi bi-arrow-up-circle"></i>
               </div>
+              <div class="stat-content">
+                <h6 class="stat-label fw-bold">Income Planned</h6>
+                <h4 class="stat-value">₹{{ getTotalByType('INCOME') | number:'1.2-2' }}</h4>
+                <small class="stat-count">{{incomeRecords.size}} items</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card savings-stat">
+              <div class="stat-icon">
+                <i class="bi bi-arrow-down-circle"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label fw-bold">Expenses Planned</h6>
+                <h4 class="stat-value">₹{{ getTotalByType('EXPENSE') | number:'1.2-2' }}</h4>
+                <small class="stat-count">{{expenseRecords.size}} items</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card savings-stat">
+              <div class="stat-icon">
+                <i class="bi bi-piggy-bank"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label fw-bold">Savings Planned</h6>
+                <h4 class="stat-value">₹{{ getTotalByType('SAVING') | number:'1.2-2' }}</h4>
+                <small class="stat-count">{{savingsRecords.size}} items</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card savings-stat">
+              <div class="stat-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label fw-bold">Investments Planned</h6>
+                <h4 class="stat-value">₹{{ getTotalByType('INVESTMENT') | number:'1.2-2' }}</h4>
+                <small class="stat-count">{{investmentsRecords.size}} items</small>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              <div class="col-6 col-md-2">
-                <label
-                  for="typeSelect"
-                  class="form-label fw-semibold text-secondary"
-                >
-                  <i class="bi bi-card-list me-1"></i>Type
-                </label>
-                <select
-                  id="typeSelect"
-                  formControlName="type"
-                  class="form-select form-select-sm"
-                  (change)="showCategories()"
-                  required
-                  aria-required="true"
-                >
-                  <option value="" disabled selected>Type</option>
-                  <option
-                    *ngFor="let option of allTypes | keyvalue"
-                    [value]="option.key"
-                  >
-                    {{ option.key }}
-                  </option>
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="balance-summary">
+              <div class="balance-card">
+                <h6 class="balance-label">Remaining Balance to Plan</h6>
+                <h3 class="balance-amount" [ngClass]="getBalanceClass(remainingBalanceToPlan)">
+                  ₹{{ remainingBalanceToPlan | number:'1.2-2' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert for Higher Amount -->
+  <div class="row" *ngIf="showHigherAmountAlert">
+    <div class="col-12">
+      <div class="alert alert-warning alert-dismissible" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Warning!</strong> The entered amount exceeds your remaining balance to plan.
+        <button type="button" class="btn-close" (click)="showHigherAmountAlert = false"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Planning Form Section -->
+  <div class="row mb-4" *ngIf="showPlanner">
+    <div class="col-12">
+      <div class="card planning-form-card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-plus-circle me-2"></i>Add New Planning Entry
+            </h5>
+            <button class="btn btn-secondary btn-sm" (click)="toggleCreatePlanner()">
+              <i class="bi bi-eye me-1"></i>View Plans
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="plannerEntry" (ngSubmit)="save()">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label for="type" class="form-label">Type</label>
+                <select class="form-select" id="type" formControlName="type" (change)="showCategories()" required>
+                  <option value="">Select Type</option>
+                  <option *ngFor="let type of allTypes.keys()" [value]="type">{{type}}</option>
                 </select>
               </div>
-
-              <div class="col-6 col-md-3">
-                <label
-                  for="categorySelect"
-                  class="form-label fw-semibold text-secondary"
-                >
-                  <i class="bi bi-tags me-1"></i>Category
-                </label>
-                <select
-                  id="categorySelect"
-                  formControlName="category"
-                  class="form-select form-select-sm"
-                  required
-                  aria-required="true"
-                >
-                  <option value="" disabled selected>Category</option>
-                  <option *ngFor="let option of categories" [value]="option">
-                    {{ option }}
-                  </option>
+              <div class="col-md-4">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" formControlName="category" required>
+                  <option value="">Select Category</option>
+                  <option *ngFor="let category of categories" [value]="category">{{category}}</option>
                 </select>
               </div>
-
-              <div class="col-6 col-md-3">
-                <label
-                  for="amountInput"
-                  class="form-label fw-semibold text-secondary d-flex align-items-center"
-                  style="gap: 0.3rem"
-                >
-                  <i class="bi bi-currency-rupee text-success fs-5"></i>Amount
-                </label>
-                <div class="input-group input-group-sm">
-                  <span class="input-group-text text-success">&#8377;</span>
-                  <input
-                    id="amountInput"
-                    type="text"
-                    formControlName="amount"
-                    class="form-control"
-                    placeholder="Enter amount"
-                    aria-describedby="amountInputHelp"
-                  />
-                </div>
+              <div class="col-md-4">
+                <label for="amount" class="form-label">Amount (₹)</label>
+                <input type="number" class="form-control" id="amount" formControlName="amount"
+                  (input)="validateEnteredAmount(plannerEntry.controls['amount'].value)" required min="0" step="0.01"
+                  placeholder="Enter amount">
               </div>
+            </div>
 
-              <div class="col-6 col-md-1 d-grid">
-                <button
-                  type="submit"
-                  [disabled]="!plannerEntry.valid"
-                  class="btn btn-gradient-primary btn-sm fw-bold py-2 rounded-3"
-                  style="
-                    background: linear-gradient(90deg, #005bea, #3ab6f6);
-                    border: 0;
-                  "
-                  aria-label="Submit planner entry"
-                >
-                  <i class="bi bi-check-circle me-2 fs-5"></i>
-                  Submit
-                </button>
-              </div>
+            <div class="form-actions mt-4">
+              <button type="submit" class="btn btn-success me-3" [disabled]="!plannerEntry.valid">
+                <i class="bi bi-check-circle me-2"></i>Add to Plan
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="plannerEntry.reset()">
+                <i class="bi bi-arrow-clockwise me-2"></i>Reset Form
+              </button>
             </div>
           </form>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Remaining Balance Card -->
-      <div class="mx-auto mb-4" style="max-width: 450px">
-        <div
-          class="card bg-success bg-opacity-75 border-0 shadow text-white text-center p-3 rounded-4"
-          role="region"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <h5 class="fw-semibold mb-1">
-            <i class="bi bi-wallet2 me-2"></i>Remaining Balance
-          </h5>
-          <div class="display-6 fw-bold">{{ remainingBalanceToPlan }}</div>
-        </div>
-      </div>
-
-      <!-- Alert -->
-      <div
-        *ngIf="showHigherAmountAlert"
-        class="alert alert-danger alert-dismissible fade show mx-auto shadow-sm"
-        style="max-width: 700px"
-        role="alert"
-        aria-live="assertive"
-      >
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <strong>Adding Planner Failed!</strong> Entered amount is higher than
-        remaining balance.
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-    </ng-container>
-
-    <!-- Planner Display Section -->
-    <ng-container *ngIf="showPlanner">
-      <div class="row gx-3 align-items-center mb-4 px-3">
-        <div class="col-auto">
-          <input
-            type="month"
-            [(ngModel)]="currentMonthYear"
-            (change)="fetchRecords(currentMonthYear)"
-            class="form-control form-control-sm bg-primary text-white shadow-sm"
-            style="min-width: 140px; font-weight: 500"
-            aria-label="Select month for planner"
-          />
-        </div>
-
-        <div class="col-auto d-flex flex-wrap gap-2">
-          <button
-            class="btn btn-outline-success d-flex align-items-center gap-2 shadow-sm"
-            (click)="toggleShowIncome()"
-            type="button"
-            aria-label="Show income projections"
-          >
-            <i class="bi bi-cash-coin"></i> Income
-          </button>
-          <button
-            class="btn btn-outline-secondary d-flex align-items-center gap-2 shadow-sm"
-            (click)="toggleShowSavings()"
-            type="button"
-            aria-label="Show savings projections"
-          >
-            <i class="bi bi-piggy-bank"></i> Savings
-          </button>
-          <button
-            class="btn btn-outline-info d-flex align-items-center gap-2 shadow-sm"
-            (click)="toggleShowInvestments()"
-            type="button"
-            aria-label="Show investments projections"
-          >
-            <i class="bi bi-bar-chart-fill"></i> Investments
-          </button>
-          <button
-            class="btn btn-outline-danger d-flex align-items-center gap-2 shadow-sm"
-            (click)="toggleShowExpenses()"
-            type="button"
-            aria-label="Show expenses projections"
-          >
-            <i class="bi bi-basket-fill"></i> Expenses
-          </button>
-        </div>
-      </div>
-
-      <div class="px-3">
-        <!-- Income Records Section -->
-        <div *ngIf="showIncome" class="card shadow-sm mb-3">
-          <div
-            class="card-header bg-success text-white d-flex align-items-center gap-2"
-          >
-            <i class="bi bi-cash-coin"></i>
-            <strong>Income Projections</strong>
-          </div>
-          <div class="card-body p-0">
-            <table class="table table-striped table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Category</th>
-                  <th>Projection</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let record of incomeRecords">
-                  <td>{{ record.category }}</td>
-                  <td>
-                    <ng-container *ngIf="record.canEdit; else viewIncome">
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="record.projected"
-                        aria-label="Edit income projection"
-                      />
-                    </ng-container>
-                    <ng-template #viewIncome>{{
-                      record.projected
-                    }}</ng-template>
-                  </td>
-                  <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                      <button
-                        (click)="editProjection(currentMonthYear, record)"
-                        class="btn btn-warning d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Save' : 'Edit' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-check-circle' : 'bi-pencil'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Save" : "Edit" }}
-                      </button>
-                      <button
-                        (click)="deleteProjection(currentMonthYear, record)"
-                        class="btn btn-danger d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Cancel' : 'Delete' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-x-circle' : 'bi-trash'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Cancel" : "Delete" }}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+  <!-- Planning Categories Section -->
+  <div class="row mb-4" *ngIf="editPlanner">
+    <div class="col-12">
+      <div class="card categories-card">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-list-ul me-2"></i>Your Financial Planning
+            </h5>
+            <button class="btn btn-primary btn-sm" (click)="toggleShowPlanner()">
+              <i class="bi bi-plus me-1"></i>Add New Entry
+            </button>
           </div>
         </div>
+        <div class="card-body">
+          <!-- Category Toggle Buttons -->
+          <div class="category-toggles mb-4">
+            <div class="btn-group" role="group">
+              <input type="radio" class="btn-check" name="categoryToggle" id="income-toggle" [checked]="showIncome"
+                (change)="toggleShowIncome()">
+              <label class="btn btn-outline-success" for="income-toggle">
+                <i class="bi bi-arrow-up-circle me-1"></i>Income ({{incomeRecords.size}})
+              </label>
 
-        <!-- Savings Section -->
-        <div *ngIf="showSavings" class="card shadow-sm mb-3">
-          <div
-            class="card-header bg-secondary text-white d-flex align-items-center gap-2"
-          >
-            <i class="bi bi-piggy-bank"></i>
-            <strong>Savings Projections</strong>
-          </div>
-          <div class="card-body p-0">
-            <table class="table table-striped table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Category</th>
-                  <th>Projection</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let record of savingsRecords">
-                  <td>{{ record.category }}</td>
-                  <td>
-                    <ng-container *ngIf="record.canEdit; else viewSavings">
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="record.projected"
-                        aria-label="Edit savings projection"
-                      />
-                    </ng-container>
-                    <ng-template #viewSavings>{{
-                      record.projected
-                    }}</ng-template>
-                  </td>
-                  <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                      <button
-                        (click)="editProjection(currentMonthYear, record)"
-                        class="btn btn-warning d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Save' : 'Edit' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-check-circle' : 'bi-pencil'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Save" : "Edit" }}
-                      </button>
-                      <button
-                        (click)="deleteProjection(currentMonthYear, record)"
-                        class="btn btn-danger d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Cancel' : 'Delete' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-x-circle' : 'bi-trash'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Cancel" : "Delete" }}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+              <input type="radio" class="btn-check" name="categoryToggle" id="expense-toggle" [checked]="showExpenses"
+                (change)="toggleShowExpenses()">
+              <label class="btn btn-outline-danger" for="expense-toggle">
+                <i class="bi bi-arrow-down-circle me-1"></i>Expenses ({{expenseRecords.size}})
+              </label>
 
-        <!-- Investments Section -->
-        <div *ngIf="showInvestments" class="card shadow-sm mb-3">
-          <div
-            class="card-header bg-info text-white d-flex align-items-center gap-2"
-          >
-            <i class="bi bi-bar-chart-fill"></i>
-            <strong>Investments Projections</strong>
-          </div>
-          <div class="card-body p-0">
-            <table class="table table-striped table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Category</th>
-                  <th>Projection</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let record of investmentsRecords">
-                  <td>{{ record.category }}</td>
-                  <td>
-                    <ng-container *ngIf="record.canEdit; else viewInvestments">
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="record.projected"
-                        aria-label="Edit investments projection"
-                      />
-                    </ng-container>
-                    <ng-template #viewInvestments>{{
-                      record.projected
-                    }}</ng-template>
-                  </td>
-                  <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                      <button
-                        (click)="editProjection(currentMonthYear, record)"
-                        class="btn btn-warning d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Save' : 'Edit' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-check-circle' : 'bi-pencil'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Save" : "Edit" }}
-                      </button>
-                      <button
-                        (click)="deleteProjection(currentMonthYear, record)"
-                        class="btn btn-danger d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Cancel' : 'Delete' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-x-circle' : 'bi-trash'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Cancel" : "Delete" }}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+              <input type="radio" class="btn-check" name="categoryToggle" id="savings-toggle" [checked]="showSavings"
+                (change)="toggleShowSavings()">
+              <label class="btn btn-outline-info" for="savings-toggle">
+                <i class="bi bi-piggy-bank me-1"></i>Savings ({{savingsRecords.size}})
+              </label>
 
-        <!-- Expenses Section -->
-        <div *ngIf="showExpenses" class="card shadow-sm mb-3">
-          <div
-            class="card-header bg-danger text-white d-flex align-items-center gap-2"
-          >
-            <i class="bi bi-basket-fill"></i>
-            <strong>Expenses Projections</strong>
+              <input type="radio" class="btn-check" name="categoryToggle" id="investments-toggle"
+                [checked]="showInvestments" (change)="toggleShowInvestments()">
+              <label class="btn btn-outline-warning" for="investments-toggle">
+                <i class="bi bi-graph-up-arrow me-1"></i>Investments ({{investmentsRecords.size}})
+              </label>
+            </div>
           </div>
-          <div class="card-body p-0">
-            <table class="table table-striped table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>Category</th>
-                  <th>Projection</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let record of expenseRecords">
-                  <td>{{ record.category }}</td>
-                  <td>
-                    <ng-container *ngIf="record.canEdit; else viewExpenses">
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="record.projected"
-                        aria-label="Edit expenses projection"
-                      />
-                    </ng-container>
-                    <ng-template #viewExpenses>
-                      {{ record.projected }}
-                    </ng-template>
-                  </td>
-                  <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                      <button
-                        (click)="editProjection(currentMonthYear, record)"
-                        class="btn btn-warning d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Save' : 'Edit' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-check-circle' : 'bi-pencil'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Save" : "Edit" }}
-                      </button>
-                      <button
-                        (click)="deleteProjection(currentMonthYear, record)"
-                        class="btn btn-danger d-flex align-items-center gap-1"
-                        type="button"
-                        title="{{ record.canEdit ? 'Cancel' : 'Delete' }}"
-                      >
-                        <i
-                          class="bi"
-                          [ngClass]="
-                            record.canEdit ? 'bi-x-circle' : 'bi-trash'
-                          "
-                        ></i>
-                        {{ record.canEdit ? "Cancel" : "Delete" }}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+
+          <!-- Income Records -->
+          <div *ngIf="showIncome" class="planning-section income-section">
+            <h6 class="section-title">
+              <i class="bi bi-arrow-up-circle text-success me-2"></i>Income Planning
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-hover planning-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Projected Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let record of incomeRecords" class="table-row-animate">
+                    <td class="category-cell">
+                      <span *ngIf="!record.canEdit">{{record.category}}</span>
+                      <select *ngIf="record.canEdit" class="form-select form-select-sm" [(ngModel)]="record.category">
+                        <option *ngFor="let category of allTypes.get('INCOME')" [value]="category">{{category}}</option>
+                      </select>
+                    </td>
+                    <td class="projection-cell income-amount">
+                      <span *ngIf="!record.canEdit">₹{{record.projected | number:'1.2-2'}}</span>
+                      <input *ngIf="record.canEdit" type="number" class="form-control form-control-sm"
+                        [(ngModel)]="record.projected" min="0" step="0.01">
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <button class="btn btn-warning btn-sm me-1" (click)="editProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Save' : 'Edit'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-check' : 'bi-pencil'"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Cancel' : 'Delete'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-x' : 'bi-trash'"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="incomeRecords.size === 0">
+                    <td colspan="3" class="no-data-message">
+                      <i class="bi bi-info-circle me-2"></i>No income planning entries yet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Expense Records -->
+          <div *ngIf="showExpenses" class="planning-section expense-section">
+            <h6 class="section-title">
+              <i class="bi bi-arrow-down-circle text-danger me-2"></i>Expense Planning
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-hover planning-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Projected Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let record of expenseRecords" class="table-row-animate">
+                    <td class="category-cell">
+                      <span *ngIf="!record.canEdit">{{record.category}}</span>
+                      <select *ngIf="record.canEdit" class="form-select form-select-sm" [(ngModel)]="record.category">
+                        <option *ngFor="let category of allTypes.get('EXPENSE')" [value]="category">{{category}}
+                        </option>
+                      </select>
+                    </td>
+                    <td class="projection-cell expense-amount">
+                      <span *ngIf="!record.canEdit">₹{{record.projected | number:'1.2-2'}}</span>
+                      <input *ngIf="record.canEdit" type="number" class="form-control form-control-sm"
+                        [(ngModel)]="record.projected" min="0" step="0.01">
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <button class="btn btn-warning btn-sm me-1" (click)="editProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Save' : 'Edit'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-check' : 'bi-pencil'"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Cancel' : 'Delete'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-x' : 'bi-trash'"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="expenseRecords.size === 0">
+                    <td colspan="3" class="no-data-message">
+                      <i class="bi bi-info-circle me-2"></i>No expense planning entries yet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Savings Records -->
+          <div *ngIf="showSavings" class="planning-section savings-section">
+            <h6 class="section-title">
+              <i class="bi bi-piggy-bank text-info me-2"></i>Savings Planning
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-hover planning-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Projected Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let record of savingsRecords" class="table-row-animate">
+                    <td class="category-cell">
+                      <span *ngIf="!record.canEdit">{{record.category}}</span>
+                      <select *ngIf="record.canEdit" class="form-select form-select-sm" [(ngModel)]="record.category">
+                        <option *ngFor="let category of allTypes.get('SAVING')" [value]="category">{{category}}</option>
+                      </select>
+                    </td>
+                    <td class="projection-cell savings-amount">
+                      <span *ngIf="!record.canEdit">₹{{record.projected | number:'1.2-2'}}</span>
+                      <input *ngIf="record.canEdit" type="number" class="form-control form-control-sm"
+                        [(ngModel)]="record.projected" min="0" step="0.01">
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <button class="btn btn-warning btn-sm me-1" (click)="editProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Save' : 'Edit'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-check' : 'bi-pencil'"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Cancel' : 'Delete'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-x' : 'bi-trash'"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="savingsRecords.size === 0">
+                    <td colspan="3" class="no-data-message">
+                      <i class="bi bi-info-circle me-2"></i>No savings planning entries yet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Investment Records -->
+          <div *ngIf="showInvestments" class="planning-section investments-section">
+            <h6 class="section-title">
+              <i class="bi bi-graph-up-arrow text-warning me-2"></i>Investment Planning
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-hover planning-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Projected Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let record of investmentsRecords" class="table-row-animate">
+                    <td class="category-cell">
+                      <span *ngIf="!record.canEdit">{{record.category}}</span>
+                      <select *ngIf="record.canEdit" class="form-select form-select-sm" [(ngModel)]="record.category">
+                        <option *ngFor="let category of allTypes.get('INVESTMENT')" [value]="category">{{category}}
+                        </option>
+                      </select>
+                    </td>
+                    <td class="projection-cell investment-amount">
+                      <span *ngIf="!record.canEdit">₹{{record.projected | number:'1.2-2'}}</span>
+                      <input *ngIf="record.canEdit" type="number" class="form-control form-control-sm"
+                        [(ngModel)]="record.projected" min="0" step="0.01">
+                    </td>
+                    <td class="actions-cell">
+                      <div class="action-buttons">
+                        <button class="btn btn-warning btn-sm me-1" (click)="editProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Save' : 'Edit'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-check' : 'bi-pencil'"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="deleteProjection(currentMonthYear, record)"
+                          [title]="record.canEdit ? 'Cancel' : 'Delete'">
+                          <i class="bi" [ngClass]="record.canEdit ? 'bi-x' : 'bi-trash'"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="investmentsRecords.size === 0">
+                    <td colspan="3" class="no-data-message">
+                      <i class="bi bi-info-circle me-2"></i>No investment planning entries yet.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </ng-container>
+    </div>
   </div>
 </div>

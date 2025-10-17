@@ -189,4 +189,36 @@ export class MonthlyPlannerComponent implements OnInit {
     this.showInvestments = false;
     this.showExpenses = true;
   }
+
+  // NEW HELPER METHODS FOR ENHANCED UI (Added for CSS styling support)
+  getTotalByType(type: string): number {
+    let total = 0;
+    switch (type) {
+      case 'INCOME':
+        this.incomeRecords.forEach((record) => (total += record.projected));
+        break;
+      case 'EXPENSE':
+        this.expenseRecords.forEach((record) => (total += record.projected));
+        break;
+      case 'SAVING':
+        this.savingsRecords.forEach((record) => (total += record.projected));
+        break;
+      case 'INVESTMENT':
+        this.investmentsRecords.forEach(
+          (record) => (total += record.projected)
+        );
+        break;
+    }
+    return total;
+  }
+
+  getBalanceClass(balance: number): string {
+    if (balance > 0) return 'status-positive';
+    if (balance < 0) return 'status-negative';
+    return 'status-neutral';
+  }
+
+  get monthControl(): FormControl {
+    return this.plannerEntry.get('month') as FormControl;
+  }
 }
