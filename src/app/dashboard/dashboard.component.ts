@@ -51,6 +51,8 @@ export class DashboardComponent implements AfterViewInit {
   expenseCategories: Set<string> | undefined = new Set();
   projections: OverViewChartData | undefined;
   projectionsByType: Projections[] = [];
+  incomeProjections: Projections[] = [];
+  otherProjections: Projections[] = [];
 
   showOverViewColumnChart: boolean = true;
 
@@ -118,6 +120,7 @@ export class DashboardComponent implements AfterViewInit {
           expenseSubCategoriesByCategory
         );
       });
+      const selCat = expenseSubCategoriesByMonth.get(selectedMonth);
       this.populateSubCategoriesChart(selectedYear, selectedMonth, '');
     });
     this.fetchOverview(selectedYear, parseInt(monthNumber));
@@ -131,6 +134,13 @@ export class DashboardComponent implements AfterViewInit {
       .subscribe((response) => {
         this.projections = response.data;
         this.projectionsByType.push(...response.data.projectionsByType);
+        this.projectionsByType.forEach((projection) => {
+          if (projection.type == 'INCOME') {
+            this.incomeProjections.push(projection);
+          } else {
+            this.otherProjections.push(projection);
+          }
+        });
         this.populateOverviewChart(this.projectionsByType);
       });
     this.apiService
@@ -284,6 +294,9 @@ export class DashboardComponent implements AfterViewInit {
 
   populateChartTable(selectedMonth: string) {
     this.expenseData = [];
+    this.savingsData = [];
+    this.investmentData = [];
+    this.incomeData = [];
     let allLedgersByYear = this.allLedgerData.get(this.year);
     if (!allLedgersByYear) allLedgersByYear = new Map();
     let allLedgersByMonth = allLedgersByYear.get(selectedMonth);
@@ -499,5 +512,37 @@ export class DashboardComponent implements AfterViewInit {
     }
     const percentage = (actual / projected) * 100;
     return Math.round(percentage);
+  }
+
+  // NEW HELPER METHODS FOR ENHANCED UI (Added for CSS styling support)
+  getSummaryCardClass(difference: number): string {
+    if (difference > 0) return 'positive-card';
+    if (difference < 0) return 'negative-card';
+    return 'neutral-card';
+  }
+
+  getDifferenceClass(difference: number): string {
+    if (difference > 0) return 'status-positive';
+    if (difference < 0) return 'status-negative';
+    return 'status-neutral';
+  }
+
+  getSummaryCardIcon(type: string): string {
+    const types = new Map();
+    types.set('INCOME', 'bi bi-arrow-down-circle');
+    types.set('EXPENSE', 'bi bi-arrow-up-circle');
+    types.set('SAVING', 'bi bi-piggy-bank');
+    types.set('INVESTMENT', 'bi bi-graph-up-arrow');
+    return types.get(type) || 'bi bi-circle';
+  }
+
+  getTypeBadgeClass(type: string): string {
+    return `${type.toLowerCase()}-badge`;
+  }
+
+  getBalanceClass(balance: number): string {
+    if (balance > 0) return 'status-positive';
+    if (balance < 0) return 'status-negative';
+    return 'status-neutral';
   }
 }

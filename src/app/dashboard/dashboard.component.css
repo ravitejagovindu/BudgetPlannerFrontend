@@ -170,7 +170,6 @@
   font-weight: 500;
 }
 
-
 /* Modern button transitions */
 .transition-all {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -190,7 +189,7 @@
 
 /* Active indicator line at bottom */
 .active-tab::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 50%;
@@ -221,7 +220,8 @@
 }
 
 @keyframes iconPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -246,3 +246,498 @@
   box-shadow: 0 8px 16px rgba(220, 53, 69, 0.3) !important;
 }
 
+/* ==============================================
+   DASHBOARD COMPONENT STYLES
+   Financial Dashboard with Charts & Tables
+   ============================================== */
+
+.dashboard-container {
+  background: var(--light);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.dashboard-header {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--primary);
+}
+
+.page-title {
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--dark);
+  margin-bottom: 0.5rem;
+}
+
+.page-title i {
+  color: var(--primary);
+}
+
+.page-subtitle {
+  color: var(--secondary);
+  font-size: 1.125rem;
+  margin-bottom: 0;
+}
+
+.header-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.month-selector {
+  min-width: 200px;
+}
+
+/* Summary Cards */
+.overview-cards {
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  height: 100%;
+  transition: all 0.3s ease;
+  border-left: 4px solid var(--primary);
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.summary-card.positive-card {
+  border-left-color: var(--success);
+}
+
+.summary-card.negative-card {
+  border-left-color: var(--danger);
+}
+
+.summary-card.neutral-card {
+  border-left-color: var(--secondary);
+}
+
+.summary-card.income-card {
+  border-left-color: var(--info);
+  background: linear-gradient(
+    135deg,
+    var(--white) 0%,
+    var(--primary-light) 100%
+  );
+}
+
+.summary-card.expense-card {
+  border-left-color: var(--danger);
+  background: linear-gradient(
+    135deg,
+    var(--white) 0%,
+    var(--success-light) 100%
+  );
+}
+
+.summary-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem 0.75rem;
+}
+
+.summary-card-title {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0;
+}
+
+.summary-card-icon {
+  font-size: 1.5rem;
+  color: var(--primary);
+  opacity: 0.7;
+}
+
+.summary-card-body {
+  padding: 0.75rem 1.5rem 1.5rem;
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.amount-row:last-child {
+  margin-bottom: 0;
+}
+
+.amount-label {
+  font-size: 0.875rem;
+  color: var(--secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.amount-value {
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark);
+  font-family: "Courier New", monospace;
+}
+
+.difference-row {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--medium-gray);
+  margin-top: 0.75rem;
+}
+
+.difference-row .amount-value.status-positive {
+  color: var(--success);
+}
+
+.difference-row .amount-value.status-negative {
+  color: var(--danger);
+}
+
+/* Chart Cards */
+.chart-card {
+  background: var(--white);
+  border: none;
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  height: 100%;
+}
+
+.chart-card .card-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.chart-card .card-title {
+  color: var(--white);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chart-card .card-title i {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.chart-toggle-buttons {
+  text-align: center;
+}
+
+.chart-container {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: inset 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.chart-container-sm {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: inset 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.category-selector {
+  min-width: 200px;
+}
+
+/* Table Cards */
+.table-card {
+  background: var(--white);
+  border: none;
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.table-card .card-header {
+  background: linear-gradient(135deg, var(--success) 0%, var(--info) 100%);
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.table-card .card-title {
+  color: var(--white);
+  font-weight: var(--font-weight-semibold);
+}
+
+.table-card .card-title i {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Enhanced Table Styling */
+.table {
+  margin-bottom: 0;
+  background: var(--white);
+}
+
+.table thead th {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  padding: 1.25rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--medium-gray);
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: var(--light);
+  transform: translateX(2px);
+}
+
+.table tbody td {
+  padding: 1.25rem;
+  vertical-align: middle;
+  border: none;
+}
+
+/* Specific Table Cell Styling */
+.account-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--dark);
+}
+
+.income-amount {
+  color: var(--success);
+  font-weight: var(--font-weight-semibold);
+  font-family: "Courier New", monospace;
+}
+
+.spent-amount {
+  color: var(--warning);
+  font-weight: var(--font-weight-semibold);
+  font-family: "Courier New", monospace;
+}
+
+.balance-amount {
+  font-weight: var(--font-weight-bold);
+  font-size: 1.1rem;
+  font-family: "Courier New", monospace;
+}
+
+.balance-amount.status-positive {
+  color: var(--success);
+}
+
+.balance-amount.status-negative {
+  color: var(--danger);
+}
+
+.balance-amount.status-neutral {
+  color: var(--secondary);
+}
+
+.category-name {
+  font-weight: var(--font-weight-medium);
+  color: var(--dark);
+}
+
+.projected-amount,
+.actual-amount {
+  font-weight: var(--font-weight-medium);
+  font-family: "Courier New", monospace;
+}
+
+.difference-amount {
+  font-weight: var(--font-weight-bold);
+  font-family: "Courier New", monospace;
+  font-size: 1.05rem;
+}
+
+/* Type Badges */
+.type-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* No Data Message */
+.no-data-message {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  padding: 2rem;
+}
+
+.no-data-message i {
+  color: var(--info);
+}
+
+/* Animation Classes */
+.table-row-animate {
+  animation: slideUp 0.3s ease-out;
+}
+
+.summary-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.summary-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.summary-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.summary-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.summary-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .dashboard-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .page-title {
+    font-size: 1.875rem;
+  }
+
+  .header-controls {
+    justify-content: flex-start;
+    margin-top: 1rem;
+  }
+
+  .month-selector {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .summary-card {
+    margin-bottom: 1rem;
+  }
+
+  .summary-card-header {
+    padding: 1rem 1.25rem 0.5rem;
+  }
+
+  .summary-card-body {
+    padding: 0.5rem 1.25rem 1.25rem;
+  }
+
+  .chart-card .card-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .chart-card .card-body {
+    padding: 1rem;
+  }
+
+  .table-card .card-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .table-card .card-body {
+    padding: 1rem;
+  }
+
+  .table thead th,
+  .table tbody td {
+    padding: 1rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .category-selector {
+    min-width: auto;
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .amount-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .amount-value {
+    font-size: 1.1rem;
+  }
+
+  .chart-toggle-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .chart-toggle-buttons .btn {
+    width: 100%;
+  }
+}
+
+/* Budget Progress Header - Matching Chart Card Style */
+.budget-progress-header {
+  background: linear-gradient(
+    135deg,
+    var(--info) 0%,
+    var(--white) 100%
+  ) !important;
+  border-bottom: none !important;
+  padding: 1.5rem !important;
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0 !important;
+}
+
+.budget-progress-header .btn-light {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: none !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.budget-progress-header .btn-light:hover {
+  background: var(--white) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.budget-progress-header .btn-light i {
+  color: var(--success) !important;
+}
+
+.progress-card:hover .progress-bar {
+  transform: scaleY(1.05);
+  transition: all 0.3s ease;
+}
+
+.progress-card:hover .bg-success {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.progress-card:hover .bg-warning {
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.progress-card:hover .bg-danger {
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
