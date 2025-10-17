@@ -37,6 +37,10 @@ export class DashboardComponent implements AfterViewInit {
   }`;
   allLedgerData: Map<number, Map<string, ChartTable[]>> = new Map();
   tableData: ChartTable[] = [];
+  expenseData: ChartTable[] = [];
+  savingsData: ChartTable[] = [];
+  investmentData: ChartTable[] = [];
+  incomeData: ChartTable[] = [];
   individualBalances: IndividualBalances[] = [];
   subCategoriesChartData: SubCategoriesChartData[] = [];
   expenseSubCategories: Map<
@@ -49,6 +53,11 @@ export class DashboardComponent implements AfterViewInit {
   projectionsByType: Projections[] = [];
 
   showOverViewColumnChart: boolean = true;
+
+  showIncome: boolean = false;
+  showSavings: boolean = false;
+  showInvestments: boolean = false;
+  showExpenses: boolean = true;
 
   constructor(
     private chartServcie: ChartService,
@@ -274,24 +283,62 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   populateChartTable(selectedMonth: string) {
-    this.tableData = [];
+    this.expenseData = [];
     let allLedgersByYear = this.allLedgerData.get(this.year);
     if (!allLedgersByYear) allLedgersByYear = new Map();
     let allLedgersByMonth = allLedgersByYear.get(selectedMonth);
     if (allLedgersByMonth) {
-      allLedgersByMonth.forEach((table) =>
-        this.tableData.push(
-          new ChartTable(
-            table.year,
-            table.month,
-            table.type,
-            table.category,
-            table.projected,
-            table.actual,
-            table.difference
-          )
-        )
-      );
+      allLedgersByMonth.forEach((table) => {
+        if (table.type == 'EXPENSE') {
+          this.expenseData.push(
+            new ChartTable(
+              table.year,
+              table.month,
+              table.type,
+              table.category,
+              table.projected,
+              table.actual,
+              table.difference
+            )
+          );
+        } else if (table.type == 'SAVING') {
+          this.savingsData.push(
+            new ChartTable(
+              table.year,
+              table.month,
+              table.type,
+              table.category,
+              table.projected,
+              table.actual,
+              table.difference
+            )
+          );
+        } else if (table.type == 'INVESTMENT') {
+          this.investmentData.push(
+            new ChartTable(
+              table.year,
+              table.month,
+              table.type,
+              table.category,
+              table.projected,
+              table.actual,
+              table.difference
+            )
+          );
+        } else if (table.type == 'INCOME') {
+          this.incomeData.push(
+            new ChartTable(
+              table.year,
+              table.month,
+              table.type,
+              table.category,
+              table.projected,
+              table.actual,
+              table.difference
+            )
+          );
+        }
+      });
     }
   }
 
@@ -411,5 +458,46 @@ export class DashboardComponent implements AfterViewInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Overview');
     XLSX.writeFile(wb, fileName);
+  }
+
+  showIncomeData() {
+    this.showIncome = true;
+    this.showSavings = false;
+    this.showInvestments = false;
+    this.showExpenses = false;
+  }
+  showSavingsData() {
+    this.showIncome = false;
+    this.showSavings = true;
+    this.showInvestments = false;
+    this.showExpenses = false;
+  }
+  showInvestmentData() {
+    this.showIncome = false;
+    this.showSavings = false;
+    this.showInvestments = true;
+    this.showExpenses = false;
+  }
+  showExpenseData() {
+    this.showIncome = false;
+    this.showSavings = false;
+    this.showInvestments = false;
+    this.showExpenses = true;
+  }
+
+  // NEW METHODS FOR PROGRESS BAR FUNCTIONALITY
+
+  /**
+   * Calculate the percentage of actual amount vs projected amount
+   * @param actual - The actual amount spent/earned
+   * @param projected - The projected/budgeted amount
+   * @returns Percentage value (can exceed 100)
+   */
+  getProgressPercentage(actual: number, projected: number): number {
+    if (projected === 0) {
+      return 0;
+    }
+    const percentage = (actual / projected) * 100;
+    return Math.round(percentage);
   }
 }

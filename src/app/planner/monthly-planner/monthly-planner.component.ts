@@ -166,27 +166,27 @@ export class MonthlyPlannerComponent implements OnInit {
     this.showPlanner = false;
   }
   toggleShowIncome() {
-    this.showIncome = !this.showIncome;
+    this.showIncome = true;
     this.showSavings = false;
     this.showInvestments = false;
     this.showExpenses = false;
   }
   toggleShowSavings() {
     this.showIncome = false;
-    this.showSavings = !this.showSavings;
+    this.showSavings = true;
     this.showInvestments = false;
     this.showExpenses = false;
   }
   toggleShowInvestments() {
     this.showIncome = false;
     this.showSavings = false;
-    this.showInvestments = !this.showInvestments;
+    this.showInvestments = true;
     this.showExpenses = false;
   }
   toggleShowExpenses() {
     this.showIncome = false;
     this.showSavings = false;
     this.showInvestments = false;
-    this.showExpenses = !this.showExpenses;
+    this.showExpenses = true;
   }
 }
