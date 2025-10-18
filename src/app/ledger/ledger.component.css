@@ -407,3 +407,82 @@
   align-items: center;
   padding: 3rem;
 }
+
+/* ============================================== */
+/* HORIZONTAL SCROLL FOR MOBILE - NO VIEW CHANGE */
+/* ============================================== */
+
+/* Override the existing mobile table transformations */
+@media (max-width: 576px) {
+  /* Revert mobile card layout back to normal table */
+  .table thead {
+    display: table-header-group !important;
+  }
+
+  .table tbody tr {
+    display: table-row !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid var(--medium-gray) !important;
+  }
+
+  .table tbody td {
+    display: table-cell !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 0.75rem 0.5rem !important;
+    border: none !important;
+    border-bottom: none !important;
+  }
+
+  .table tbody td:last-child {
+    border-bottom: none !important;
+    justify-content: center !important;
+  }
+
+  .table tbody td::before {
+    content: none !important;
+  }
+
+  /* Remove all the ::before content rules for mobile */
+  .date-cell::before,
+  .type-cell::before,
+  .category-cell::before,
+  .subcategory-cell::before,
+  .account-cell::before,
+  .amount-cell::before,
+  .actions-cell::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  /* Enable horizontal scroll */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  /* Ensure table has minimum width to trigger scroll */
+  #ledger-table {
+    min-width: 800px !important;
+    width: 100% !important;
+  }
+
+  /* Keep action buttons horizontal */
+  .action-buttons {
+    flex-direction: row !important;
+    gap: 0.25rem !important;
+  }
+
+  .action-buttons .btn {
+    padding: 0.375rem 0.5rem !important;
+    font-size: 0.7rem !important;
+    white-space: nowrap !important;
+  }
+}
