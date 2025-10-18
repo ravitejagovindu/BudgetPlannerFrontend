@@ -7,18 +7,37 @@ import { LedgerComponent } from './ledger/ledger.component';
 import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
 import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
+import { LoginComponent } from './login/login.component';
+import { AuthGuard } from './gaurd/auth.guard';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'monthly-planner', component: MonthlyPlannerComponent },
-  { path: 'annual-planner', component: AnnualPlannerComponent },
-  { path: 'manage-planner', component: ManagePlannerComponent },
-  { path: 'ledger', component: LedgerComponent},
+  { path: 'login', component: LoginComponent },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'monthly-planner',
+    component: MonthlyPlannerComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'annual-planner',
+    component: AnnualPlannerComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'manage-planner',
+    component: ManagePlannerComponent,
+    canActivate: [AuthGuard],
+  },
+  { path: 'ledger', component: LedgerComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

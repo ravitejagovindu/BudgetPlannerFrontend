@@ -14,6 +14,7 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
 import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.
     PlannerComponent,
     MonthlyPlannerComponent,
     AnnualPlannerComponent,
-    ManagePlannerComponent
+    ManagePlannerComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Ledger } from '../model/ledger';
 import { Planner } from '../model/planner';
+import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -79,5 +81,40 @@ export class ApiService {
 
   deleteLedger(id: number) {
     return this.http.delete(this.hostUrl + 'ledgers/' + id);
+  }
+
+  // AUTHENTICATION METHODS - MOCK IMPLEMENTATION
+  // These methods will be replaced with actual backend API calls in future
+
+  authenticateUser(username: string, password: string): Observable<any> {
+    // Mock authentication - simulates backend API call
+    // TODO: Replace with actual API call: this.http.post<any>(this.hostUrl + 'auth/login', { username, password })
+
+    return of({
+      success: true,
+      user: {
+        username: username,
+        email: `${username}@budgetplanner.com`,
+        token: 'mock-jwt-token-' + Math.random().toString(36).substring(2, 15),
+      },
+    }).pipe(delay(500)); // Simulate network delay
+  }
+
+  validateToken(token: string): Observable<any> {
+    // Mock token validation
+    // TODO: Replace with actual API call: this.http.post<any>(this.hostUrl + 'auth/validate', { token })
+
+    return of({
+      valid: true,
+    }).pipe(delay(200));
+  }
+
+  logoutUser(): Observable<any> {
+    // Mock logout
+    // TODO: Replace with actual API call: this.http.post<any>(this.hostUrl + 'auth/logout', {})
+
+    return of({
+      success: true,
+    }).pipe(delay(200));
   }
 }

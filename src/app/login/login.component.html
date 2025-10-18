@@ -1,0 +1,90 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2 class="login-title">Welcome Back</h2>
+      <p class="login-subtitle">Sign in to access your Budget Planner</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Alert Messages -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+      </div>
+
+      <!-- Username Field -->
+      <div class="mb-4">
+        <label for="username" class="form-label">
+          <i class="bi bi-person-fill me-2"></i>Username
+        </label>
+        <input type="text" class="form-control" id="username" formControlName="username"
+          placeholder="Enter your username"
+          [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+        <div class="invalid-feedback" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+          Username is required
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="mb-4">
+        <label for="password" class="form-label">
+          <i class="bi bi-lock-fill me-2"></i>Password
+        </label>
+        <div class="password-input-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control" id="password"
+            formControlName="password" placeholder="Enter your password"
+            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()" tabindex="-1">
+            <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+          </button>
+        </div>
+        <div class="invalid-feedback d-block"
+          *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Password is required
+        </div>
+      </div>
+
+      <!-- Remember Me & Forgot Password -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="rememberMe" formControlName="rememberMe">
+          <label class="form-check-label" for="rememberMe">
+            Remember me
+          </label>
+        </div>
+        <a href="javascript:void(0)" class="forgot-password-link">Forgot Password?</a>
+      </div>
+
+      <!-- Login Button -->
+      <button type="submit" class="btn btn-primary w-100 login-btn" [disabled]="loading || loginForm.invalid">
+        <span *ngIf="!loading">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+        </span>
+        <span *ngIf="loading">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Signing in...
+        </span>
+      </button>
+    </form>
+
+    <!-- Demo Credentials Info -->
+    <!-- <div class="demo-info mt-4">
+      <div class="alert alert-info mb-0">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <strong>Demo Mode:</strong> Enter any username and password to access the application
+      </div>
+    </div> -->
+
+    <!-- Footer -->
+    <div class="login-footer mt-4">
+      <p class="text-center text-muted mb-0">
+        <i class="bi bi-shield-check me-2"></i>Your data is secure and encrypted
+      </p>
+    </div>
+  </div>
+</div>
