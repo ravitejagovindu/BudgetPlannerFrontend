@@ -129,6 +129,8 @@ export class DashboardComponent implements AfterViewInit {
   fetchOverview(selectedYear: number, monthNumber: number) {
     this.projections = undefined;
     this.projectionsByType = [];
+    this.incomeProjections = [];
+    this.otherProjections = [];
     this.apiService
       .getAllProjectionsByMonthAndYear(monthNumber, selectedYear)
       .subscribe((response) => {
