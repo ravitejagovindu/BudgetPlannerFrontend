@@ -13,11 +13,11 @@ import { AuthService } from '../service/auth.service';
 export class AuthGuard implements CanActivate {
   constructor(private router: Router, private authService: AuthService) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    // Check if user is authenticated
     if (this.authService.isAuthenticated) {
+      // Refresh session on navigation (reset idle timer)
+      this.authService.refreshSession();
       return true;
     }
 
