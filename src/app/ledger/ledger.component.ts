@@ -25,6 +25,7 @@ export class LedgerComponent implements OnInit {
     subCategory: new FormControl('', Validators.required),
     amount: new FormControl(null, Validators.required),
     paidBy: new FormControl(''),
+    description: new FormControl(''),
   });
 
   records: Map<number, any> = new Map();
@@ -167,7 +168,8 @@ export class LedgerComponent implements OnInit {
       formData.category,
       formData.subCategory,
       formData.amount,
-      formData.type === 'INCOME' ? null : formData.paidBy
+      formData.type === 'INCOME' ? null : formData.paidBy,
+      formData.description
     );
     this.apiService.createLedger(ledger).subscribe((response) => {
       this.ledgerEntry.reset({

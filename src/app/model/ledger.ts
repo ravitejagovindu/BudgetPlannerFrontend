@@ -9,6 +9,7 @@ export class Ledger {
     public subCategory: string,
     public amount: number,
     public paidBy: string,
+    public description: string,
     public canEdit: boolean = false
   ) {}
 }
