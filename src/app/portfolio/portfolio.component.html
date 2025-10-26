@@ -1,0 +1,153 @@
+<!-- ============================================== -->
+<!-- PORTFOLIO COMPONENT -->
+<!-- Zerodha Integration Interface -->
+<!-- ============================================== -->
+
+<div class="planner-container">
+  <!-- Header Section -->
+  <div class="planner-header">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="page-title">
+          <i class="bi bi-graph-up me-3"></i>Portfolio Integration
+        </h1>
+        <p class="page-subtitle">Connect your Zerodha account to view and manage your investment portfolio</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="row" *ngIf="alertMessage">
+    <div class="col-12">
+      <div class="alert" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-danger'" role="alert">
+        <i class="bi me-2"
+          [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+        {{ alertMessage }}
+        <button type="button" class="btn-close" (click)="closeAlert()"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row">
+    <!-- Connection Card -->
+    <div class="col-lg-8 offset-lg-2 mb-4" *ngIf="!isConnected">
+      <div class="card form-card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-link-45deg me-2"></i>Connect to Zerodha
+          </h5>
+        </div>
+        <div class="card-body text-center py-5">
+          <div class="connection-icon mb-4">
+            <i class="bi bi-bank2" style="font-size: 4rem; color: var(--primary);"></i>
+          </div>
+
+          <h4 class="mb-3">Link Your Zerodha Account</h4>
+          <p class="text-muted mb-4">
+            Securely connect to Zerodha to view your holdings, track performance, and manage your portfolio in one
+            place.
+          </p>
+
+          <div class="features mb-4">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <i class="bi bi-shield-check text-success" style="font-size: 2rem;"></i>
+                <p class="mt-2 mb-0"><strong>Secure</strong></p>
+                <small class="text-muted">Bank-level encryption</small>
+              </div>
+              <div class="col-md-4 mb-3">
+                <i class="bi bi-clock-history text-primary" style="font-size: 2rem;"></i>
+                <p class="mt-2 mb-0"><strong>Real-time</strong></p>
+                <small class="text-muted">Live portfolio updates</small>
+              </div>
+              <div class="col-md-4 mb-3">
+                <i class="bi bi-graph-up-arrow text-info" style="font-size: 2rem;"></i>
+                <p class="mt-2 mb-0"><strong>Analytics</strong></p>
+                <small class="text-muted">Detailed insights</small>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-lg px-5" (click)="connectToZerodha()" [disabled]="loading">
+            <span *ngIf="!loading">
+              <i class="bi bi-box-arrow-up-right me-2"></i>Connect to Zerodha
+            </span>
+            <span *ngIf="loading">
+              <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              Connecting...
+            </span>
+          </button>
+
+          <div class="mt-4">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              You will be redirected to Zerodha's secure login page
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Card -->
+    <div class="col-lg-8 offset-lg-2 mb-4" *ngIf="isConnected">
+      <div class="card success-card">
+        <div class="card-header bg-success">
+          <h5 class="card-title mb-0 text-white">
+            <i class="bi bi-check-circle-fill me-2"></i>Connection Successful
+          </h5>
+        </div>
+        <div class="card-body text-center py-5">
+          <div class="success-icon mb-4">
+            <i class="bi bi-check-circle" style="font-size: 5rem; color: var(--success);"></i>
+          </div>
+
+          <h3 class="mb-3">Zerodha Connection Successful!</h3>
+          <p class="text-muted mb-4">
+            Your Zerodha account has been successfully linked. You can now view your portfolio and manage investments.
+          </p>
+
+          <div class="connection-info mb-4">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="info-box p-3 border rounded">
+                  <i class="bi bi-person-check text-success" style="font-size: 1.5rem;"></i>
+                  <p class="mt-2 mb-0"><strong>Account Linked</strong></p>
+                  <small class="text-muted">{{ username || 'User' }}</small>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="info-box p-3 border rounded">
+                  <i class="bi bi-calendar-check text-primary" style="font-size: 1.5rem;"></i>
+                  <p class="mt-2 mb-0"><strong>Connected On</strong></p>
+                  <small class="text-muted">{{ connectionDate | date:'medium' }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>Do you want to see your portfolio?</strong>
+          </div>
+
+          <div class="d-grid gap-2 d-md-block">
+            <button class="btn btn-success btn-lg px-4 me-md-2" disabled>
+              <i class="bi bi-bar-chart-line me-2"></i>View Portfolio
+            </button>
+            <button class="btn btn-outline-secondary btn-lg px-4" (click)="disconnect()">
+              <i class="bi bi-x-circle me-2"></i>Disconnect
+            </button>
+          </div>
+
+          <div class="mt-4">
+            <small class="text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Portfolio viewing feature will be available soon
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

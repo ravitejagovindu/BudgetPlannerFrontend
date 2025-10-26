@@ -15,6 +15,7 @@ import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-plann
 import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
 import { LoginComponent } from './login/login.component';
+import { PortfolioComponent } from './portfolio/portfolio.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { LoginComponent } from './login/login.component';
     MonthlyPlannerComponent,
     AnnualPlannerComponent,
     ManagePlannerComponent,
-    LoginComponent
+    LoginComponent,
+    PortfolioComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,9 +37,9 @@ import { LoginComponent } from './login/login.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    HighchartsChartModule
+    HighchartsChartModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

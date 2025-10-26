@@ -9,6 +9,7 @@ import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './gaurd/auth.guard';
+import { PortfolioComponent } from './portfolio/portfolio.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -34,6 +35,11 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: 'ledger', component: LedgerComponent, canActivate: [AuthGuard] },
+  {
+    path: 'portfolio',
+    component: PortfolioComponent,
+    canActivate: [AuthGuard],
+  },
 ];
 
 @NgModule({

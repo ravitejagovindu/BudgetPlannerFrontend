@@ -234,4 +234,46 @@ export class ApiService {
     // ACTUAL IMPLEMENTATION (uncomment when backend is ready):
     // return this.http.delete<any>(this.hostUrl + 'categories/' + categoryId);
   }
+
+  // ========================================
+  // ZERODHA INTEGRATION METHODS
+  // ========================================
+
+  /**
+   * Get Zerodha login URL from backend
+   * Endpoint: GET localhost:8080/auth/login-url
+   * Returns: { url: "https://kite.zerodha.com/connect/login?..." }
+   */
+  getZerodhaLoginUrl(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'auth/login-url');
+  }
+
+  /**
+   * Generate Zerodha session after authentication
+   * Endpoint: GET localhost:8080/auth/generate-session?request_token={token}
+   * @param requestToken - Token received from Zerodha after authentication
+   * Returns: { success: boolean, username: string, ... }
+   */
+  generateZerodhaSession(requestToken: string): Observable<any> {
+    return this.http.post<any>(
+      this.hostUrl + 'auth/generate-session?request_token=' + requestToken,
+      null
+    );
+  }
+
+  /**
+   * Get Zerodha portfolio data (future implementation)
+   * @returns Portfolio holdings, positions, etc.
+   */
+  getZerodhaPortfolio(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/holdings');
+  }
+
+  /**
+   * Disconnect Zerodha account (future implementation)
+   * @returns Success response
+   */
+  disconnectZerodha(): Observable<any> {
+    return this.http.post<any>(this.hostUrl + 'auth/disconnect', {});
+  }
 }
