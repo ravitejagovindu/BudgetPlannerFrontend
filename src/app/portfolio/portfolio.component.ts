@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ApiService } from '../service/api.service';
 
 @Component({
@@ -15,54 +15,37 @@ export class PortfolioComponent implements OnInit {
   alertType: 'success' | 'error' = 'success';
   username: string = '';
   connectionDate: Date = new Date();
+  zerodhaAccessToken: string = '';
 
-  constructor(
-    private apiService: ApiService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit(): void {
-    // Check if redirected back from Zerodha with request_token
-    this.route.queryParams.subscribe((params) => {
-      const requestToken = params['request_token'];
-      const status = params['status'];
-
-      if (requestToken) {
-        // User was redirected back from Zerodha
-        console.log('REQUEST_TOKEN === ' + requestToken);
-        this.generateSession(requestToken);
-      } else if (status === 'cancelled') {
-        this.showAlert('Zerodha authentication was cancelled.', 'error');
-      }
-    });
-
-    // Check if already connected (optional: check from backend/storage)
-    this.checkExistingConnection();
+    // Check if Zerodha connection already exists on backend
+    this.checkZerodhaConnection();
   }
 
   connectToZerodha(): void {
     this.loading = true;
     this.closeAlert();
 
-    // Call backend API to get Zerodha login URL
+    // Call backend API to initiate Zerodha OAuth
+    // Backend will handle redirect and session generation
     this.apiService.getZerodhaLoginUrl().subscribe({
       next: (response: any) => {
         this.loading = false;
 
-        if (response && response.data && response.data.loginUrl) {
-          // Redirect to Zerodha login page
-          window.location.href = response.data.loginUrl;
+        if (response && response.redirectUrl) {
+          window.location.href = response.redirectUrl;
         } else {
           this.showAlert(
-            'Failed to get Zerodha login URL. Please try again.',
+            'Failed to initiate Zerodha connection. Please try again.',
             'error'
           );
         }
       },
       error: (error: any) => {
         this.loading = false;
-        console.error('Error getting Zerodha login URL:', error);
+        console.error('Error initiating Zerodha connection:', error);
         this.showAlert(
           'Unable to connect to Zerodha. Please try again later.',
           'error'
@@ -71,59 +54,87 @@ export class PortfolioComponent implements OnInit {
     });
   }
 
-  generateSession(requestToken: string): void {
+  checkZerodhaConnection(): void {
     this.loading = true;
 
-    // Call backend API to generate session
-    this.apiService.generateZerodhaSession(requestToken).subscribe({
+    // Call backend to check if user has an active Zerodha connection
+    this.apiService.getZerodhaConnectionStatus().subscribe({
       next: (response: any) => {
         this.loading = false;
         let data = response.data;
 
-        if (data) {
+        if (data.authenticated) {
+          // User has active Zerodha connection
           this.isConnected = true;
-          this.connectionDate = new Date();
-          this.username = data.userName || 'Zerodha User';
+          this.username = data.username || 'Zerodha User';
+          this.connectionDate = response.connectionDate
+            ? new Date(response.connectionDate)
+            : new Date();
+          this.zerodhaAccessToken = data.accessToken || '';
 
-          // Clean up URL (remove query params)
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: {},
-            replaceUrl: true,
-          });
-
-          this.showAlert('Successfully connected to Zerodha!', 'success');
+          this.showAlert('Zerodha account connected successfully!', 'success');
         } else {
-          this.showAlert(
-            'Failed to establish Zerodha session. Please try again.',
-            'error'
-          );
+          // No active connection
+          this.isConnected = false;
         }
       },
       error: (error: any) => {
         this.loading = false;
-        console.error('Error generating Zerodha session:', error);
-        this.showAlert(
-          'Session generation failed. Please try connecting again.',
-          'error'
-        );
+        console.error('Error checking Zerodha connection:', error);
+        // If error, assume not connected
+        this.isConnected = false;
       },
     });
   }
 
-  checkExistingConnection(): void {
-    // Optional: Check if user already has an active Zerodha connection
-    // This could query your backend to see if session exists
-    // For now, we assume no existing connection
-    this.isConnected = false;
-  }
-
   disconnect(): void {
     if (confirm('Are you sure you want to disconnect your Zerodha account?')) {
-      // TODO: Call backend API to invalidate session
-      this.isConnected = false;
-      this.showAlert('Zerodha account disconnected successfully.', 'success');
+      this.loading = true;
+
+      // Call backend to invalidate Zerodha session
+      this.apiService.disconnectZerodha().subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          this.isConnected = false;
+          this.zerodhaAccessToken = '';
+          this.showAlert(
+            'Zerodha account disconnected successfully.',
+            'success'
+          );
+        },
+        error: (error: any) => {
+          this.loading = false;
+          console.error('Error disconnecting Zerodha:', error);
+          this.showAlert('Failed to disconnect. Please try again.', 'error');
+        },
+      });
     }
+  }
+
+  viewPortfolio(): void {
+    if (!this.zerodhaAccessToken) {
+      this.showAlert('Access token not available. Please reconnect.', 'error');
+      return;
+    }
+
+    this.loading = true;
+
+    // Call backend API to fetch portfolio data
+    // Backend will use the stored access_token
+    this.apiService.getZerodhaPortfolio().subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        console.log('Portfolio data:', response);
+
+        // TODO: Display portfolio data in UI
+        this.showAlert('Portfolio data loaded successfully!', 'success');
+      },
+      error: (error: any) => {
+        this.loading = false;
+        console.error('Error fetching portfolio:', error);
+        this.showAlert('Failed to load portfolio data.', 'error');
+      },
+    });
   }
 
   showAlert(message: string, type: 'success' | 'error'): void {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, fromEvent, merge, timer } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface User {
   username: string;
@@ -14,7 +14,7 @@ interface StoredSession {
 }
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AuthService {
   private readonly SESSION_KEY = 'budget_planner_session';
@@ -27,7 +27,7 @@ export class AuthService {
   private lastActivity: number = Date.now();
 
   constructor(private router: Router) {
-    // Initialize with stored session if available
+    // Initialize with stored session if available (check both storages)
     const storedSession = this.getStoredSession();
     this.currentUserSubject = new BehaviorSubject<User | null>(storedSession);
     this.currentUser = this.currentUserSubject.asObservable();
@@ -46,10 +46,10 @@ export class AuthService {
     return this.currentUserSubject.value !== null;
   }
 
-  login(username: string, password: string): Observable<boolean> {
+  login(username: string, password: string, rememberMe: boolean = false): Observable<boolean> {
     // This will be replaced with actual API call via ApiService
     // For now, mock authentication
-    return new Observable((observer) => {
+    return new Observable(observer => {
       // Simulate API delay
       setTimeout(() => {
         // Mock validation - accept specific credentials
@@ -57,11 +57,11 @@ export class AuthService {
           const user: User = {
             username: username,
             email: `${username}@budgetplanner.com`,
-            token: this.generateMockToken(),
+            token: this.generateMockToken()
           };
 
-          // Store user in session
-          this.setCurrentUser(user);
+          // Store user in session (localStorage if rememberMe, sessionStorage otherwise)
+          this.setCurrentUser(user, rememberMe);
 
           // Start idle monitoring
           this.startIdleMonitoring();
@@ -77,7 +77,7 @@ export class AuthService {
   }
 
   logout(): void {
-    // Clear session
+    // Clear session from both storages
     this.clearSession();
 
     // Stop idle monitoring
@@ -90,16 +90,23 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
-  private setCurrentUser(user: User): void {
+  private setCurrentUser(user: User, rememberMe: boolean = false): void {
     // Update BehaviorSubject
     this.currentUserSubject.next(user);
 
-    // Store in sessionStorage with timestamp
+    // Store in sessionStorage or localStorage based on rememberMe
     const session: StoredSession = {
       user: user,
-      timestamp: Date.now(),
+      timestamp: Date.now()
     };
-    sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+
+    if (rememberMe) {
+      // Use localStorage for persistent storage
+      localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+    } else {
+      // Use sessionStorage for tab-only storage
+      sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+    }
 
     // Update last activity
     this.lastActivity = Date.now();
@@ -107,7 +114,16 @@ export class AuthService {
 
   private getStoredSession(): User | null {
     try {
-      const sessionData = sessionStorage.getItem(this.SESSION_KEY);
+      // Check sessionStorage first (current session)
+      let sessionData = sessionStorage.getItem(this.SESSION_KEY);
+      let isFromLocalStorage = false;
+
+      if (!sessionData) {
+        // Fallback to localStorage (remembered session)
+        sessionData = localStorage.getItem(this.SESSION_KEY);
+        isFromLocalStorage = true;
+      }
+
       if (!sessionData) {
         return null;
       }
@@ -123,7 +139,7 @@ export class AuthService {
       }
 
       // Update timestamp on retrieval (refresh session)
-      this.updateSessionTimestamp();
+      this.updateSessionTimestamp(isFromLocalStorage);
 
       return session.user;
     } catch (error) {
@@ -132,13 +148,26 @@ export class AuthService {
     }
   }
 
-  private updateSessionTimestamp(): void {
+  private updateSessionTimestamp(isFromLocalStorage: boolean = false): void {
     try {
-      const sessionData = sessionStorage.getItem(this.SESSION_KEY);
+      // Determine which storage to update
+      let sessionData: string | null;
+      let storage: Storage;
+
+      if (sessionStorage.getItem(this.SESSION_KEY)) {
+        sessionData = sessionStorage.getItem(this.SESSION_KEY);
+        storage = sessionStorage;
+      } else if (localStorage.getItem(this.SESSION_KEY)) {
+        sessionData = localStorage.getItem(this.SESSION_KEY);
+        storage = localStorage;
+      } else {
+        return;
+      }
+
       if (sessionData) {
         const session: StoredSession = JSON.parse(sessionData);
         session.timestamp = Date.now();
-        sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
+        storage.setItem(this.SESSION_KEY, JSON.stringify(session));
       }
     } catch (error) {
       console.error('Error updating session timestamp:', error);
@@ -146,7 +175,9 @@ export class AuthService {
   }
 
   private clearSession(): void {
+    // Clear from both storages
     sessionStorage.removeItem(this.SESSION_KEY);
+    localStorage.removeItem(this.SESSION_KEY);
   }
 
   private startIdleMonitoring(): void {
@@ -157,16 +188,12 @@ export class AuthService {
       'keypress',
       'scroll',
       'touchstart',
-      'click',
+      'click'
     ];
 
     // Listen to activity events
-    activityEvents.forEach((eventName) => {
-      document.addEventListener(
-        eventName,
-        this.resetIdleTimer.bind(this),
-        true
-      );
+    activityEvents.forEach(eventName => {
+      document.addEventListener(eventName, this.resetIdleTimer.bind(this), true);
     });
 
     // Start the idle timer
@@ -187,15 +214,11 @@ export class AuthService {
       'keypress',
       'scroll',
       'touchstart',
-      'click',
+      'click'
     ];
 
-    activityEvents.forEach((eventName) => {
-      document.removeEventListener(
-        eventName,
-        this.resetIdleTimer.bind(this),
-        true
-      );
+    activityEvents.forEach(eventName => {
+      document.removeEventListener(eventName, this.resetIdleTimer.bind(this), true);
     });
   }
 
@@ -234,7 +257,9 @@ export class AuthService {
   // Method to manually refresh session (call this on critical actions)
   public refreshSession(): void {
     if (this.isAuthenticated) {
-      this.updateSessionTimestamp();
+      // Determine which storage has the session
+      const isFromLocalStorage = localStorage.getItem(this.SESSION_KEY) !== null;
+      this.updateSessionTimestamp(isFromLocalStorage);
       this.resetIdleTimer();
     }
   }

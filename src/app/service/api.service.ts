@@ -248,31 +248,22 @@ export class ApiService {
     return this.http.get<any>(this.hostUrl + 'auth/login-url');
   }
 
-  /**
-   * Generate Zerodha session after authentication
-   * Endpoint: GET localhost:8080/auth/generate-session?request_token={token}
-   * @param requestToken - Token received from Zerodha after authentication
-   * Returns: { success: boolean, username: string, ... }
-   */
-  generateZerodhaSession(requestToken: string): Observable<any> {
-    return this.http.post<any>(
-      this.hostUrl + 'auth/generate-session?request_token=' + requestToken,
-      null
-    );
+  getZerodhaConnectionStatus(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'auth/status');
   }
 
-  /**
-   * Get Zerodha portfolio data (future implementation)
-   * @returns Portfolio holdings, positions, etc.
-   */
   getZerodhaPortfolio(): Observable<any> {
     return this.http.get<any>(this.hostUrl + 'portfolio/holdings');
   }
 
-  /**
-   * Disconnect Zerodha account (future implementation)
-   * @returns Success response
-   */
+  getZerodhaPositions(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/positions');
+  }
+
+  getZerodhaFunds(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/funds');
+  }
+
   disconnectZerodha(): Observable<any> {
     return this.http.post<any>(this.hostUrl + 'auth/disconnect', {});
   }

@@ -132,10 +132,16 @@
           </div>
 
           <div class="d-grid gap-2 d-md-block">
-            <button class="btn btn-success btn-lg px-4 me-md-2" disabled>
-              <i class="bi bi-bar-chart-line me-2"></i>View Portfolio
+            <button class="btn btn-success btn-lg px-4 me-md-2" (click)="viewPortfolio()" [disabled]="loading">
+              <span *ngIf="!loading">
+                <i class="bi bi-bar-chart-line me-2"></i>View Portfolio
+              </span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Loading...
+              </span>
             </button>
-            <button class="btn btn-outline-secondary btn-lg px-4" (click)="disconnect()">
+            <button class="btn btn-outline-secondary btn-lg px-4" (click)="disconnect()" [disabled]="loading">
               <i class="bi bi-x-circle me-2"></i>Disconnect
             </button>
           </div>
@@ -143,7 +149,7 @@
           <div class="mt-4">
             <small class="text-muted">
               <i class="bi bi-info-circle me-1"></i>
-              Portfolio viewing feature will be available soon
+              All data is fetched securely from your Zerodha account
             </small>
           </div>
         </div>
