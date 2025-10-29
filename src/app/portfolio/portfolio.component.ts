@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../service/api.service';
+import { PortfolioHolding } from '../model/portfolioHolding';
 
 @Component({
   selector: 'app-portfolio',
@@ -16,6 +17,8 @@ export class PortfolioComponent implements OnInit {
   username: string = '';
   connectionDate: Date = new Date();
   zerodhaAccessToken: string = '';
+  portfolioHoldings: PortfolioHolding[] = [];
+  showHoldings: boolean = false;
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -33,9 +36,9 @@ export class PortfolioComponent implements OnInit {
     this.apiService.getZerodhaLoginUrl().subscribe({
       next: (response: any) => {
         this.loading = false;
-
-        if (response && response.redirectUrl) {
-          window.location.href = response.redirectUrl;
+        let data = response.data;
+        if (data.loginUrl) {
+          window.location.href = data.loginUrl;
         } else {
           this.showAlert(
             'Failed to initiate Zerodha connection. Please try again.',
@@ -111,7 +114,7 @@ export class PortfolioComponent implements OnInit {
     }
   }
 
-  viewPortfolio(): void {
+  viewHoldings(): void {
     if (!this.zerodhaAccessToken) {
       this.showAlert('Access token not available. Please reconnect.', 'error');
       return;
@@ -121,10 +124,14 @@ export class PortfolioComponent implements OnInit {
 
     // Call backend API to fetch portfolio data
     // Backend will use the stored access_token
-    this.apiService.getZerodhaPortfolio().subscribe({
+    this.apiService.getHodlings().subscribe({
       next: (response: any) => {
         this.loading = false;
-        console.log('Portfolio data:', response);
+        let data = response.data;
+        console.log('Portfolio Holding data:', data);
+        this.portfolioHoldings = [];
+        this.portfolioHoldings = data;
+        this.showHoldings = true;
 
         // TODO: Display portfolio data in UI
         this.showAlert('Portfolio data loaded successfully!', 'success');
@@ -135,6 +142,55 @@ export class PortfolioComponent implements OnInit {
         this.showAlert('Failed to load portfolio data.', 'error');
       },
     });
+  }
+
+  getTotalInvestment(): number {
+    return this.portfolioHoldings.reduce((total, holding) => {
+      return total + holding.averagePrice * holding.quantity;
+    }, 0);
+  }
+
+  // Helper method to get current portfolio value
+  getCurrentValue(): number {
+    return this.portfolioHoldings.reduce((total, holding) => {
+      return total + holding.lastPrice * holding.quantity;
+    }, 0);
+  }
+
+  // Helper method to get total P&L
+  getTotalPnL(): number {
+    return this.portfolioHoldings.reduce((total, holding) => {
+      return total + holding.pnl;
+    }, 0);
+  }
+
+  // Helper method to get total day change
+  getTotalDayChange(): number {
+    return this.portfolioHoldings.reduce((total, holding) => {
+      return total + holding.dayChange;
+    }, 0);
+  }
+
+  // Helper method to calculate overall P&L percentage
+  getPnLPercentage(): number {
+    const totalInvestment = this.getTotalInvestment();
+    if (totalInvestment === 0) return 0;
+    return (this.getTotalPnL() / totalInvestment) * 100;
+  }
+
+  // Helper method to determine if overall P&L is positive
+  isOverallProfitable(): boolean {
+    return this.getTotalPnL() >= 0;
+  }
+
+  // Helper method to check if individual holding is profitable
+  isProfitable(holding: PortfolioHolding): boolean {
+    return holding.pnl >= 0;
+  }
+
+  // Helper method to check if day change is positive
+  isDayChangePositive(holding: PortfolioHolding): boolean {
+    return holding.dayChange >= 0;
   }
 
   showAlert(message: string, type: 'success' | 'error'): void {

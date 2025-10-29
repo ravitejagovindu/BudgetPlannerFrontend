@@ -252,7 +252,7 @@ export class ApiService {
     return this.http.get<any>(this.hostUrl + 'auth/status');
   }
 
-  getZerodhaPortfolio(): Observable<any> {
+  getHodlings(): Observable<any> {
     return this.http.get<any>(this.hostUrl + 'portfolio/holdings');
   }
 
