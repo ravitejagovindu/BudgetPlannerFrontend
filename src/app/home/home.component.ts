@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import * as Highcharts from 'highcharts';
-import HighchartsMore from 'highcharts/highcharts-more';
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../service/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -9,51 +10,75 @@ import HighchartsMore from 'highcharts/highcharts-more';
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
+  loginForm!: FormGroup;
+  loginError: string = '';
+  loading: boolean = false;
+  isLoggedIn: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    // Check if user is already logged in
+    this.isLoggedIn = this.authService.isAuthenticated;
 
+    // If logged in, redirect to dashboard
+    if (this.isLoggedIn) {
+      this.router.navigate(['/dashboard']);
+    }
+
+    // Initialize login form
+    this.loginForm = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+      rememberMe: [false],
+    });
   }
 
-  Highcharts: typeof Highcharts = Highcharts;
-  chartOptions: Highcharts.Options = {
-    chart: {
-      type: 'pie',
-    },
-    title: {
-      text: 'Browser Market Share with "Other" Breakdown',
-    },
-    series: [
-      {
-        type: 'pie',
-        name: 'Main Browsers',
-        data: [
-          { name: 'Chrome', y: 70 },
-          { name: 'Firefox', y: 15 },
-          { name: 'Edge', y: 10 },
-          {
-            name: 'Other',
-            y: 5,
-            dataLabels: {
-              enabled: false, // Hide data label for 'Other' in the main pie
-            },
-          },
-        ],
+  onLogin(): void {
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    this.loading = true;
+    this.loginError = '';
+
+    const username = this.loginForm.value.username;
+    const password = this.loginForm.value.password;
+    const rememberMe = this.loginForm.value.rememberMe;
+
+    this.authService.login(username, password).subscribe({
+      next: (success: boolean) => {
+        this.loading = false;
+        if (success) {
+          // Redirect to dashboard on successful login
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.loginError = 'Invalid username or password. Please try again.';
+        }
       },
-      {
-        type: 'pie',
-        name: 'Other Browsers',
-        size: '60%', // Adjust size of the secondary pie
-        innerSize: '40%', // Create a donut shape for the secondary pie
-        dataLabels: {
-          format: '<b>{point.name}</b>: {point.percentage:.1f}%',
-        },
-        data: [
-          { name: 'Safari', y: 2 },
-          { name: 'Opera', y: 1.5 },
-          { name: 'IE', y: 1 },
-          { name: 'Brave', y: 0.5 },
-        ],
+      error: (error: any) => {
+        this.loading = false;
+        this.loginError = 'An error occurred during login. Please try again.';
+        console.error('Login error:', error);
       },
-    ],
-  };
+    });
+  }
+
+  scrollToFeatures(): void {
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  scrollToLogin(): void {
+    const loginSection = document.getElementById('login');
+    if (loginSection) {
+      loginSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 }

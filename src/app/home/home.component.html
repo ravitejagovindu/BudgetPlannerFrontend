@@ -1,256 +1,385 @@
-<!-- Home Page for Monthly Budget Tracker/Planner Application -->
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Home | Monthly Budget Tracker & Financial Dashboard</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        background: linear-gradient(90deg, #e9f7fa 0%, #f6f0fe 100%);
-        min-height: 100vh;
-      }
-      .hero {
-        background: rgba(255, 255, 255, 0.76);
-        border-radius: 2rem;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.09);
-      }
-      .feature-card {
-        border: 0;
-        border-radius: 1.5rem;
-        box-shadow: 0 2px 14px 1px rgba(60, 76, 120, 0.08);
-        background: rgba(255, 255, 255, 0.91);
-        transition: box-shadow 0.2s;
-      }
-      .feature-card:hover {
-        box-shadow: 0 8px 28px 2px rgba(62, 145, 255, 0.13);
-      }
-      .dashboard-preview {
-        border-radius: 1.25rem;
-        box-shadow: 0 2px 16px 2px rgba(60, 76, 120, 0.12);
-        overflow: hidden;
-      }
-      .gradient-btn {
-        background: linear-gradient(90deg, #005bea 0%, #3ab6f6 89%);
-        color: #fff;
-        border: none;
-      }
-      .gradient-btn:hover {
-        background: linear-gradient(90deg, #0274c3 0%, #258acb 89%);
-        color: #fff;
-      }
-      @media (max-width: 991px) {
-        .hero-img {
-          display: none;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
-      <a
-        class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2"
-        href="#"
-      >
-        <i class="bi bi-wallet2 fs-4"></i>
-        Monthly Budget Tracker
-      </a>
-      <div class="ms-auto">
-        <a href="#get-started" class="btn gradient-btn fw-semibold rounded-pill"
-          >Get Started</a
-        >
-      </div>
-    </nav>
+<!-- ============================================== -->
+<!-- HOME COMPONENT - LANDING PAGE -->
+<!-- Budget Planner Application -->
+<!-- ============================================== -->
 
-    <!-- Hero Section -->
-    <section class="container my-5">
-      <div class="row align-items-center gy-4">
-        <div class="col-lg-7">
-          <div class="hero p-5">
-            <h1 class="display-4 fw-bold text-dark mb-3">
-              <span class="text-primary">Master</span> Your Finances<br />
-              Every Month
-            </h1>
-            <p class="lead text-secondary mb-4">
-              Take charge of your savings, expenses, and goals with the modern
-              <b>Monthly Financial Dashboard</b>—your all-in-one planning and
-              tracking solution.
-              <br />
-              Visualize, manage, and improve your money every month.
-            </p>
-            <div class="d-flex align-items-center gap-3">
-              <a
-                href="#get-started"
-                class="btn gradient-btn btn-lg rounded-pill px-4 me-2"
-              >
-                <i class="bi bi-graph-up-arrow me-2"></i> Get Started
-              </a>
-              <a
-                href="#features"
-                class="btn btn-outline-primary btn-lg rounded-pill px-4"
-              >
-                <i class="bi bi-info-circle me-2"></i> Learn More
-              </a>
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center min-vh-100">
+        <div class="col-lg-6 hero-content">
+          <h1 class="hero-title">
+            <i class="bi bi-wallet2 me-3"></i>
+            Take Control of Your Finances
+          </h1>
+          <p class="hero-subtitle">
+            Smart budgeting made simple. Track expenses, plan savings, and manage your investment portfolio—all in one
+            place.
+          </p>
+          <div class="hero-buttons">
+            <button class="btn btn-primary btn-lg me-3" routerLink="/dashboard" *ngIf="isLoggedIn">
+              <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+            </button>
+            <button class="btn btn-primary btn-lg me-3" (click)="scrollToLogin()" *ngIf="!isLoggedIn">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Get Started
+            </button>
+            <button class="btn btn-outline-secondary btn-lg" (click)="scrollToFeatures()">
+              <i class="bi bi-info-circle me-2"></i>Learn More
+            </button>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats mt-5">
+            <div class="row">
+              <div class="col-4">
+                <div class="stat-item">
+                  <i class="bi bi-graph-up-arrow stat-icon"></i>
+                  <h3 class="stat-number">100%</h3>
+                  <p class="stat-label">Secure</p>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="stat-item">
+                  <i class="bi bi-clock-history stat-icon"></i>
+                  <h3 class="stat-number">Real-time</h3>
+                  <p class="stat-label">Updates</p>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="stat-item">
+                  <i class="bi bi-shield-check stat-icon"></i>
+                  <h3 class="stat-number">Private</h3>
+                  <p class="stat-label">Data</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-lg-5 text-center hero-img">
-          <img
-            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80"
-            alt="Modern Dashboard Illustration"
-            class="img-fluid dashboard-preview"
-            style="max-height: 350px"
-          />
+
+        <div class="col-lg-6">
+          <div class="hero-image">
+            <div class="mockup-card">
+              <div class="mockup-header">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <div class="mockup-content">
+                <div class="chart-preview">
+                  <i class="bi bi-pie-chart-fill chart-icon"></i>
+                  <div class="chart-bars">
+                    <div class="bar" style="height: 60%"></div>
+                    <div class="bar" style="height: 80%"></div>
+                    <div class="bar" style="height: 45%"></div>
+                    <div class="bar" style="height: 90%"></div>
+                    <div class="bar" style="height: 70%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Features Section -->
-    <section id="features" class="container my-5">
-      <h2 class="text-center fw-bold text-dark mb-5">Why Choose This App?</h2>
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <h2 class="section-title">Powerful Features for Complete Financial Control</h2>
+        <p class="section-subtitle">Everything you need to manage your money effectively</p>
+      </div>
+
       <div class="row g-4">
-        <div class="col-md-6 col-lg-4">
-          <div class="feature-card p-4 text-center h-100">
-            <i class="bi bi-bar-chart-line-fill fs-1 text-primary mb-3"></i>
-            <h5 class="fw-bold mb-2">Monthly Dashboard</h5>
-            <p class="text-secondary mb-0">
-              See all your <b>income, savings, expenses, and investments</b> at
-              a glance—track, compare, and plan your finances for each month.
+        <!-- Feature 1 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon bg-primary">
+              <i class="bi bi-speedometer2"></i>
+            </div>
+            <h3 class="feature-title">Real-time Dashboard</h3>
+            <p class="feature-description">
+              Get instant insights into your income, expenses, savings, and investments with beautiful visualizations
+              and charts.
+            </p>
+            <button class="feature-link" routerLink="/dashboard" *ngIf="isLoggedIn">
+              View Dashboard <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon bg-success">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <h3 class="feature-title">Smart Planning</h3>
+            <p class="feature-description">
+              Plan your monthly and annual budgets with intelligent suggestions. Set targets and track your progress
+              effortlessly.
+            </p>
+            <button class="feature-link" routerLink="/monthly-planner" *ngIf="isLoggedIn">
+              Start Planning <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon bg-info">
+              <i class="bi bi-journal-text"></i>
+            </div>
+            <h3 class="feature-title">Transaction Ledger</h3>
+            <p class="feature-description">
+              Record every transaction with detailed categorization. Search, filter, and analyze your spending patterns
+              easily.
+            </p>
+            <button class="feature-link" routerLink="/ledger" *ngIf="isLoggedIn">
+              Open Ledger <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon bg-warning">
+              <i class="bi bi-graph-up"></i>
+            </div>
+            <h3 class="feature-title">Portfolio Integration</h3>
+            <p class="feature-description">
+              Connect your Zerodha account to track your investment portfolio alongside your budget for complete
+              financial overview.
+            </p>
+            <button class="feature-link" routerLink="/portfolio" *ngIf="isLoggedIn">
+              View Portfolio <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon bg-danger">
+              <i class="bi bi-gear"></i>
+            </div>
+            <h3 class="feature-title">Custom Categories</h3>
+            <p class="feature-description">
+              Create and manage custom budget categories with subcategories to match your unique financial structure.
+            </p>
+            <button class="feature-link" routerLink="/manage-planner" *ngIf="isLoggedIn">
+              Manage Categories <i class="bi bi-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon bg-secondary">
+              <i class="bi bi-shield-lock"></i>
+            </div>
+            <h3 class="feature-title">Secure & Private</h3>
+            <p class="feature-description">
+              Your financial data is encrypted and stored securely. Session management ensures your information stays
+              private.
+            </p>
+            <span class="feature-link text-muted">
+              Bank-level Security
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-subtitle">Get started in 3 simple steps</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-icon">
+              <i class="bi bi-person-plus"></i>
+            </div>
+            <h3 class="step-title">Sign Up / Login</h3>
+            <p class="step-description">
+              Create your account or login to access your personalized financial dashboard.
             </p>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="feature-card p-4 text-center h-100">
-            <i class="bi bi-journal-check fs-1 text-success mb-3"></i>
-            <h5 class="fw-bold mb-2">Smart Planner</h5>
-            <p class="text-secondary mb-0">
-              Organize future budgets, set targets, and build your
-              <b>actionable spending & savings plan</b> with ease.
+
+        <div class="col-lg-4">
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-icon">
+              <i class="bi bi-sliders"></i>
+            </div>
+            <h3 class="step-title">Set Up Budget</h3>
+            <p class="step-description">
+              Configure your income sources, expense categories, and savings goals to match your lifestyle.
             </p>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="feature-card p-4 text-center h-100">
-            <i class="bi bi-pie-chart-fill fs-1 text-info mb-3"></i>
-            <h5 class="fw-bold mb-2">Visual Insights</h5>
-            <p class="text-secondary mb-0">
-              Interact with beautiful <b>charts and trends</b>—see where your
-              money goes and how you can do better.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="feature-card p-4 text-center h-100">
-            <i class="bi bi-lock-fill fs-1 text-warning mb-3"></i>
-            <h5 class="fw-bold mb-2">Your Data, Secure</h5>
-            <p class="text-secondary mb-0">
-              All your financial records are kept private and secure—<b
-                >only you have access</b
-              >.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="feature-card p-4 text-center h-100">
-            <i class="bi bi-calendar2-event fs-1 text-danger mb-3"></i>
-            <h5 class="fw-bold mb-2">Plan Ahead</h5>
-            <p class="text-secondary mb-0">
-              <b>Quickly plan your months</b>, set financial milestones, and
-              stay a step ahead for both recurring and one-time events.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="feature-card p-4 text-center h-100">
-            <i class="bi bi-lightning-charge fs-1 text-primary mb-3"></i>
-            <h5 class="fw-bold mb-2">Fast & Intuitive</h5>
-            <p class="text-secondary mb-0">
-              Enjoy a <b>super-fast, modern interface</b>—built with the latest
-              technologies for the smoothest experience.
+
+        <div class="col-lg-4">
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-icon">
+              <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h3 class="step-title">Track & Optimize</h3>
+            <p class="step-description">
+              Monitor your spending, track progress, and make data-driven decisions to improve your finances.
             </p>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Illustrative Section: App Dashboard Preview -->
-    <section class="container my-5">
-      <div class="row justify-content-center align-items-center g-4">
-        <div class="col-md-6 order-2 order-md-1">
-          <h3 class="fw-bold mb-3">
-            <i class="bi bi-graph-up text-info me-2"></i>
-            A Visual Financial Story—Every Month!
-          </h3>
-          <p class="lead text-secondary">
-            Get instant clarity on your financial flow.<br />
-            Our dashboard offers: <br />
+  <!-- Login Section -->
+  <section class="login-section" id="login" *ngIf="!isLoggedIn">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+          <div class="login-card">
+            <div class="login-header text-center">
+              <i class="bi bi-wallet2 login-logo"></i>
+              <h2 class="login-title">Welcome Back</h2>
+              <p class="login-subtitle">Login to access your financial dashboard</p>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+              <!-- Alert -->
+              <div class="alert alert-danger" *ngIf="loginError">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ loginError }}
+              </div>
+
+              <!-- Username -->
+              <div class="mb-3">
+                <label for="username" class="form-label">
+                  <i class="bi bi-person me-2"></i>Username
+                </label>
+                <input type="text" class="form-control" id="username" formControlName="username"
+                  placeholder="Enter your username"
+                  [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched" />
+                <div class="invalid-feedback"
+                  *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+                  Username is required
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="mb-3">
+                <label for="password" class="form-label">
+                  <i class="bi bi-lock me-2"></i>Password
+                </label>
+                <input type="password" class="form-control" id="password" formControlName="password"
+                  placeholder="Enter your password"
+                  [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" />
+                <div class="invalid-feedback"
+                  *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                  Password is required
+                </div>
+              </div>
+
+              <!-- Remember Me -->
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe" formControlName="rememberMe" />
+                <label class="form-check-label" for="rememberMe">
+                  Remember me
+                </label>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg" [disabled]="loginForm.invalid || loading">
+                  <span *ngIf="!loading">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                  </span>
+                  <span *ngIf="loading">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Logging in...
+                  </span>
+                </button>
+              </div>
+            </form>
+
+            <div class="login-footer text-center mt-4">
+              <p class="text-muted mb-0">
+                <small>
+                  <i class="bi bi-shield-check me-1"></i>
+                  Your data is encrypted and secure
+                </small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta-section" *ngIf="!isLoggedIn">
+    <div class="container">
+      <div class="cta-content text-center">
+        <h2 class="cta-title">Ready to Take Control of Your Finances?</h2>
+        <p class="cta-subtitle">Join thousands of users managing their budgets smarter</p>
+        <button class="btn btn-light btn-lg" (click)="scrollToLogin()">
+          <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <h5 class="footer-title">
+            <i class="bi bi-wallet2 me-2"></i>Budget Planner
+          </h5>
+          <p class="footer-text">
+            Your personal finance management solution. Track, plan, and optimize your financial life with ease.
           </p>
-          <ul class="text-secondary mb-3">
-            <li>
-              • Clear breakdown of incomes, expenses, savings, and investments
-            </li>
-            <li>• Goal-based planning and projections</li>
-            <li>• Editable, interactive entries—track, review, and analyze</li>
-            <li>• Real-time charts for immediate comparisons and insights</li>
+        </div>
+        <div class="col-lg-3 mb-4">
+          <h6 class="footer-heading">Quick Links</h6>
+          <ul class="footer-links">
+            <li><a routerLink="/dashboard">Dashboard</a></li>
+            <li><a routerLink="/monthly-planner">Planner</a></li>
+            <li><a routerLink="/ledger">Ledger</a></li>
+            <li><a routerLink="/portfolio">Portfolio</a></li>
           </ul>
-          <a
-            href="#get-started"
-            class="btn btn-primary gradient-btn rounded-pill"
-          >
-            <i class="bi bi-rocket-takeoff me-2"></i>
-            Try the Dashboard Now
-          </a>
         </div>
-        <div class="col-md-6 order-1 order-md-2 text-center">
-          <img
-            src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600&q=80"
-            alt="Financial Dashboard Preview"
-            class="img-fluid dashboard-preview"
-            style="max-height: 340px"
-          />
+        <div class="col-lg-3 mb-4">
+          <h6 class="footer-heading">Features</h6>
+          <ul class="footer-links">
+            <li><a href="#features">Budget Tracking</a></li>
+            <li><a href="#features">Expense Analysis</a></li>
+            <li><a href="#features">Investment Portfolio</a></li>
+            <li><a href="#features">Secure Storage</a></li>
+          </ul>
         </div>
       </div>
-    </section>
-
-    <!-- Get Started Call-To-Action -->
-    <section id="get-started" class="container my-5">
-      <div
-        class="p-5 rounded-4 shadow text-center"
-        style="background: linear-gradient(90deg, #c3eaff 0%, #e6deff 100%)"
-      >
-        <h3 class="fw-bold mb-3 text-dark">
-          <i class="bi bi-flag-fill text-primary"></i> Ready to Achieve
-          Financial Peace of Mind?
-        </h3>
-        <p class="lead text-secondary mb-4">
-          <b>Start now</b> and see the difference.<br />
-          No clutter, no confusion—just a beautiful, useful, actionable
-          dashboard for your financial life.
+      <hr class="footer-divider" />
+      <div class="text-center">
+        <p class="footer-copyright mb-0">
+          &copy; 2025 Budget Planner. All rights reserved.
         </p>
-        <a href="#!" class="btn gradient-btn btn-lg px-5 rounded-pill">
-          <i class="bi bi-check2-circle me-2"></i>
-          Start Planning Today!
-        </a>
       </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-4 mt-auto bg-white text-center text-secondary">
-      <div class="container">
-        <span>
-          <i class="bi bi-bar-chart-line"></i>
-          Monthly Budget Tracker & Dashboard &mdash; Made for Smart Money Moves
-        </span>
-      </div>
-    </footer>
-  </body>
-</html>
+    </div>
+  </footer>
+</div>
