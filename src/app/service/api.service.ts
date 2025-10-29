@@ -264,6 +264,10 @@ export class ApiService {
     return this.http.get<any>(this.hostUrl + 'portfolio/funds');
   }
 
+  getMutualFunds(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/mutualFunds');
+  }
+
   disconnectZerodha(): Observable<any> {
     return this.http.post<any>(this.hostUrl + 'auth/disconnect', {});
   }

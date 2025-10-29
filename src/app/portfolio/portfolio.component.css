@@ -136,6 +136,17 @@
   box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 }
 
+.btn-info {
+  background: linear-gradient(135deg, var(--info) 0%, #138496 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+}
+
+.btn-info:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(23, 162, 184, 0.4);
+}
+
 .btn-outline-secondary {
   border: 2px solid var(--secondary);
   color: var(--secondary);
@@ -304,7 +315,6 @@
 .card:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
-
 
 /* ============================================== */
 /* PORTFOLIO HOLDINGS DISPLAY STYLES */
@@ -620,7 +630,8 @@
 }
 
 @media (max-width: 576px) {
-  .portfolio-summary .col-lg-3 {
+  .portfolio-summary .col-lg-3,
+  .portfolio-summary .col-lg-4 {
     margin-bottom: 1rem;
   }
 

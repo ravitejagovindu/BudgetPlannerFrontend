@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiService } from '../service/api.service';
 import { PortfolioHolding } from '../model/portfolioHolding';
+import { MutualFundHolding } from '../model/mutualFundHoldings';
 
 @Component({
   selector: 'app-portfolio',
@@ -19,6 +20,8 @@ export class PortfolioComponent implements OnInit {
   zerodhaAccessToken: string = '';
   portfolioHoldings: PortfolioHolding[] = [];
   showHoldings: boolean = false;
+  mutualFundHoldings: MutualFundHolding[] = [];
+  showMutualFunds: boolean = false;
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -88,30 +91,6 @@ export class PortfolioComponent implements OnInit {
         this.isConnected = false;
       },
     });
-  }
-
-  disconnect(): void {
-    if (confirm('Are you sure you want to disconnect your Zerodha account?')) {
-      this.loading = true;
-
-      // Call backend to invalidate Zerodha session
-      this.apiService.disconnectZerodha().subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          this.isConnected = false;
-          this.zerodhaAccessToken = '';
-          this.showAlert(
-            'Zerodha account disconnected successfully.',
-            'success'
-          );
-        },
-        error: (error: any) => {
-          this.loading = false;
-          console.error('Error disconnecting Zerodha:', error);
-          this.showAlert('Failed to disconnect. Please try again.', 'error');
-        },
-      });
-    }
   }
 
   viewHoldings(): void {
@@ -193,6 +172,69 @@ export class PortfolioComponent implements OnInit {
     return holding.dayChange >= 0;
   }
 
+  viewMutualFunds(): void {
+    if (!this.zerodhaAccessToken) {
+      this.showAlert('Access token not available. Please reconnect.', 'error');
+      return;
+    }
+
+    this.loading = true;
+
+    // Call backend API to fetch mutual funds data
+    this.apiService.getMutualFunds().subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        let data = response.data;
+        console.log('Mutual Fund Holding data:', data);
+        this.mutualFundHoldings = [];
+        this.mutualFundHoldings = data;
+        this.showMutualFunds = true;
+        // Hide holdings when showing mutual funds
+        this.showHoldings = false;
+
+        // Display mutual funds data in UI
+        this.showAlert('Mutual Funds data loaded successfully!', 'success');
+      },
+      error: (error: any) => {
+        this.loading = false;
+        console.error('Error fetching mutual funds:', error);
+        this.showAlert('Failed to load mutual funds data.', 'error');
+      },
+    });
+  }
+
+  getMFTotalInvestment(): number {
+    return this.mutualFundHoldings.reduce((total, holding) => {
+      return total + holding.averagePrice * holding.quantity;
+    }, 0);
+  }
+
+  getMFCurrentValue(): number {
+    return this.mutualFundHoldings.reduce((total, holding) => {
+      return total + holding.lastPrice * holding.quantity;
+    }, 0);
+  }
+
+  getMFTotalPnL(): number {
+    return this.mutualFundHoldings.reduce((total, holding) => {
+      return total + holding.pnl;
+    }, 0);
+  }
+
+  getMFPnLPercentage(): number {
+    const totalInvestment = this.getMFTotalInvestment();
+    if (totalInvestment === 0) return 0;
+    return (this.getMFTotalPnL() / totalInvestment) * 100;
+  }
+
+  isMFOverallProfitable(): boolean {
+    return this.getMFTotalPnL() >= 0;
+  }
+
+  isMFProfitable(holding: MutualFundHolding): boolean {
+    return holding.pnl >= 0;
+  }
+
   showAlert(message: string, type: 'success' | 'error'): void {
     this.alertMessage = message;
     this.alertType = type;
@@ -205,5 +247,33 @@ export class PortfolioComponent implements OnInit {
 
   closeAlert(): void {
     this.alertMessage = '';
+  }
+
+  disconnect(): void {
+    if (confirm('Are you sure you want to disconnect your Zerodha account?')) {
+      this.loading = true;
+
+      // Call backend to invalidate Zerodha session
+      this.apiService.disconnectZerodha().subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          this.isConnected = false;
+          this.zerodhaAccessToken = '';
+          this.portfolioHoldings = [];
+          this.showHoldings = false;
+          this.mutualFundHoldings = [];
+          this.showMutualFunds = false;
+          this.showAlert(
+            'Zerodha account disconnected successfully.',
+            'success'
+          );
+        },
+        error: (error: any) => {
+          this.loading = false;
+          console.error('Error disconnecting Zerodha:', error);
+          this.showAlert('Failed to disconnect. Please try again.', 'error');
+        },
+      });
+    }
   }
 }

@@ -98,7 +98,7 @@
     </div>
 
     <!-- Success Card -->
-    <div class="col-lg-8 offset-lg-2 mb-4" *ngIf="isConnected && !showHoldings">
+    <div class="col-lg-8 offset-lg-2 mb-4" *ngIf="isConnected && !showHoldings && !showMutualFunds">
       <div class="card success-card">
         <div class="card-header bg-success">
           <h5 class="card-title mb-0 text-white">
@@ -135,15 +135,24 @@
             </div>
           </div>
 
-          <div class="alert alert-info">
+          <!-- <div class="alert alert-info">
             <i class="bi bi-info-circle-fill me-2"></i>
-            <strong>Do you want to see your portfolio?</strong>
-          </div>
+            <strong>What would you like to view?</strong>
+          </div> -->
 
           <div class="d-grid gap-2 d-md-block">
             <button class="btn btn-success btn-lg px-4 me-md-2" (click)="viewHoldings()" [disabled]="loading">
               <span *ngIf="!loading">
-                <i class="bi bi-bar-chart-line me-2"></i>View Holdings
+                <i class="bi bi-bar-chart-line me-2"></i>Stocks
+              </span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                Loading...
+              </span>
+            </button>
+            <button class="btn btn-info btn-lg px-4 me-md-2" (click)="viewMutualFunds()" [disabled]="loading">
+              <span *ngIf="!loading">
+                <i class="bi bi-graph-up-arrow me-2"></i>Mutual Funds
               </span>
               <span *ngIf="loading">
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -166,7 +175,9 @@
     </div>
   </div>
 
-  <!-- Portfolio Holdings Display -->
+  <!-- ========================================= -->
+  <!-- STOCK HOLDINGS DISPLAY (EXISTING - UNCHANGED) -->
+  <!-- ========================================= -->
   <div class="row" *ngIf="isConnected && showHoldings">
     <!-- Portfolio Summary Cards -->
     <div class="col-12 mb-4">
@@ -236,7 +247,7 @@
     <div class="col-12 mb-3">
       <div class="d-flex justify-content-between align-items-center">
         <h4 class="holdings-title">
-          <i class="bi bi-briefcase me-2"></i>Your Holdings ({{ portfolioHoldings.length }})
+          <i class="bi bi-briefcase me-2"></i>Your Stock Holdings ({{ portfolioHoldings.length }})
         </h4>
         <div>
           <button class="btn btn-outline-primary me-2" (click)="viewHoldings()" [disabled]="loading">
@@ -319,8 +330,150 @@
     <div class="col-12" *ngIf="portfolioHoldings.length === 0">
       <div class="empty-state">
         <i class="bi bi-inbox" style="font-size: 4rem; color: var(--secondary);"></i>
-        <h4 class="mt-3">No Holdings Found</h4>
-        <p class="text-muted">Your portfolio is empty. Start investing to see your holdings here.</p>
+        <h4 class="mt-3">No Stock Holdings Found</h4>
+        <p class="text-muted">Your stock portfolio is empty. Start investing to see your holdings here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- MUTUAL FUNDS DISPLAY (NEW - IDENTICAL LAYOUT) -->
+  <!-- ========================================= -->
+  <div class="row" *ngIf="isConnected && showMutualFunds">
+    <!-- Mutual Funds Summary Cards -->
+    <div class="col-12 mb-4">
+      <div class="portfolio-summary">
+        <div class="row g-3">
+          <!-- Total Investment Card -->
+          <div class="col-lg-4 col-md-6">
+            <div class="summary-card">
+              <div class="summary-icon bg-primary">
+                <i class="bi bi-wallet2"></i>
+              </div>
+              <div class="summary-content">
+                <p class="summary-label">Total Investment</p>
+                <h3 class="summary-value">₹{{ getMFTotalInvestment() | number:'1.2-2' }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Value Card -->
+          <div class="col-lg-4 col-md-6">
+            <div class="summary-card">
+              <div class="summary-icon bg-info">
+                <i class="bi bi-currency-rupee"></i>
+              </div>
+              <div class="summary-content">
+                <p class="summary-label">Current Value</p>
+                <h3 class="summary-value">₹{{ getMFCurrentValue() | number:'1.2-2' }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total P&L Card -->
+          <div class="col-lg-4 col-md-6">
+            <div class="summary-card">
+              <div class="summary-icon" [ngClass]="isMFOverallProfitable() ? 'bg-success' : 'bg-danger'">
+                <i class="bi" [ngClass]="isMFOverallProfitable() ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow'"></i>
+              </div>
+              <div class="summary-content">
+                <p class="summary-label">Total P&L</p>
+                <h3 class="summary-value" [ngClass]="isMFOverallProfitable() ? 'text-success' : 'text-danger'">
+                  {{ isMFOverallProfitable() ? '+' : '' }}₹{{ getMFTotalPnL() | number:'1.2-2' }}
+                  <span class="summary-percentage">({{ getMFPnLPercentage() | number:'1.2-2' }}%)</span>
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mutual Funds Header with Actions -->
+    <div class="col-12 mb-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="holdings-title">
+          <i class="bi bi-graph-up-arrow me-2"></i>Your Mutual Funds ({{ mutualFundHoldings.length }})
+        </h4>
+        <div>
+          <button class="btn btn-outline-primary me-2" (click)="viewMutualFunds()" [disabled]="loading">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+          </button>
+          <button class="btn btn-outline-secondary" (click)="showMutualFunds = false">
+            <i class="bi bi-arrow-left me-1"></i>Back
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mutual Funds Cards -->
+    <div class="col-lg-6 col-md-6 mb-4" *ngFor="let mf of mutualFundHoldings">
+      <div class="holding-card">
+        <div class="holding-header">
+          <div class="holding-symbol">
+            <h5 class="mb-0">{{ mf.tradingSymbol }}</h5>
+            <small class="text-muted">{{ mf.fund }}</small>
+          </div>
+          <div class="holding-badge" [ngClass]="isMFProfitable(mf) ? 'badge-success' : 'badge-danger'">
+            {{ isMFProfitable(mf) ? 'Profit' : 'Loss' }}
+          </div>
+        </div>
+
+        <div class="holding-body">
+          <div class="holding-stats">
+            <div class="stat-row">
+              <span class="stat-label">Folio:</span>
+              <span class="stat-value">{{ mf.folio }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Quantity:</span>
+              <span class="stat-value">{{ mf.quantity }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Avg. Price:</span>
+              <span class="stat-value">₹{{ mf.averagePrice | number:'1.2-2' }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">NAV:</span>
+              <span class="stat-value">₹{{ mf.lastPrice | number:'1.2-2' }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Investment:</span>
+              <span class="stat-value">₹{{ (mf.averagePrice * mf.quantity) | number:'1.2-2' }}</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Current Value:</span>
+              <span class="stat-value">₹{{ (mf.lastPrice * mf.quantity) | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="holding-divider"></div>
+
+          <div class="holding-performance">
+            <div class="performance-item">
+              <div class="performance-label">Overall P&L</div>
+              <div class="performance-value" [ngClass]="isMFProfitable(mf) ? 'text-success' : 'text-danger'">
+                <i class="bi" [ngClass]="isMFProfitable(mf) ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+                {{ isMFProfitable(mf) ? '+' : '' }}₹{{ mf.pnl | number:'1.2-2' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="holding-footer">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>Fund: {{ mf.fund }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="col-12" *ngIf="mutualFundHoldings.length === 0">
+      <div class="empty-state">
+        <i class="bi bi-inbox" style="font-size: 4rem; color: var(--secondary);"></i>
+        <h4 class="mt-3">No Mutual Funds Found</h4>
+        <p class="text-muted">You don't have any mutual fund investments yet. Start your SIP journey today!</p>
       </div>
     </div>
   </div>
