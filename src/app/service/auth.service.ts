@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, map } from 'rxjs/operators';
+import { LoginRequest } from '../model/LoginRequest';
+import { LoginResponse } from '../model/LoginResponse';
+import { AuthStatusResponse } from '../model/AuthStatusResponse';
+import { ApiService } from './api.service';
 
 export interface User {
   username: string;
@@ -14,11 +20,15 @@ interface StoredSession {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly SESSION_KEY = 'budget_planner_session';
   private readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+  private readonly API_BASE_URL =
+    'https://budget-planner-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/';
+  // private readonly API_BASE_URL = 'http://localhost:8080/';
 
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
@@ -26,7 +36,11 @@ export class AuthService {
   private idleTimer: any;
   private lastActivity: number = Date.now();
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private apiService: ApiService
+  ) {
     // Initialize with stored session if available (check both storages)
     const storedSession = this.getStoredSession();
     this.currentUserSubject = new BehaviorSubject<User | null>(storedSession);
@@ -46,18 +60,31 @@ export class AuthService {
     return this.currentUserSubject.value !== null;
   }
 
-  login(username: string, password: string, rememberMe: boolean = false): Observable<boolean> {
-    // This will be replaced with actual API call via ApiService
-    // For now, mock authentication
-    return new Observable(observer => {
-      // Simulate API delay
-      setTimeout(() => {
-        // Mock validation - accept specific credentials
-        if (username === 'Ravi' && password === 'test') {
+  /**
+   * Login user with backend API
+   * @param username - User's username
+   * @param password - User's password (sent securely over HTTPS)
+   * @param rememberMe - Whether to persist session across browser restarts
+   */
+  login(
+    username: string,
+    password: string,
+    rememberMe: boolean = false
+  ): Observable<boolean> {
+    const loginRequest: LoginRequest = {
+      username: username,
+      password: password,
+    };
+
+    return this.apiService.login(loginRequest).pipe(
+      map((response) => {
+        let data = response.data;
+        // Check if login was successful
+        if (data && data.token && data.username) {
           const user: User = {
-            username: username,
-            email: `${username}@budgetplanner.com`,
-            token: this.generateMockToken()
+            username: response.username,
+            email: response.email,
+            token: response.token,
           };
 
           // Store user in session (localStorage if rememberMe, sessionStorage otherwise)
@@ -66,17 +93,46 @@ export class AuthService {
           // Start idle monitoring
           this.startIdleMonitoring();
 
-          observer.next(true);
-          observer.complete();
-        } else {
-          observer.next(false);
-          observer.complete();
+          return true;
         }
-      }, 500);
-    });
+        return false;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Login error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
+  /**
+   * Logout user - call backend API and clear local session
+   */
   logout(): void {
+    const currentUser = this.currentUserValue;
+
+    if (currentUser && currentUser.token) {
+      // Call backend logout API
+      this.apiService.logout(currentUser).subscribe({
+        next: () => {
+          console.log('Logout successful on backend');
+        },
+        error: (error) => {
+          console.error('Logout error on backend:', error);
+          // Continue with local logout even if backend fails
+        },
+        complete: () => {
+          this.performLocalLogout();
+        },
+      });
+    } else {
+      this.performLocalLogout();
+    }
+  }
+
+  /**
+   * Perform local logout operations
+   */
+  private performLocalLogout(): void {
     // Clear session from both storages
     this.clearSession();
 
@@ -90,6 +146,42 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
+  /**
+   * Check authentication status with backend
+   */
+  checkAuthStatus(): Observable<boolean> {
+    const currentUser = this.currentUserValue;
+
+    if (!currentUser || !currentUser.token) {
+      return new Observable((observer) => {
+        observer.next(false);
+        observer.complete();
+      });
+    }
+
+    return this.apiService.userSessionStatus(currentUser).pipe(
+      map((response: AuthStatusResponse) => {
+        if (response && response.authenticated) {
+          // Refresh session timestamp
+          this.updateSessionTimestamp();
+          return true;
+        } else {
+          // Not authenticated on backend, clear local session
+          this.performLocalLogout();
+          return false;
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('Auth status check error:', error);
+        // If unauthorized, logout
+        if (error.status === 401 || error.status === 403) {
+          this.performLocalLogout();
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
   private setCurrentUser(user: User, rememberMe: boolean = false): void {
     // Update BehaviorSubject
     this.currentUserSubject.next(user);
@@ -97,7 +189,7 @@ export class AuthService {
     // Store in sessionStorage or localStorage based on rememberMe
     const session: StoredSession = {
       user: user,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     if (rememberMe) {
@@ -188,12 +280,16 @@ export class AuthService {
       'keypress',
       'scroll',
       'touchstart',
-      'click'
+      'click',
     ];
 
     // Listen to activity events
-    activityEvents.forEach(eventName => {
-      document.addEventListener(eventName, this.resetIdleTimer.bind(this), true);
+    activityEvents.forEach((eventName) => {
+      document.addEventListener(
+        eventName,
+        this.resetIdleTimer.bind(this),
+        true
+      );
     });
 
     // Start the idle timer
@@ -214,11 +310,15 @@ export class AuthService {
       'keypress',
       'scroll',
       'touchstart',
-      'click'
+      'click',
     ];
 
-    activityEvents.forEach(eventName => {
-      document.removeEventListener(eventName, this.resetIdleTimer.bind(this), true);
+    activityEvents.forEach((eventName) => {
+      document.removeEventListener(
+        eventName,
+        this.resetIdleTimer.bind(this),
+        true
+      );
     });
   }
 
@@ -250,15 +350,12 @@ export class AuthService {
     this.logout();
   }
 
-  private generateMockToken(): string {
-    return 'mock-jwt-token-' + Math.random().toString(36).substring(2, 15);
-  }
-
   // Method to manually refresh session (call this on critical actions)
   public refreshSession(): void {
     if (this.isAuthenticated) {
       // Determine which storage has the session
-      const isFromLocalStorage = localStorage.getItem(this.SESSION_KEY) !== null;
+      const isFromLocalStorage =
+        localStorage.getItem(this.SESSION_KEY) !== null;
       this.updateSessionTimestamp(isFromLocalStorage);
       this.resetIdleTimer();
     }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../service/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -39,6 +40,7 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
+    // Validate form
     if (this.loginForm.invalid) {
       Object.keys(this.loginForm.controls).forEach(key => {
         this.loginForm.get(key)?.markAsTouched();
@@ -52,8 +54,10 @@ export class LoginComponent implements OnInit {
 
     const username = this.loginForm.get('username')?.value;
     const password = this.loginForm.get('password')?.value;
+    const rememberMe = this.loginForm.get('rememberMe')?.value || false;
 
-    this.authService.login(username, password).subscribe({
+    // Call backend login API through auth service
+    this.authService.login(username, password, rememberMe).subscribe({
       next: (success) => {
         if (success) {
           this.successMessage = 'Login successful! Redirecting...';
@@ -65,9 +69,24 @@ export class LoginComponent implements OnInit {
           this.errorMessage = 'Invalid username or password';
         }
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         this.loading = false;
-        this.errorMessage = 'An error occurred during login. Please try again.';
+
+        // Handle different error scenarios
+        if (error.status === 401) {
+          this.errorMessage = 'Invalid username or password';
+        } else if (error.status === 403) {
+          this.errorMessage = 'Access forbidden. Please contact administrator.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Unable to connect to server. Please check your connection.';
+        } else if (error.status === 500) {
+          this.errorMessage = 'Server error occurred. Please try again later.';
+        } else if (error.error && error.error.message) {
+          this.errorMessage = error.error.message;
+        } else {
+          this.errorMessage = 'An error occurred during login. Please try again.';
+        }
+
         console.error('Login error:', error);
       }
     });

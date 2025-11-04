@@ -4,6 +4,9 @@ import { Ledger } from '../model/ledger';
 import { Planner } from '../model/planner';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { LoginRequest } from '../model/LoginRequest';
+import { LoginResponse } from '../model/LoginResponse';
+import { AuthStatusResponse } from '../model/AuthStatusResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +17,35 @@ export class ApiService {
   // hostUrl="localhost:8080/";
 
   constructor(private http: HttpClient) {}
+
+  login(loginRequest: LoginRequest) {
+    return this.http.post<any>(
+      this.hostUrl + 'auth/login',
+      loginRequest
+    );
+  }
+
+  logout(currentUser: any) {
+    return this.http.post(
+      this.hostUrl + 'auth/logout',
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`,
+          'User-Id': currentUser.userId.toString(),
+        },
+      }
+    );
+  }
+
+  userSessionStatus(currentUser: any) {
+    return this.http.get<AuthStatusResponse>(this.hostUrl + 'auth/status', {
+      headers: {
+        Authorization: `Bearer ${currentUser.token}`,
+        'User-Id': currentUser.userId.toString(),
+      },
+    });
+  }
 
   getAllBudgetTypes() {
     return this.http.get<any>(this.hostUrl + 'budget/types');
@@ -245,11 +277,15 @@ export class ApiService {
    * Returns: { url: "https://kite.zerodha.com/connect/login?..." }
    */
   getZerodhaLoginUrl(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'auth/login-url');
+    return this.http.get<any>(this.hostUrl + 'kite/connect');
   }
 
   getZerodhaConnectionStatus(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'auth/status');
+    return this.http.get<any>(this.hostUrl + 'kite/status');
+  }
+
+  disconnectZerodha(): Observable<any> {
+    return this.http.post<any>(this.hostUrl + 'kite/disconnect', {});
   }
 
   getHodlings(): Observable<any> {
@@ -266,9 +302,5 @@ export class ApiService {
 
   getMutualFunds(): Observable<any> {
     return this.http.get<any>(this.hostUrl + 'portfolio/mutualFunds');
-  }
-
-  disconnectZerodha(): Observable<any> {
-    return this.http.post<any>(this.hostUrl + 'auth/disconnect', {});
   }
 }

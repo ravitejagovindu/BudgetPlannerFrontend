@@ -9,13 +9,14 @@ import { LedgerComponent } from './ledger/ledger.component';
 import { PlannerComponent } from './planner/planner.component';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
 import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
 import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
 import { LoginComponent } from './login/login.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
+import { JwtInterceptor } from './interceptor/jwt.interceptor';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,13 @@ import { PortfolioComponent } from './portfolio/portfolio.component';
     HttpClientModule,
     HighchartsChartModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
