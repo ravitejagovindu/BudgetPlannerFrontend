@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../service/api.service';
 import { PortfolioHolding } from '../model/portfolioHolding';
 import { MutualFundHolding } from '../model/mutualFundHoldings';
@@ -25,11 +25,26 @@ export class PortfolioComponent implements OnInit {
   showMutualFunds: boolean = false;
   zerodhaClientId: string = '';
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(
+    private apiService: ApiService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     // Check if Zerodha connection already exists on backend
     this.checkZerodhaConnection();
+
+    this.route.queryParams.subscribe((params) => {
+      if (params['status'] === 'success' && params['client-id']) {
+        const clientId = params['client-id'];
+        this.zerodhaClientId = clientId;
+        this.router.navigate(['/portfolio']);
+        this.checkZerodhaConnection();
+      } else {
+        this.checkZerodhaConnection();
+      }
+    });
   }
 
   connectToZerodha(): void {
@@ -72,23 +87,15 @@ export class PortfolioComponent implements OnInit {
         next: (response: any) => {
           this.loading = false;
           let data = response.data;
-
           if (data.authenticated) {
-            // User has active Zerodha connection
             this.isConnected = true;
             this.username = data.username || 'Zerodha User';
-            this.connectionDate = response.connectionDate
-              ? new Date(response.connectionDate)
-              : new Date();
-            this.zerodhaAccessToken = data.accessToken || '';
             this.zerodhaClientId = data.clientId || '';
-
             this.showAlert(
               'Zerodha account connected successfully!',
               'success'
             );
           } else {
-            // No active connection
             this.isConnected = false;
           }
         },
