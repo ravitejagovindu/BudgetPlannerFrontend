@@ -82,9 +82,9 @@ export class AuthService {
         // Check if login was successful
         if (data && data.token && data.username) {
           const user: User = {
-            username: response.username,
-            email: response.email,
-            token: response.token,
+            username: data.username,
+            email: data.email,
+            token: data.token,
           };
 
           // Store user in session (localStorage if rememberMe, sessionStorage otherwise)
