@@ -277,7 +277,7 @@ export class ApiService {
    * Returns: { url: "https://kite.zerodha.com/connect/login?..." }
    */
   getZerodhaLoginUrl(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'kite/connect');
+    return this.http.post<any>(this.hostUrl + 'kite/connect',{});
   }
 
   getZerodhaConnectionStatus(): Observable<any> {
