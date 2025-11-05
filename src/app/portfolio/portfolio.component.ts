@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../service/api.service';
 import { PortfolioHolding } from '../model/portfolioHolding';
 import { MutualFundHolding } from '../model/mutualFundHoldings';
+import { HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-portfolio',
@@ -22,6 +23,7 @@ export class PortfolioComponent implements OnInit {
   showHoldings: boolean = false;
   mutualFundHoldings: MutualFundHolding[] = [];
   showMutualFunds: boolean = false;
+  zerodhaClientId: string = '';
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -64,33 +66,39 @@ export class PortfolioComponent implements OnInit {
     this.loading = true;
 
     // Call backend to check if user has an active Zerodha connection
-    this.apiService.getZerodhaConnectionStatus().subscribe({
-      next: (response: any) => {
-        this.loading = false;
-        let data = response.data;
+    this.apiService
+      .getZerodhaConnectionStatus(this.buildPortfolioHeaders())
+      .subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          let data = response.data;
 
-        if (data.authenticated) {
-          // User has active Zerodha connection
-          this.isConnected = true;
-          this.username = data.username || 'Zerodha User';
-          this.connectionDate = response.connectionDate
-            ? new Date(response.connectionDate)
-            : new Date();
-          this.zerodhaAccessToken = data.accessToken || '';
+          if (data.authenticated) {
+            // User has active Zerodha connection
+            this.isConnected = true;
+            this.username = data.username || 'Zerodha User';
+            this.connectionDate = response.connectionDate
+              ? new Date(response.connectionDate)
+              : new Date();
+            this.zerodhaAccessToken = data.accessToken || '';
+            this.zerodhaClientId = data.clientId || '';
 
-          this.showAlert('Zerodha account connected successfully!', 'success');
-        } else {
-          // No active connection
+            this.showAlert(
+              'Zerodha account connected successfully!',
+              'success'
+            );
+          } else {
+            // No active connection
+            this.isConnected = false;
+          }
+        },
+        error: (error: any) => {
+          this.loading = false;
+          console.error('Error checking Zerodha connection:', error);
+          // If error, assume not connected
           this.isConnected = false;
-        }
-      },
-      error: (error: any) => {
-        this.loading = false;
-        console.error('Error checking Zerodha connection:', error);
-        // If error, assume not connected
-        this.isConnected = false;
-      },
-    });
+        },
+      });
   }
 
   viewHoldings(): void {
@@ -103,7 +111,7 @@ export class PortfolioComponent implements OnInit {
 
     // Call backend API to fetch portfolio data
     // Backend will use the stored access_token
-    this.apiService.getHodlings().subscribe({
+    this.apiService.getHodlings(this.buildPortfolioHeaders()).subscribe({
       next: (response: any) => {
         this.loading = false;
         let data = response.data;
@@ -181,7 +189,7 @@ export class PortfolioComponent implements OnInit {
     this.loading = true;
 
     // Call backend API to fetch mutual funds data
-    this.apiService.getMutualFunds().subscribe({
+    this.apiService.getMutualFunds(this.buildPortfolioHeaders()).subscribe({
       next: (response: any) => {
         this.loading = false;
         let data = response.data;
@@ -249,31 +257,49 @@ export class PortfolioComponent implements OnInit {
     this.alertMessage = '';
   }
 
+  private buildPortfolioHeaders(clientId?: string): HttpHeaders {
+    let headers = new HttpHeaders();
+
+    // Only add Client-ID header if clientId is provided and not empty
+    if (clientId && clientId.trim() !== '') {
+      headers = headers.set('Client-ID', clientId);
+      console.log('Client-ID header added:', clientId);
+    } else {
+      console.log(
+        'Client-ID header NOT added - clientId is empty or not provided'
+      );
+    }
+
+    return headers;
+  }
+
   disconnect(): void {
     if (confirm('Are you sure you want to disconnect your Zerodha account?')) {
       this.loading = true;
 
       // Call backend to invalidate Zerodha session
-      this.apiService.disconnectZerodha().subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          this.isConnected = false;
-          this.zerodhaAccessToken = '';
-          this.portfolioHoldings = [];
-          this.showHoldings = false;
-          this.mutualFundHoldings = [];
-          this.showMutualFunds = false;
-          this.showAlert(
-            'Zerodha account disconnected successfully.',
-            'success'
-          );
-        },
-        error: (error: any) => {
-          this.loading = false;
-          console.error('Error disconnecting Zerodha:', error);
-          this.showAlert('Failed to disconnect. Please try again.', 'error');
-        },
-      });
+      this.apiService
+        .disconnectZerodha(this.buildPortfolioHeaders())
+        .subscribe({
+          next: (response: any) => {
+            this.loading = false;
+            this.isConnected = false;
+            this.zerodhaAccessToken = '';
+            this.portfolioHoldings = [];
+            this.showHoldings = false;
+            this.mutualFundHoldings = [];
+            this.showMutualFunds = false;
+            this.showAlert(
+              'Zerodha account disconnected successfully.',
+              'success'
+            );
+          },
+          error: (error: any) => {
+            this.loading = false;
+            console.error('Error disconnecting Zerodha:', error);
+            this.showAlert('Failed to disconnect. Please try again.', 'error');
+          },
+        });
     }
   }
 }

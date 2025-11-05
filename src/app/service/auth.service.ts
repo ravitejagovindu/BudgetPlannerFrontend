@@ -112,7 +112,7 @@ export class AuthService {
 
     if (currentUser && currentUser.token) {
       // Call backend logout API
-      this.apiService.logout(currentUser).subscribe({
+      this.apiService.logout().subscribe({
         next: () => {
           console.log('Logout successful on backend');
         },

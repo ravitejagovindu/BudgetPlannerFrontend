@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Ledger } from '../model/ledger';
 import { Planner } from '../model/planner';
 import { Observable, of } from 'rxjs';
@@ -19,23 +19,11 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   login(loginRequest: LoginRequest) {
-    return this.http.post<any>(
-      this.hostUrl + 'auth/login',
-      loginRequest
-    );
+    return this.http.post<any>(this.hostUrl + 'auth/login', loginRequest);
   }
 
-  logout(currentUser: any) {
-    return this.http.post(
-      this.hostUrl + 'auth/logout',
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${currentUser.token}`,
-          'User-Id': currentUser.userId.toString(),
-        },
-      }
-    );
+  logout() {
+    return this.http.post(this.hostUrl + 'auth/logout', {});
   }
 
   userSessionStatus(currentUser: any) {
@@ -277,30 +265,38 @@ export class ApiService {
    * Returns: { url: "https://kite.zerodha.com/connect/login?..." }
    */
   getZerodhaLoginUrl(): Observable<any> {
-    return this.http.post<any>(this.hostUrl + 'kite/connect',{});
+    return this.http.post<any>(this.hostUrl + 'kite/connect', {});
   }
 
-  getZerodhaConnectionStatus(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'kite/status');
+  getZerodhaConnectionStatus(headers: HttpHeaders): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'kite/status', { headers });
   }
 
-  disconnectZerodha(): Observable<any> {
-    return this.http.post<any>(this.hostUrl + 'kite/disconnect', {});
+  disconnectZerodha(headers: HttpHeaders): Observable<any> {
+    return this.http.post<any>(
+      this.hostUrl + 'kite/disconnect',
+      {},
+      { headers }
+    );
   }
 
-  getHodlings(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'portfolio/holdings');
+  getHodlings(headers: HttpHeaders): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/holdings', { headers });
   }
 
-  getZerodhaPositions(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'portfolio/positions');
+  getZerodhaPositions(headers: HttpHeaders): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/positions', {
+      headers,
+    });
   }
 
-  getZerodhaFunds(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'portfolio/funds');
+  getZerodhaFunds(headers: HttpHeaders): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/funds', { headers });
   }
 
-  getMutualFunds(): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'portfolio/mutualFunds');
+  getMutualFunds(headers: HttpHeaders): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'portfolio/mutualFunds', {
+      headers,
+    });
   }
 }
