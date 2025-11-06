@@ -1,9 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../service/api.service';
+import { AuthService } from '../service/auth.service';
 import { PortfolioHolding } from '../model/portfolioHolding';
 import { MutualFundHolding } from '../model/mutualFundHoldings';
 import { HttpHeaders } from '@angular/common/http';
+
+// Interface for Zerodha broker status from backend
+interface BrokerStatus {
+  clientId: string;
+  username: string;
+  isAuthenticated: boolean;
+}
+
+// Interface for account state (one per client-id)
+interface AccountState {
+  broker: BrokerStatus;
+  portfolioHoldings: PortfolioHolding[];
+  showHoldings: boolean;
+  mutualFundHoldings: MutualFundHolding[];
+  showMutualFunds: boolean;
+  loading: boolean;
+}
 
 @Component({
   selector: 'app-portfolio',
@@ -12,50 +30,92 @@ import { HttpHeaders } from '@angular/common/http';
   styleUrl: './portfolio.component.css',
 })
 export class PortfolioComponent implements OnInit {
-  loading: boolean = false;
-  isConnected: boolean = false;
+  // Global state
   alertMessage: string = '';
   alertType: 'success' | 'error' = 'success';
-  username: string = '';
-  connectionDate: Date = new Date();
-  zerodhaAccessToken: string = '';
-  portfolioHoldings: PortfolioHolding[] = [];
-  showHoldings: boolean = false;
-  mutualFundHoldings: MutualFundHolding[] = [];
-  showMutualFunds: boolean = false;
-  zerodhaClientId: string = '';
+  globalLoading: boolean = false;
+
+  // NEW: Array of broker accounts - one section per account
+  brokerAccounts: AccountState[] = [];
 
   constructor(
     private apiService: ApiService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    // Check if Zerodha connection already exists on backend
-    this.checkZerodhaConnection();
-
+    // Check for OAuth callback parameters
     this.route.queryParams.subscribe((params) => {
       if (params['status'] === 'success' && params['client-id']) {
-        const clientId = params['client-id'];
-        this.zerodhaClientId = clientId;
+        console.log(
+          'OAuth callback received with client-id:',
+          params['client-id']
+        );
+        // Clean URL
         this.router.navigate(['/portfolio']);
+        // Check connection to get all broker accounts
         this.checkZerodhaConnection();
       } else {
+        // No OAuth callback, check existing connections
         this.checkZerodhaConnection();
       }
     });
   }
 
-  connectToZerodha(): void {
-    this.loading = true;
+  checkZerodhaConnection(): void {
+    this.globalLoading = true;
+
+    // Get status - backend now returns array of BrokerStatusResponse[]
+    this.apiService.getZerodhaConnectionStatus().subscribe({
+      next: (response: any) => {
+        this.globalLoading = false;
+
+        // Response should contain array of broker accounts
+        const brokerStatuses: BrokerStatus[] = response.data || [];
+
+        if (brokerStatuses && brokerStatuses.length > 0) {
+          console.log('Broker accounts received:', brokerStatuses);
+
+          // Initialize account states for each broker
+          this.brokerAccounts = brokerStatuses.map((broker) => ({
+            broker,
+            portfolioHoldings: [],
+            showHoldings: false,
+            mutualFundHoldings: [],
+            showMutualFunds: false,
+            loading: false,
+          }));
+
+          this.showAlert(
+            `Successfully loaded ${brokerStatuses.length} Zerodha account(s)!`,
+            'success'
+          );
+        } else {
+          this.brokerAccounts = [];
+          console.log('No broker accounts found');
+        }
+      },
+      error: (error: any) => {
+        this.globalLoading = false;
+        console.error('Error checking Zerodha connection:', error);
+        this.brokerAccounts = [];
+      },
+    });
+  }
+
+  /**
+   * Connect to Zerodha - initiates OAuth flow
+   * @param clientId - specific client-id to connect (optional)
+   */
+  connectToZerodha(accountState: AccountState): void {
+    this.globalLoading = true;
     this.closeAlert();
 
-    // Call backend API to initiate Zerodha OAuth
-    // Backend will handle redirect and session generation
-    this.apiService.getZerodhaLoginUrl().subscribe({
+    this.apiService.getZerodhaLoginUrl(this.buildPortfolioHeaders(accountState.broker.clientId)).subscribe({
       next: (response: any) => {
-        this.loading = false;
+        this.globalLoading = false;
         let data = response.data;
         if (data.loginUrl) {
           window.location.href = data.loginUrl;
@@ -67,7 +127,7 @@ export class PortfolioComponent implements OnInit {
         }
       },
       error: (error: any) => {
-        this.loading = false;
+        this.globalLoading = false;
         console.error('Error initiating Zerodha connection:', error);
         this.showAlert(
           'Unable to connect to Zerodha. Please try again later.',
@@ -77,184 +137,211 @@ export class PortfolioComponent implements OnInit {
     });
   }
 
-  checkZerodhaConnection(): void {
-    this.loading = true;
-
-    // Call backend to check if user has an active Zerodha connection
-    this.apiService
-      .getZerodhaConnectionStatus(this.buildPortfolioHeaders())
-      .subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          let data = response.data;
-          if (data.authenticated) {
-            this.isConnected = true;
-            this.username = data.username || 'Zerodha User';
-            this.zerodhaClientId = data.clientId || '';
-            this.showAlert(
-              'Zerodha account connected successfully!',
-              'success'
-            );
-          } else {
-            this.isConnected = false;
-          }
-        },
-        error: (error: any) => {
-          this.loading = false;
-          console.error('Error checking Zerodha connection:', error);
-          // If error, assume not connected
-          this.isConnected = false;
-        },
-      });
-  }
-
-  viewHoldings(): void {
-    if (!this.zerodhaAccessToken) {
-      this.showAlert('Access token not available. Please reconnect.', 'error');
+  /**
+   * View holdings for specific client-id
+   * @param accountState - account state containing client-id
+   */
+  viewHoldings(accountState: AccountState): void {
+    if (!accountState.broker.isAuthenticated) {
+      this.showAlert('Please connect to Zerodha first.', 'error');
       return;
     }
 
-    this.loading = true;
+    accountState.loading = true;
 
-    // Call backend API to fetch portfolio data
-    // Backend will use the stored access_token
-    this.apiService.getHodlings(this.buildPortfolioHeaders()).subscribe({
+    // Pass client-id to API
+    this.apiService.getHodlings(this.buildPortfolioHeaders(accountState.broker.clientId)).subscribe({
       next: (response: any) => {
-        this.loading = false;
+        accountState.loading = false;
         let data = response.data;
-        console.log('Portfolio Holding data:', data);
-        this.portfolioHoldings = [];
-        this.portfolioHoldings = data;
-        this.showHoldings = true;
+        console.log(
+          'Portfolio Holding data for',
+          accountState.broker.clientId,
+          ':',
+          data
+        );
 
-        // TODO: Display portfolio data in UI
+        accountState.portfolioHoldings = data || [];
+        accountState.showHoldings = true;
+        accountState.showMutualFunds = false;
+
         this.showAlert('Portfolio data loaded successfully!', 'success');
       },
       error: (error: any) => {
-        this.loading = false;
+        accountState.loading = false;
         console.error('Error fetching portfolio:', error);
         this.showAlert('Failed to load portfolio data.', 'error');
       },
     });
   }
 
-  getTotalInvestment(): number {
-    return this.portfolioHoldings.reduce((total, holding) => {
-      return total + holding.averagePrice * holding.quantity;
-    }, 0);
-  }
-
-  // Helper method to get current portfolio value
-  getCurrentValue(): number {
-    return this.portfolioHoldings.reduce((total, holding) => {
-      return total + holding.lastPrice * holding.quantity;
-    }, 0);
-  }
-
-  // Helper method to get total P&L
-  getTotalPnL(): number {
-    return this.portfolioHoldings.reduce((total, holding) => {
-      return total + holding.pnl;
-    }, 0);
-  }
-
-  // Helper method to get total day change
-  getTotalDayChange(): number {
-    return this.portfolioHoldings.reduce((total, holding) => {
-      return total + holding.dayChange;
-    }, 0);
-  }
-
-  // Helper method to calculate overall P&L percentage
-  getPnLPercentage(): number {
-    const totalInvestment = this.getTotalInvestment();
-    if (totalInvestment === 0) return 0;
-    return (this.getTotalPnL() / totalInvestment) * 100;
-  }
-
-  // Helper method to determine if overall P&L is positive
-  isOverallProfitable(): boolean {
-    return this.getTotalPnL() >= 0;
-  }
-
-  // Helper method to check if individual holding is profitable
-  isProfitable(holding: PortfolioHolding): boolean {
-    return holding.pnl >= 0;
-  }
-
-  // Helper method to check if day change is positive
-  isDayChangePositive(holding: PortfolioHolding): boolean {
-    return holding.dayChange >= 0;
-  }
-
-  viewMutualFunds(): void {
-    if (!this.zerodhaAccessToken) {
-      this.showAlert('Access token not available. Please reconnect.', 'error');
+  /**
+   * View mutual funds for specific client-id
+   * @param accountState - account state containing client-id
+   */
+  viewMutualFunds(accountState: AccountState): void {
+    if (!accountState.broker.isAuthenticated) {
+      this.showAlert('Please connect to Zerodha first.', 'error');
       return;
     }
 
-    this.loading = true;
+    accountState.loading = true;
 
-    // Call backend API to fetch mutual funds data
-    this.apiService.getMutualFunds(this.buildPortfolioHeaders()).subscribe({
+    // Pass client-id to API
+    this.apiService.getMutualFunds(this.buildPortfolioHeaders(accountState.broker.clientId)).subscribe({
       next: (response: any) => {
-        this.loading = false;
+        accountState.loading = false;
         let data = response.data;
-        console.log('Mutual Fund Holding data:', data);
-        this.mutualFundHoldings = [];
-        this.mutualFundHoldings = data;
-        this.showMutualFunds = true;
-        // Hide holdings when showing mutual funds
-        this.showHoldings = false;
+        console.log(
+          'Mutual Fund Holding data for',
+          accountState.broker.clientId,
+          ':',
+          data
+        );
 
-        // Display mutual funds data in UI
+        accountState.mutualFundHoldings = data || [];
+        accountState.showMutualFunds = true;
+        accountState.showHoldings = false;
+
         this.showAlert('Mutual Funds data loaded successfully!', 'success');
       },
       error: (error: any) => {
-        this.loading = false;
+        accountState.loading = false;
         console.error('Error fetching mutual funds:', error);
         this.showAlert('Failed to load mutual funds data.', 'error');
       },
     });
   }
 
-  getMFTotalInvestment(): number {
-    return this.mutualFundHoldings.reduce((total, holding) => {
+  /**
+   * Disconnect from Zerodha for specific client-id
+   * @param accountState - account state containing client-id
+   */
+  disconnect(accountState: AccountState): void {
+    if (
+      confirm(
+        `Are you sure you want to disconnect Zerodha account (${accountState.broker.username})?`
+      )
+    ) {
+      accountState.loading = true;
+
+      // Pass client-id to API for disconnect
+      this.apiService
+        .disconnectZerodha(this.buildPortfolioHeaders(accountState.broker.clientId))
+        .subscribe({
+          next: (response: any) => {
+            accountState.loading = false;
+
+            // Remove this account from the list
+            const index = this.brokerAccounts.indexOf(accountState);
+            if (index > -1) {
+              this.brokerAccounts.splice(index, 1);
+            }
+
+            this.showAlert(
+              `Zerodha account (${accountState.broker.username}) disconnected successfully.`,
+              'success'
+            );
+          },
+          error: (error: any) => {
+            accountState.loading = false;
+            console.error('Error disconnecting Zerodha:', error);
+            this.showAlert('Failed to disconnect. Please try again.', 'error');
+          },
+        });
+    }
+  }
+
+  // ========================================
+  // PORTFOLIO CALCULATIONS (per account)
+  // ========================================
+
+  getTotalInvestment(holdings: PortfolioHolding[]): number {
+    return holdings.reduce((total, holding) => {
       return total + holding.averagePrice * holding.quantity;
     }, 0);
   }
 
-  getMFCurrentValue(): number {
-    return this.mutualFundHoldings.reduce((total, holding) => {
+  getCurrentValue(holdings: PortfolioHolding[]): number {
+    return holdings.reduce((total, holding) => {
       return total + holding.lastPrice * holding.quantity;
     }, 0);
   }
 
-  getMFTotalPnL(): number {
-    return this.mutualFundHoldings.reduce((total, holding) => {
+  getTotalPnL(holdings: PortfolioHolding[]): number {
+    return holdings.reduce((total, holding) => {
       return total + holding.pnl;
     }, 0);
   }
 
-  getMFPnLPercentage(): number {
-    const totalInvestment = this.getMFTotalInvestment();
-    if (totalInvestment === 0) return 0;
-    return (this.getMFTotalPnL() / totalInvestment) * 100;
+  getTotalDayChange(holdings: PortfolioHolding[]): number {
+    return holdings.reduce((total, holding) => {
+      return total + holding.dayChange;
+    }, 0);
   }
 
-  isMFOverallProfitable(): boolean {
-    return this.getMFTotalPnL() >= 0;
+  getPnLPercentage(holdings: PortfolioHolding[]): number {
+    const totalInvestment = this.getTotalInvestment(holdings);
+    if (totalInvestment === 0) return 0;
+    return (this.getTotalPnL(holdings) / totalInvestment) * 100;
+  }
+
+  isOverallProfitable(holdings: PortfolioHolding[]): boolean {
+    return this.getTotalPnL(holdings) >= 0;
+  }
+
+  isProfitable(holding: PortfolioHolding): boolean {
+    return holding.pnl >= 0;
+  }
+
+  isDayChangePositive(holding: PortfolioHolding): boolean {
+    return holding.dayChange >= 0;
+  }
+
+  // ========================================
+  // MUTUAL FUND CALCULATIONS (per account)
+  // ========================================
+
+  getMFTotalInvestment(holdings: MutualFundHolding[]): number {
+    return holdings.reduce((total, holding) => {
+      return total + holding.averagePrice * holding.quantity;
+    }, 0);
+  }
+
+  getMFCurrentValue(holdings: MutualFundHolding[]): number {
+    return holdings.reduce((total, holding) => {
+      return total + holding.lastPrice * holding.quantity;
+    }, 0);
+  }
+
+  getMFTotalPnL(holdings: MutualFundHolding[]): number {
+    return holdings.reduce((total, holding) => {
+      return total + holding.pnl;
+    }, 0);
+  }
+
+  getMFPnLPercentage(holdings: MutualFundHolding[]): number {
+    const totalInvestment = this.getMFTotalInvestment(holdings);
+    if (totalInvestment === 0) return 0;
+    return (this.getMFTotalPnL(holdings) / totalInvestment) * 100;
+  }
+
+  isMFOverallProfitable(holdings: MutualFundHolding[]): boolean {
+    return this.getMFTotalPnL(holdings) >= 0;
   }
 
   isMFProfitable(holding: MutualFundHolding): boolean {
     return holding.pnl >= 0;
   }
 
+  // ========================================
+  // ALERT METHODS
+  // ========================================
+
   showAlert(message: string, type: 'success' | 'error'): void {
     this.alertMessage = message;
     this.alertType = type;
 
-    // Auto-dismiss after 5 seconds
     setTimeout(() => {
       this.closeAlert();
     }, 5000);
@@ -264,49 +351,14 @@ export class PortfolioComponent implements OnInit {
     this.alertMessage = '';
   }
 
-  private buildPortfolioHeaders(clientId?: string): HttpHeaders {
+  private buildPortfolioHeaders(clientId: string): HttpHeaders {
     let headers = new HttpHeaders();
-
-    // Only add Client-ID header if clientId is provided and not empty
     if (clientId && clientId.trim() !== '') {
       headers = headers.set('Client-ID', clientId);
-      console.log('Client-ID header added:', clientId);
+      console.log('✓ Client-ID header added:', clientId);
     } else {
-      console.log(
-        'Client-ID header NOT added - clientId is empty or not provided'
-      );
+      console.log('✗ Client-ID header NOT added - clientId empty');
     }
-
     return headers;
-  }
-
-  disconnect(): void {
-    if (confirm('Are you sure you want to disconnect your Zerodha account?')) {
-      this.loading = true;
-
-      // Call backend to invalidate Zerodha session
-      this.apiService
-        .disconnectZerodha(this.buildPortfolioHeaders())
-        .subscribe({
-          next: (response: any) => {
-            this.loading = false;
-            this.isConnected = false;
-            this.zerodhaAccessToken = '';
-            this.portfolioHoldings = [];
-            this.showHoldings = false;
-            this.mutualFundHoldings = [];
-            this.showMutualFunds = false;
-            this.showAlert(
-              'Zerodha account disconnected successfully.',
-              'success'
-            );
-          },
-          error: (error: any) => {
-            this.loading = false;
-            console.error('Error disconnecting Zerodha:', error);
-            this.showAlert('Failed to disconnect. Please try again.', 'error');
-          },
-        });
-    }
   }
 }

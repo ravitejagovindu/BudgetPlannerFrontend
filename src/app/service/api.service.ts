@@ -264,12 +264,12 @@ export class ApiService {
    * Endpoint: GET localhost:8080/auth/login-url
    * Returns: { url: "https://kite.zerodha.com/connect/login?..." }
    */
-  getZerodhaLoginUrl(): Observable<any> {
-    return this.http.post<any>(this.hostUrl + 'kite/connect', {});
+  getZerodhaLoginUrl(headers: HttpHeaders): Observable<any> {
+    return this.http.post<any>(this.hostUrl + 'kite/connect', {}, { headers });
   }
 
-  getZerodhaConnectionStatus(headers: HttpHeaders): Observable<any> {
-    return this.http.get<any>(this.hostUrl + 'kite/status', { headers });
+  getZerodhaConnectionStatus(): Observable<any> {
+    return this.http.get<any>(this.hostUrl + 'kite/status');
   }
 
   disconnectZerodha(headers: HttpHeaders): Observable<any> {
