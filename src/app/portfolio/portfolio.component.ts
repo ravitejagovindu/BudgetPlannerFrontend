@@ -10,7 +10,7 @@ import { HttpHeaders } from '@angular/common/http';
 interface BrokerStatus {
   clientId: string;
   username: string;
-  isAuthenticated: boolean;
+  authenticated: boolean;
 }
 
 // Interface for account state (one per client-id)
@@ -113,28 +113,32 @@ export class PortfolioComponent implements OnInit {
     this.globalLoading = true;
     this.closeAlert();
 
-    this.apiService.getZerodhaLoginUrl(this.buildPortfolioHeaders(accountState.broker.clientId)).subscribe({
-      next: (response: any) => {
-        this.globalLoading = false;
-        let data = response.data;
-        if (data.loginUrl) {
-          window.location.href = data.loginUrl;
-        } else {
+    this.apiService
+      .getZerodhaLoginUrl(
+        this.buildPortfolioHeaders(accountState.broker.clientId)
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.globalLoading = false;
+          let data = response.data;
+          if (data.loginUrl) {
+            window.location.href = data.loginUrl;
+          } else {
+            this.showAlert(
+              'Failed to initiate Zerodha connection. Please try again.',
+              'error'
+            );
+          }
+        },
+        error: (error: any) => {
+          this.globalLoading = false;
+          console.error('Error initiating Zerodha connection:', error);
           this.showAlert(
-            'Failed to initiate Zerodha connection. Please try again.',
+            'Unable to connect to Zerodha. Please try again later.',
             'error'
           );
-        }
-      },
-      error: (error: any) => {
-        this.globalLoading = false;
-        console.error('Error initiating Zerodha connection:', error);
-        this.showAlert(
-          'Unable to connect to Zerodha. Please try again later.',
-          'error'
-        );
-      },
-    });
+        },
+      });
   }
 
   /**
@@ -142,7 +146,7 @@ export class PortfolioComponent implements OnInit {
    * @param accountState - account state containing client-id
    */
   viewHoldings(accountState: AccountState): void {
-    if (!accountState.broker.isAuthenticated) {
+    if (!accountState.broker.authenticated) {
       this.showAlert('Please connect to Zerodha first.', 'error');
       return;
     }
@@ -150,29 +154,31 @@ export class PortfolioComponent implements OnInit {
     accountState.loading = true;
 
     // Pass client-id to API
-    this.apiService.getHodlings(this.buildPortfolioHeaders(accountState.broker.clientId)).subscribe({
-      next: (response: any) => {
-        accountState.loading = false;
-        let data = response.data;
-        console.log(
-          'Portfolio Holding data for',
-          accountState.broker.clientId,
-          ':',
-          data
-        );
+    this.apiService
+      .getHodlings(this.buildPortfolioHeaders(accountState.broker.clientId))
+      .subscribe({
+        next: (response: any) => {
+          accountState.loading = false;
+          let data = response.data;
+          console.log(
+            'Portfolio Holding data for',
+            accountState.broker.clientId,
+            ':',
+            data
+          );
 
-        accountState.portfolioHoldings = data || [];
-        accountState.showHoldings = true;
-        accountState.showMutualFunds = false;
+          accountState.portfolioHoldings = data || [];
+          accountState.showHoldings = true;
+          accountState.showMutualFunds = false;
 
-        this.showAlert('Portfolio data loaded successfully!', 'success');
-      },
-      error: (error: any) => {
-        accountState.loading = false;
-        console.error('Error fetching portfolio:', error);
-        this.showAlert('Failed to load portfolio data.', 'error');
-      },
-    });
+          this.showAlert('Portfolio data loaded successfully!', 'success');
+        },
+        error: (error: any) => {
+          accountState.loading = false;
+          console.error('Error fetching portfolio:', error);
+          this.showAlert('Failed to load portfolio data.', 'error');
+        },
+      });
   }
 
   /**
@@ -180,7 +186,7 @@ export class PortfolioComponent implements OnInit {
    * @param accountState - account state containing client-id
    */
   viewMutualFunds(accountState: AccountState): void {
-    if (!accountState.broker.isAuthenticated) {
+    if (!accountState.broker.authenticated) {
       this.showAlert('Please connect to Zerodha first.', 'error');
       return;
     }
@@ -188,29 +194,31 @@ export class PortfolioComponent implements OnInit {
     accountState.loading = true;
 
     // Pass client-id to API
-    this.apiService.getMutualFunds(this.buildPortfolioHeaders(accountState.broker.clientId)).subscribe({
-      next: (response: any) => {
-        accountState.loading = false;
-        let data = response.data;
-        console.log(
-          'Mutual Fund Holding data for',
-          accountState.broker.clientId,
-          ':',
-          data
-        );
+    this.apiService
+      .getMutualFunds(this.buildPortfolioHeaders(accountState.broker.clientId))
+      .subscribe({
+        next: (response: any) => {
+          accountState.loading = false;
+          let data = response.data;
+          console.log(
+            'Mutual Fund Holding data for',
+            accountState.broker.clientId,
+            ':',
+            data
+          );
 
-        accountState.mutualFundHoldings = data || [];
-        accountState.showMutualFunds = true;
-        accountState.showHoldings = false;
+          accountState.mutualFundHoldings = data || [];
+          accountState.showMutualFunds = true;
+          accountState.showHoldings = false;
 
-        this.showAlert('Mutual Funds data loaded successfully!', 'success');
-      },
-      error: (error: any) => {
-        accountState.loading = false;
-        console.error('Error fetching mutual funds:', error);
-        this.showAlert('Failed to load mutual funds data.', 'error');
-      },
-    });
+          this.showAlert('Mutual Funds data loaded successfully!', 'success');
+        },
+        error: (error: any) => {
+          accountState.loading = false;
+          console.error('Error fetching mutual funds:', error);
+          this.showAlert('Failed to load mutual funds data.', 'error');
+        },
+      });
   }
 
   /**
@@ -227,7 +235,9 @@ export class PortfolioComponent implements OnInit {
 
       // Pass client-id to API for disconnect
       this.apiService
-        .disconnectZerodha(this.buildPortfolioHeaders(accountState.broker.clientId))
+        .disconnectZerodha(
+          this.buildPortfolioHeaders(accountState.broker.clientId)
+        )
         .subscribe({
           next: (response: any) => {
             accountState.loading = false;

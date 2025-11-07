@@ -44,7 +44,7 @@
       <!-- ========================================== -->
       <!-- ACCOUNT NOT CONNECTED - CONNECT SECTION -->
       <!-- ========================================== -->
-      <div *ngIf="!account.broker.isAuthenticated" class="card form-card">
+      <div *ngIf="!account.broker.authenticated" class="card form-card">
         <div class="card-header">
           <h5 class="card-title mb-0">
             <i class="bi bi-link-45deg me-2"></i>Connect to Zerodha Account
@@ -103,7 +103,7 @@
       <!-- ========================================== -->
       <!-- ACCOUNT CONNECTED - SUCCESS SECTION -->
       <!-- ========================================== -->
-      <div *ngIf="account.broker.isAuthenticated && !account.showHoldings && !account.showMutualFunds"
+      <div *ngIf="account.broker.authenticated && !account.showHoldings && !account.showMutualFunds"
         class="card success-card">
         <div class="card-header bg-success">
           <h5 class="card-title mb-0 text-white">
@@ -179,7 +179,7 @@
       <!-- ========================================== -->
       <!-- STOCK HOLDINGS DISPLAY -->
       <!-- ========================================== -->
-      <div *ngIf="account.broker.isAuthenticated && account.showHoldings">
+      <div *ngIf="account.broker.authenticated && account.showHoldings">
         <!-- Portfolio Summary Cards -->
         <div class="mb-4">
           <div class="portfolio-summary">
@@ -351,7 +351,7 @@
       <!-- ========================================== -->
       <!-- MUTUAL FUNDS DISPLAY -->
       <!-- ========================================== -->
-      <div *ngIf="account.broker.isAuthenticated && account.showMutualFunds">
+      <div *ngIf="account.broker.authenticated && account.showMutualFunds">
         <!-- Mutual Funds Summary Cards -->
         <div class="mb-4">
           <div class="portfolio-summary">
