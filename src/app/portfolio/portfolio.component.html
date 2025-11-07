@@ -180,12 +180,31 @@
       <!-- STOCK HOLDINGS DISPLAY -->
       <!-- ========================================== -->
       <div *ngIf="account.broker.authenticated && account.showHoldings">
+
+        <!-- Holdings Header with Actions -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="holdings-title">
+              <i class="bi bi-briefcase me-2"></i>Your Stock Holdings ({{ account.portfolioHoldings.length }}) - {{
+              account.broker.username }}
+            </h4>
+            <div>
+              <button class="btn btn-outline-primary me-2" (click)="viewHoldings(account)" [disabled]="account.loading">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+              </button>
+              <button class="btn btn-outline-secondary" (click)="account.showHoldings = false">
+                <i class="bi bi-arrow-left me-1"></i>Back
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Portfolio Summary Cards -->
         <div class="mb-4">
           <div class="portfolio-summary">
             <div class="row g-3">
               <!-- Total Investment Card -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg col-md">
                 <div class="summary-card">
                   <div class="summary-icon bg-primary">
                     <i class="bi bi-wallet2"></i>
@@ -198,7 +217,7 @@
               </div>
 
               <!-- Current Value Card -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg col-md">
                 <div class="summary-card">
                   <div class="summary-icon bg-info">
                     <i class="bi bi-currency-rupee"></i>
@@ -211,7 +230,7 @@
               </div>
 
               <!-- Total P&L Card -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg col-md">
                 <div class="summary-card">
                   <div class="summary-icon"
                     [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'bg-success' : 'bg-danger'">
@@ -232,7 +251,7 @@
               </div>
 
               <!-- Day Change Card -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg col-md">
                 <div class="summary-card">
                   <div class="summary-icon bg-warning">
                     <i class="bi bi-clock-history"></i>
@@ -247,24 +266,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Holdings Header with Actions -->
-        <div class="mb-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="holdings-title">
-              <i class="bi bi-briefcase me-2"></i>Your Stock Holdings ({{ account.portfolioHoldings.length }}) - {{
-              account.broker.username }}
-            </h4>
-            <div>
-              <button class="btn btn-outline-primary me-2" (click)="viewHoldings(account)" [disabled]="account.loading">
-                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-              </button>
-              <button class="btn btn-outline-secondary" (click)="account.showHoldings = false">
-                <i class="bi bi-arrow-left me-1"></i>Back
-              </button>
             </div>
           </div>
         </div>
