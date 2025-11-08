@@ -353,6 +353,27 @@
       <!-- MUTUAL FUNDS DISPLAY -->
       <!-- ========================================== -->
       <div *ngIf="account.broker.authenticated && account.showMutualFunds">
+
+        <!-- Mutual Funds Header with Actions -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="holdings-title">
+              <i class="bi bi-graph-up-arrow me-2"></i>Your Mutual Funds ({{ account.mutualFundHoldings.length }}) - {{
+              account.broker.username }}
+            </h4>
+            <div>
+              <button class="btn btn-outline-primary me-2" (click)="viewMutualFunds(account)"
+                [disabled]="account.loading">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+              </button>
+              <button class="btn btn-outline-secondary" (click)="account.showMutualFunds = false">
+                <i class="bi bi-arrow-left me-1"></i>Back
+              </button>
+            </div>
+          </div>
+        </div>
+
+
         <!-- Mutual Funds Summary Cards -->
         <div class="mb-4">
           <div class="portfolio-summary">
@@ -408,33 +429,14 @@
           </div>
         </div>
 
-        <!-- Mutual Funds Header with Actions -->
-        <div class="mb-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="holdings-title">
-              <i class="bi bi-graph-up-arrow me-2"></i>Your Mutual Funds ({{ account.mutualFundHoldings.length }}) - {{
-              account.broker.username }}
-            </h4>
-            <div>
-              <button class="btn btn-outline-primary me-2" (click)="viewMutualFunds(account)"
-                [disabled]="account.loading">
-                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-              </button>
-              <button class="btn btn-outline-secondary" (click)="account.showMutualFunds = false">
-                <i class="bi bi-arrow-left me-1"></i>Back
-              </button>
-            </div>
-          </div>
-        </div>
-
         <!-- Mutual Funds Cards -->
         <div class="row">
           <div class="col-lg-6 col-md-6 mb-4" *ngFor="let mf of account.mutualFundHoldings">
             <div class="holding-card">
               <div class="holding-header">
                 <div class="holding-symbol">
-                  <h5 class="mb-0">{{ mf.tradingSymbol }}</h5>
-                  <small class="text-muted">{{ mf.fund }}</small>
+                  <h5 class="mb-0">{{ mf.fund }}</h5>
+                  <!-- <small class="text-muted">{{ mf.fund }}</small> -->
                 </div>
                 <div class="holding-badge" [ngClass]="isMFProfitable(mf) ? 'badge-success' : 'badge-danger'">
                   {{ isMFProfitable(mf) ? 'Profit' : 'Loss' }}
@@ -452,20 +454,20 @@
                     <span class="stat-value">{{ mf.quantity }}</span>
                   </div>
                   <div class="stat-row">
-                    <span class="stat-label">Avg. Price:</span>
+                    <span class="stat-label">Invested Price:</span>
                     <span class="stat-value">₹{{ mf.averagePrice | number:'1.2-2' }}</span>
                   </div>
                   <div class="stat-row">
-                    <span class="stat-label">NAV:</span>
+                    <span class="stat-label">Current Price:</span>
                     <span class="stat-value">₹{{ mf.lastPrice | number:'1.2-2' }}</span>
                   </div>
                   <div class="stat-row">
                     <span class="stat-label">Investment:</span>
-                    <span class="stat-value">₹{{ (mf.averagePrice * mf.quantity) | number:'1.2-2' }}</span>
+                    <span class="stat-value">₹{{ (mf.investedAmount) | number:'1.2-2' }}</span>
                   </div>
                   <div class="stat-row">
                     <span class="stat-label">Current Value:</span>
-                    <span class="stat-value">₹{{ (mf.lastPrice * mf.quantity) | number:'1.2-2' }}</span>
+                    <span class="stat-value">₹{{ (mf.currentValue) | number:'1.2-2' }}</span>
                   </div>
                 </div>
 
@@ -477,6 +479,7 @@
                     <div class="performance-value" [ngClass]="isMFProfitable(mf) ? 'text-success' : 'text-danger'">
                       <i class="bi" [ngClass]="isMFProfitable(mf) ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
                       {{ isMFProfitable(mf) ? '+' : '' }}₹{{ mf.pnl | number:'1.2-2' }}
+                      ({{ mf.pnlPercentage | number:'1.2-2' }}%)
                     </div>
                   </div>
                 </div>
