@@ -7,6 +7,8 @@ import { LoginRequest } from '../model/LoginRequest';
 import { LoginResponse } from '../model/LoginResponse';
 import { AuthStatusResponse } from '../model/AuthStatusResponse';
 import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
+import { of } from 'rxjs';
 
 export interface User {
   username: string;
@@ -23,12 +25,8 @@ interface StoredSession {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly SESSION_KEY = 'budget_planner_session';
-  private readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-  private readonly API_BASE_URL =
-    'https://budget-planner-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/';
-  // private readonly API_BASE_URL = 'http://localhost:8080/';
+  private readonly SESSION_KEY = environment.sessionStorageKey;
+  private readonly SESSION_TIMEOUT = environment.sessionTimeout;
 
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
@@ -107,7 +105,7 @@ export class AuthService {
   /**
    * Logout user - call backend API and clear local session
    */
-  logout(): void {
+  logout(): Observable<boolean> {
     const currentUser = this.currentUserValue;
 
     if (currentUser && currentUser.token) {
@@ -115,18 +113,22 @@ export class AuthService {
       this.apiService.logout().subscribe({
         next: () => {
           console.log('Logout successful on backend');
+          return true;
         },
         error: (error) => {
           console.error('Logout error on backend:', error);
+          return false;
           // Continue with local logout even if backend fails
         },
         complete: () => {
           this.performLocalLogout();
+          return true;
         },
       });
     } else {
       this.performLocalLogout();
     }
+    return of(false);
   }
 
   /**

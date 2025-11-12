@@ -1,64 +1,276 @@
-<div class="pb-2">
-  <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
-    <div class="container-fluid">
-      <a class="navbar-brand" routerLink="">Budget Planner</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <!-- Container for responsive layout -->
+  <div class="container-fluid px-4 px-lg-5">
+    <!-- Brand/Logo -->
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="#" routerLink="/">
+      <i class="fas fa-piggy-bank me-2" style="color: var(--primary); font-size: 1.5rem;"></i>
+      <span style="font-size: 1.5rem; color: var(--primary);">Budget Planner</span>
+    </a>
 
-      <!-- Navbar Toggler Button (for smaller screens) -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <!-- Toggle button for mobile -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/dashboard" data-bs-toggle="collapse"
-              data-bs-target=".navbar-collapse.show">Dashboard</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/monthly-planner" data-bs-toggle="collapse"
-              data-bs-target=".navbar-collapse.show">Planner</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/ledger" data-bs-toggle="collapse"
-              data-bs-target=".navbar-collapse.show">Ledger</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/portfolio" data-bs-toggle="collapse"
-              data-bs-target=".navbar-collapse.show">Portfolio</a>
-          </li>
-        </ul>
+    <!-- Navbar content -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- Main navigation links -->
+      <ul class="navbar-nav ms-auto gap-1">
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" [class.active]="isActive('/dashboard')" routerLink="/dashboard"
+            (click)="closeNavbar()">
+            <i class="fas fa-chart-line me-2"></i>
+            Dashboard
+          </a>
+        </li>
 
-        <!-- Auth Buttons -->
-        <ul class="navbar-nav ms-auto" *ngIf="!isLoggedIn">
-          <li class="nav-item">
-            <a class="nav-link btn btn-outline-primary btn-sm px-3" routerLink="/login" data-bs-toggle="collapse"
-              data-bs-target=".navbar-collapse.show">
-              <i class="bi bi-box-arrow-in-right me-1"></i>Login
-            </a>
-          </li>
-        </ul>
+        <!-- Planner -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" [class.active]="isActive('/planner')" routerLink="/planner"
+            (click)="closeNavbar()">
+            <i class="fas fa-calendar-alt me-2"></i>
+            Planner
+          </a>
+        </li>
 
-        <!-- Profile Dropdown when logged in -->
-        <ul class="navbar-nav ms-auto" *ngIf="isLoggedIn">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false" style="cursor: pointer;">
-              <i class="bi bi-person-circle me-1"></i>{{ username }}
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-              <li><a class="dropdown-item" routerLink="/manage-planner">Manage Planner</a></li>
-              <li>
-                <hr class="dropdown-divider">
-              </li>
-              <li><a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">Logout</a></li>
-            </ul>
-          </li>
-        </ul>
+        <!-- Ledger -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" [class.active]="isActive('/ledger')" routerLink="/ledger"
+            (click)="closeNavbar()">
+            <i class="fas fa-book me-2"></i>
+            Ledger
+          </a>
+        </li>
 
-      </div>
+        <!-- Portfolio -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" [class.active]="isActive('/portfolio')" routerLink="/portfolio"
+            (click)="closeNavbar()">
+            <i class="fas fa-briefcase me-2"></i>
+            Portfolio
+          </a>
+        </li>
+
+        <!-- Manage Categories (NEW) -->
+        <!-- <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" [class.active]="isActive('/manage-planner')"
+            routerLink="/manage-planner" (click)="closeNavbar()">
+            <i class="fas fa-cog me-2"></i>
+            Manage
+          </a>
+        </li> -->
+
+        <!-- Divider -->
+        <li class="nav-item">
+          <div style="width: 1px; height: 30px; background: var(--medium-gray); margin: 0 0.5rem;"></div>
+        </li>
+
+        <!-- User Profile Dropdown -->
+        <li *ngIf="!isLoggedIn" class="nav-item">
+          <a class="nav-link btn btn-outline-primary btn-sm px-3" routerLink="/login" data-bs-toggle="collapse"
+            data-bs-target=".navbar-collapse.show">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+          </a>
+        </li>
+        <li *ngIf="isLoggedIn" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle me-2" style="font-size: 1.25rem;"></i>
+            <span class="d-none d-sm-inline">{{ username || 'Profile' }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <!-- <li>
+              <a class="dropdown-item d-flex align-items-center" href="#" routerLink="/profile">
+                <i class="fas fa-user me-2" style="color: var(--primary);"></i>
+                Profile
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="#" routerLink="/settings">
+                <i class="fas fa-cog me-2" style="color: var(--primary);"></i>
+                Settings
+              </a>
+            </li> -->
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="#" (click)="logout()">
+                <i class="fas fa-sign-out-alt me-2" style="color: var(--danger);"></i>
+                <span style="color: var(--danger);">Logout</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
-  </nav>
+  </div>
+</nav>
 
+<!-- Page content -->
+<main class="main-content">
   <router-outlet></router-outlet>
-</div>
+</main>
+
+<!-- Custom CSS for navbar -->
+<style>
+  /* Navbar styling */
+  .navbar {
+    border-bottom: 1px solid var(--medium-gray);
+    background-color: var(--white) !important;
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+  }
+
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--primary) !important;
+    transition: all 0.2s ease;
+  }
+
+  .navbar-brand:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+  }
+
+  /* Navigation links */
+  .nav-link {
+    color: var(--secondary) !important;
+    font-weight: var(--font-weight-medium);
+    padding: 0.5rem 1rem !important;
+    border-radius: var(--border-radius-md);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-link:hover {
+    color: var(--primary) !important;
+    background-color: var(--primary-light);
+  }
+
+  .nav-link.active {
+    color: var(--primary) !important;
+    background-color: var(--primary-light);
+    font-weight: var(--font-weight-semibold);
+    border-bottom: 2px solid var(--primary);
+  }
+
+  /* Dropdown menu */
+  .dropdown-menu {
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow);
+    background-color: var(--white);
+  }
+
+  .dropdown-item {
+    color: var(--dark);
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dropdown-item:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+
+  .dropdown-item.active,
+  .dropdown-item:active {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+
+  /* Navbar toggle button */
+  .navbar-toggler {
+    border: 1px solid var(--medium-gray) !important;
+    padding: 0.4rem 0.75rem;
+    transition: all 0.2s ease;
+  }
+
+  .navbar-toggler:hover {
+    background-color: var(--primary-light);
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25) !important;
+  }
+
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232563eb' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+
+  /* Sticky navbar on scroll */
+  .navbar.sticky-top {
+    top: 0;
+    z-index: 1020;
+  }
+
+  /* Main content area */
+  .main-content {
+    flex: 1;
+    width: 100%;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 991px) {
+    .navbar {
+      padding: 0.75rem 0;
+    }
+
+    .nav-link {
+      padding: 0.65rem 0 !important;
+      border-radius: 0;
+    }
+
+    .nav-link:hover {
+      background-color: transparent;
+      border-left: 3px solid var(--primary);
+      padding-left: 1rem !important;
+    }
+
+    .nav-link.active {
+      background-color: var(--primary-light);
+      border-left: 3px solid var(--primary);
+      border-bottom: none;
+      padding-left: 1rem !important;
+    }
+
+    .navbar-collapse {
+      background-color: var(--light);
+      border-radius: var(--border-radius-md);
+      margin-top: 0.5rem;
+      padding: 1rem;
+    }
+  }
+
+  /* Responsive for small screens */
+  @media (max-width: 576px) {
+    .navbar-brand span {
+      font-size: 1.1rem;
+    }
+
+    .nav-link {
+      font-size: 0.9rem;
+    }
+
+    .navbar-brand i {
+      font-size: 1.25rem !important;
+    }
+  }
+
+  /* Dark mode support (for future use) */
+  @media (prefers-color-scheme: dark) {
+    .navbar {
+      background-color: var(--white) !important;
+      /* Keep light mode */
+    }
+  }
+</style>
