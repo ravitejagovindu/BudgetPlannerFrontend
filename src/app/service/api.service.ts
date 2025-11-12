@@ -7,13 +7,14 @@ import { delay } from 'rxjs/operators';
 import { LoginRequest } from '../model/LoginRequest';
 import { LoginResponse } from '../model/LoginResponse';
 import { AuthStatusResponse } from '../model/AuthStatusResponse';
-import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  hostUrl = environment.apiBaseUrl;
+  hostUrl =
+    'https://budget-planner-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/';
+  // hostUrl="localhost:8080/";
 
   constructor(private http: HttpClient) {}
 
@@ -203,7 +204,7 @@ export class ApiService {
    * @param subCategories - Array of subcategory names
    */
   addSubCategoriesToCategory(
-    categoryId: number,
+    categoryId: string,
     subCategories: string[]
   ): Observable<any> {
     // DUMMY IMPLEMENTATION - Simulate success response with delay

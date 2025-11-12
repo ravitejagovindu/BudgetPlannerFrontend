@@ -1,55 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from './service/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  standalone: false,
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  standalone: false,
+  styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit {
-  title = 'Budget Planner';
+export class AppComponent implements OnInit, OnDestroy {
+  title = 'Monthly Budget Tracker';
+  isLoggedIn: boolean = false;
   username: string = '';
-
-  isLoggedIn = false;
   private authSubscription: Subscription | undefined;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.authSubscription = this.authService.currentUser.subscribe((user) => {
       this.isLoggedIn = user !== null;
       this.username = user?.username || '';
     });
   }
 
-  /**
-   * Check if a route is active
-   */
-  isActive(route: string): boolean {
-    return this.router.url.includes(route);
-  }
-
-  /**
-   * Close navbar on mobile after clicking a link
-   */
-  closeNavbar(): void {
-    const navbar = document.querySelector('.navbar-collapse');
-    if (navbar) {
-      navbar.classList.remove('show');
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
     }
   }
 
-  /**
-   * Logout user
-   */
   logout(): void {
-    this.authService.logout().subscribe(() => {
-      this.isLoggedIn = false;
-      this.username = '';
-      this.router.navigate(['/login']);
-    });
+    this.authService.logout();
   }
 }
