@@ -34,9 +34,16 @@ export class PortfolioComponent implements OnInit {
   alertMessage: string = '';
   alertType: 'success' | 'error' = 'success';
   globalLoading: boolean = false;
+  isConnected: boolean = false;
 
   // NEW: Array of broker accounts - one section per account
   brokerAccounts: AccountState[] = [];
+
+  showOnboardingForm: boolean = false;
+  onboardingClientId: string = '';
+  onboardingLoading: boolean = false;
+  onboardingSuccess: boolean = false;
+  onboardingMessage: string = '';
 
   constructor(
     private apiService: ApiService,
@@ -71,7 +78,7 @@ export class PortfolioComponent implements OnInit {
     this.apiService.getZerodhaConnectionStatus().subscribe({
       next: (response: any) => {
         this.globalLoading = false;
-
+        this.isConnected = true;
         // Response should contain array of broker accounts
         const brokerStatuses: BrokerStatus[] = response.data || [];
 
@@ -139,6 +146,98 @@ export class PortfolioComponent implements OnInit {
           );
         },
       });
+  }
+
+  // NEW: Toggle onboarding form
+  toggleOnboardingForm(): void {
+    this.showOnboardingForm = !this.showOnboardingForm;
+    this.onboardingClientId = '';
+    this.onboardingSuccess = false;
+    this.onboardingMessage = '';
+  }
+
+  // NEW: Onboard new Zerodha account using Client ID
+  onboardZerodhaAccount(): void {
+    // Validate Client ID
+    if (!this.onboardingClientId || this.onboardingClientId.trim() === '') {
+      this.showOnboardingAlert('Please enter a valid Client ID.', 'error');
+      return;
+    }
+
+    // Check if Client ID is valid format (basic validation)
+    if (this.onboardingClientId.trim().length < 3) {
+      this.showOnboardingAlert(
+        'Client ID must be at least 3 characters long.',
+        'error'
+      );
+      return;
+    }
+
+    this.onboardingLoading = true;
+
+    // Call backend API to onboard account
+    this.apiService
+      .onboardZerodhaAccount(
+        this.onboardingClientId.trim(),
+        this.buildPortfolioHeaders(this.onboardingClientId.trim())
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.onboardingLoading = false;
+          this.onboardingSuccess = true;
+          this.onboardingMessage =
+            'Account creation request received! Your account will reflect in the system shortly.';
+          this.showOnboardingAlert(this.onboardingMessage, 'info');
+
+          // Reset form after success
+          setTimeout(() => {
+            this.resetOnboardingForm();
+            // Refresh connection status after a few seconds
+            setTimeout(() => {
+              this.checkZerodhaConnection();
+            }, 3000);
+          }, 3000);
+        },
+        error: (error: any) => {
+          this.onboardingLoading = false;
+          console.error('Error onboarding Zerodha account:', error);
+
+          // User-friendly error messages
+          let errorMessage = 'Failed to create account. Please try again.';
+
+          if (error.status === 400) {
+            errorMessage =
+              'Invalid Client ID format. Please check and try again.';
+          } else if (error.status === 409) {
+            errorMessage = 'This account is already linked.';
+          } else if (error.status === 401 || error.status === 403) {
+            errorMessage = 'Unauthorized. Please check your credentials.';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error occurred. Please try again later.';
+          } else if (error.error && error.error.message) {
+            errorMessage = error.error.message;
+          }
+
+          this.showOnboardingAlert(errorMessage, 'error');
+        },
+      });
+  }
+
+  // NEW: Show onboarding alert
+  showOnboardingAlert(
+    message: string,
+    type: 'success' | 'error' | 'info'
+  ): void {
+    // This can be used for inline notifications or toastr if integrated
+    console.log(`[${type.toUpperCase()}] ${message}`);
+  }
+
+  // NEW: Reset onboarding form
+  resetOnboardingForm(): void {
+    this.onboardingClientId = '';
+    this.onboardingSuccess = false;
+    this.onboardingMessage = '';
+    this.showOnboardingForm = false;
   }
 
   /**
