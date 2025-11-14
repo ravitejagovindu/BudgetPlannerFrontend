@@ -304,10 +304,26 @@ export class ApiService {
     clientId: string,
     headers: HttpHeaders
   ): Observable<any> {
-    const payload = {
-      clientId: clientId.trim(),
-    };
-
-    return this.http.post(this.hostUrl + 'kite/onboard', payload, { headers });
+    return this.http.post(
+      this.hostUrl + 'broker/' + clientId,
+      {},
+      {
+        headers,
+      }
+    );
   }
+
+  unLinkZerodhaAccount(
+    clientId: string,
+    headers: HttpHeaders
+  ): Observable<any> {
+    return this.http.post(
+      this.hostUrl + 'broker/' + clientId,
+      {},
+      {
+        headers,
+      }
+    );
+  }
+
 }

@@ -165,11 +165,8 @@ export class PortfolioComponent implements OnInit {
     }
 
     // Check if Client ID is valid format (basic validation)
-    if (this.onboardingClientId.trim().length < 3) {
-      this.showOnboardingAlert(
-        'Client ID must be at least 3 characters long.',
-        'error'
-      );
+    if (this.onboardingClientId.trim().length != 6) {
+      this.showOnboardingAlert('Client ID is invalid.', 'error');
       return;
     }
 
@@ -185,8 +182,7 @@ export class PortfolioComponent implements OnInit {
         next: (response: any) => {
           this.onboardingLoading = false;
           this.onboardingSuccess = true;
-          this.onboardingMessage =
-            'Account creation request received! Your account will reflect in the system shortly.';
+          this.onboardingMessage = 'Account creation Successful!';
           this.showOnboardingAlert(this.onboardingMessage, 'info');
 
           // Reset form after success
@@ -197,6 +193,7 @@ export class PortfolioComponent implements OnInit {
               this.checkZerodhaConnection();
             }, 3000);
           }, 3000);
+          this.checkZerodhaConnection();
         },
         error: (error: any) => {
           this.onboardingLoading = false;
