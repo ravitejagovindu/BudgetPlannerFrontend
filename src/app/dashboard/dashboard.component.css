@@ -1,6 +1,5 @@
 /* ==============================================
-   DASHBOARD COMPONENT STYLES
-   Refactored to match Global Clean Design
+   DASHBOARD SHELL STYLES
    ============================================== */
 
 .dashboard-container {
@@ -9,12 +8,10 @@
   background-color: var(--light);
 }
 
-/* Page Header */
 .page-title {
   color: var(--dark);
   font-weight: var(--font-weight-bold);
   font-size: 1.75rem;
-  margin-bottom: 0.25rem;
 }
 
 .page-subtitle {
@@ -22,200 +19,9 @@
   font-size: 0.9rem;
 }
 
-.header-controls {
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Date Picker Navigator */
-.month-navigator {
-  background: white;
-  border-radius: 50px;
-  display: flex;
-  align-items: center;
-  padding: 0.25rem;
-  min-width: 260px;
-  justify-content: space-between;
-}
-
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: var(--secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.btn-icon:hover {
-  background-color: #f8f9fa;
-  color: var(--primary);
-  transform: scale(1.1);
-}
-
-.current-month-display {
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  /* Increased hit area */
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.current-month-display:hover {
-  background-color: #f1f3f5;
-}
-
-.current-month-display:hover .text-dark {
-  color: var(--primary) !important;
-}
-
-.current-month-display:hover .bi-calendar3 {
-  color: var(--primary) !important;
-}
-
-/* Custom Date Picker Styles */
-.dt-picker-popover {
-  position: absolute;
-  top: 120%;
-  /* Below the text */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 280px;
-  background: white;
-  border-radius: 1rem;
-  padding: 1rem;
-  z-index: 1000;
-  border: 1px solid #e9ecef;
-}
-
-@keyframes popoverFadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-/* Triangle arrow pointing up */
-.dt-picker-popover::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 8px solid white;
-}
-
-.dt-picker-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f1f3f5;
-}
-
-.btn-icon-small {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.dt-picker-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  /* 4 columns for months */
-  gap: 0.5rem;
-}
-
-.dt-month-item {
-  text-align: center;
-  padding: 0.5rem 0.25rem;
-  border-radius: 0.5rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  background-color: transparent;
-  color: var(--dark);
-}
-
-.dt-month-item:hover {
-  background-color: #f8f9fa;
-  color: var(--primary);
-  font-weight: 600;
-}
-
-.dt-month-item.active {
-  background-color: var(--primary);
-  color: white;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(var(--primary-rgb), 0.2);
-}
-
-/* Cleanup old hidden input classes if any remain */
-.month-input-hidden {
-  display: none;
-}
-
-/* Summary Cards */
-.summary-card {
-  border: none;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s, box-shadow 0.2s;
-  background: #fff;
-}
-
-.summary-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-}
-
-.border-start-success {
-  border-left: 4px solid var(--success) !important;
-}
-
-.border-start-primary {
-  border-left: 4px solid var(--primary) !important;
-}
-
-.border-start-danger {
-  border-left: 4px solid var(--danger) !important;
-}
-
-.icon-shape {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Progress Section */
-.btn-group .btn {
-  font-weight: 500;
-  padding: 0.5rem 1.5rem;
-}
-
-.progress {
-  background-color: #e9ecef;
-  border-radius: 50rem;
-  overflow: hidden;
+/* Transitions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
 }
 
 /* Animation */
@@ -232,17 +38,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .header-controls {
-    justify-content: flex-start;
-    margin-top: 1rem;
-  }
-
-  .month-selector {
-    width: 100%;
   }
 }

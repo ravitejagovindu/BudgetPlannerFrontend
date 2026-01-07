@@ -21,6 +21,8 @@ import { HttpErrorInterceptor } from './interceptor/http-error.interceptor';
 import { MonthPickerComponent } from './shared/components/month-picker/month-picker.component';
 import { BankPortfolioComponent } from './portfolio/bank-portfolio/bank-portfolio.component';
 import { DematPortfolioComponent } from './portfolio/demat-portfolio/demat-portfolio.component';
+import { FinancialDashboardComponent } from './dashboard/financial-dashboard/financial-dashboard.component';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @NgModule({
   declarations: [
@@ -37,6 +39,7 @@ import { DematPortfolioComponent } from './portfolio/demat-portfolio/demat-portf
     MonthPickerComponent,
     BankPortfolioComponent,
     DematPortfolioComponent,
+    FinancialDashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,6 +49,7 @@ import { DematPortfolioComponent } from './portfolio/demat-portfolio/demat-portf
     ReactiveFormsModule,
     HttpClientModule,
     HighchartsChartModule,
+    AnalyticsModule
   ],
   providers: [
     {

@@ -23,6 +23,9 @@ const routes: Routes = [
     ],
     providers: [
         AnalyticsService
+    ],
+    exports: [
+        AnalyticsComponent
     ]
 })
 export class AnalyticsModule { }
