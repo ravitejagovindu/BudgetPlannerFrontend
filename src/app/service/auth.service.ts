@@ -7,6 +7,7 @@ import { LoginRequest } from '../model/LoginRequest';
 import { LoginResponse } from '../model/LoginResponse';
 import { AuthStatusResponse } from '../model/AuthStatusResponse';
 import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
 
 export interface User {
   username: string;
@@ -23,12 +24,8 @@ interface StoredSession {
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly SESSION_KEY = 'budget_planner_session';
-  private readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-  private readonly API_BASE_URL =
-    'https://budget-planner-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/';
-  // private readonly API_BASE_URL = 'http://localhost:8080/';
+  private readonly SESSION_KEY = environment.sessionStorageKey;
+  private readonly SESSION_TIMEOUT = environment.sessionTimeout;
 
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;

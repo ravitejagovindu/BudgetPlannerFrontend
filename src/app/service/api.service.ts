@@ -7,14 +7,16 @@ import { delay } from 'rxjs/operators';
 import { LoginRequest } from '../model/LoginRequest';
 import { LoginResponse } from '../model/LoginResponse';
 import { AuthStatusResponse } from '../model/AuthStatusResponse';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
   hostUrl =
-    'https://budget-planner-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/';
-  // hostUrl="localhost:8080/";
+    // 'https://budget-planner-container.jollyisland-dddd3064.southindia.azurecontainerapps.io/';
+    // 'localhost:8080/';
+    environment.apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -325,5 +327,4 @@ export class ApiService {
       }
     );
   }
-
 }

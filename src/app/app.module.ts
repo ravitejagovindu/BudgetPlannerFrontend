@@ -17,6 +17,7 @@ import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.
 import { LoginComponent } from './login/login.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 import { JwtInterceptor } from './interceptor/jwt.interceptor';
+import { HttpErrorInterceptor } from './interceptor/http-error.interceptor';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,11 @@ import { JwtInterceptor } from './interceptor/jwt.interceptor';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
       multi: true,
     },
   ],

@@ -288,8 +288,23 @@ export class DashboardComponent implements AfterViewInit {
     let monthNumber = monthYear.split('-')[1];
     let selectedMonth = this.getMonthName(monthNumber);
     let selectedYear = parseInt(monthYear.split('-')[0]);
-    this.populateCharts(selectedMonth);
-    this.populateChartTable(selectedMonth);
+    if (!this.allLedgerData.get(selectedYear)) {
+      this.apiService
+        .getAllLedgersByYear(selectedYear)
+        .subscribe((response) => {
+          let ledgers: ChartTable[] = response.data;
+          let ledgersByMonth: Map<string, ChartTable[]> = new Map();
+          this.allLedgerData.set(this.year, ledgersByMonth);
+          ledgers.forEach((ledger) => {
+            let allLedgers = ledgersByMonth.get(ledger.month);
+            if (!allLedgers) allLedgers = [];
+            allLedgers.push(ledger);
+            ledgersByMonth.set(ledger.month, allLedgers);
+          });
+          this.populateCharts(selectedMonth);
+          this.populateChartTable(selectedMonth);
+        });
+    }
     this.populateSubCategoriesChart(selectedYear, selectedMonth, '');
     this.fetchOverview(selectedYear, monthNumber);
   }
