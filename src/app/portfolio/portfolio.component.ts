@@ -50,7 +50,7 @@ export class PortfolioComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Check for OAuth callback parameters
@@ -321,41 +321,72 @@ export class PortfolioComponent implements OnInit {
    * Disconnect from Zerodha for specific client-id
    * @param accountState - account state containing client-id
    */
-  disconnect(accountState: AccountState): void {
-    if (
-      confirm(
-        `Are you sure you want to disconnect Zerodha account (${accountState.broker.username})?`
+  // NEW state for disconnect modal
+  showDisconnectModal: boolean = false;
+  accountToDisconnect: AccountState | null = null;
+  disconnecting: boolean = false;
+
+  /**
+   * Initiate disconnect flow - opens modal
+   * @param accountState
+   */
+  initiateDisconnect(accountState: AccountState): void {
+    this.accountToDisconnect = accountState;
+    this.showDisconnectModal = true;
+  }
+
+  /**
+   * Cancel disconnect
+   */
+  cancelDisconnect(): void {
+    this.showDisconnectModal = false;
+    this.accountToDisconnect = null;
+  }
+
+  /**
+   * Confirm and proceed with disconnect
+   */
+  confirmDisconnect(): void {
+    if (!this.accountToDisconnect) return;
+
+    const accountState = this.accountToDisconnect;
+    this.disconnecting = true; // Local loading for modal if needed, or use accountState.loading
+
+    // Use accountState.loading to show spinner on the button if still visible, 
+    // or just use disconnectingstate for the modal button
+    this.dataDisconnect(accountState);
+  }
+
+  private dataDisconnect(accountState: AccountState): void {
+    // Pass client-id to API for disconnect
+    this.apiService
+      .disconnectZerodha(
+        this.buildPortfolioHeaders(accountState.broker.clientId)
       )
-    ) {
-      accountState.loading = true;
+      .subscribe({
+        next: (response: any) => {
+          this.disconnecting = false;
+          this.showDisconnectModal = false;
+          this.accountToDisconnect = null;
 
-      // Pass client-id to API for disconnect
-      this.apiService
-        .disconnectZerodha(
-          this.buildPortfolioHeaders(accountState.broker.clientId)
-        )
-        .subscribe({
-          next: (response: any) => {
-            accountState.loading = false;
+          // Remove this account from the list
+          const index = this.brokerAccounts.indexOf(accountState);
+          if (index > -1) {
+            this.brokerAccounts.splice(index, 1);
+          }
 
-            // Remove this account from the list
-            const index = this.brokerAccounts.indexOf(accountState);
-            if (index > -1) {
-              this.brokerAccounts.splice(index, 1);
-            }
-
-            this.showAlert(
-              `Zerodha account (${accountState.broker.username}) disconnected successfully.`,
-              'success'
-            );
-          },
-          error: (error: any) => {
-            accountState.loading = false;
-            console.error('Error disconnecting Zerodha:', error);
-            this.showAlert('Failed to disconnect. Please try again.', 'error');
-          },
-        });
-    }
+          this.showAlert(
+            `Zerodha account (${accountState.broker.username}) disconnected successfully.`,
+            'success'
+          );
+        },
+        error: (error: any) => {
+          this.disconnecting = false;
+          this.showDisconnectModal = false; // Close modal on error? Or keep open? calling close for now.
+          console.error('Error disconnecting Zerodha:', error);
+          this.showAlert('Failed to disconnect. Please try again.', 'error');
+        },
+      });
   }
 
   // ========================================

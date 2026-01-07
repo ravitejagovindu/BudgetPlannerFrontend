@@ -1,36 +1,32 @@
 <!-- ============================================== -->
-<!-- PORTFOLIO COMPONENT - MULTIPLE ZERODHA ACCOUNTS -->
-<!-- Zerodha Integration Interface -->
+<!-- PORTFOLIO COMPONENT - REDESIGNED -->
+<!-- Clean, Gradient-Free Interface -->
 <!-- ============================================== -->
 
-<div class="planner-container">
+<div class="planner-container fade-in">
   <!-- Header Section -->
-  <div class="planner-header">
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <h1 class="page-title">
-          <i class="bi bi-graph-up me-3"></i>Portfolio Integration
-        </h1>
-        <p class="page-subtitle">
-          Connect your Zerodha accounts to view and manage your investment portfolio
-        </p>
-      </div>
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <h1 class="page-title">
+        <i class="bi bi-graph-up me-2"></i>Portfolio Integration
+      </h1>
+      <p class="page-subtitle">
+        Connect your Zerodha accounts to view and manage your investment portfolio
+      </p>
     </div>
   </div>
 
   <!-- Alert Messages -->
-  <div class="row" *ngIf="alertMessage">
+  <div class="row mb-3" *ngIf="alertMessage">
     <div class="col-12">
-      <div class="alert" [ngClass]="
-          alertType === 'success' ? 'alert-success' : 'alert-danger'
-        " role="alert">
-        <i class="bi me-2" [ngClass]="
-            alertType === 'success'
-              ? 'bi-check-circle-fill'
-              : 'bi-exclamation-triangle-fill'
-          "></i>
-        {{ alertMessage }}
-        <button type="button" class="btn-close" (click)="closeAlert()"></button>
+      <div class="alert shadow-sm border-0 d-flex align-items-center"
+        [ngClass]="alertType === 'success' ? 'alert-success text-success bg-success-subtle' : 'alert-danger text-danger bg-danger-subtle'"
+        role="alert">
+        <i class="bi me-2 fs-5"
+          [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+        <div>{{ alertMessage }}
+          <button type="button" class="btn-close ms-2" (click)="closeAlert()" style="float: right"></button>
+        </div>
       </div>
     </div>
   </div>
@@ -39,49 +35,57 @@
   <div class="row">
 
     <!-- LOOP: Multiple Zerodha Accounts -->
-    <div *ngFor="let account of brokerAccounts; let i = index" class="col-lg-8 offset-lg-2 mb-5">
+    <div *ngFor="let account of brokerAccounts; let i = index" class="col-12 mb-5">
 
       <!-- ========================================== -->
       <!-- ACCOUNT NOT CONNECTED - CONNECT SECTION -->
       <!-- ========================================== -->
-      <div *ngIf="!account.broker.authenticated" class="card form-card">
-        <div class="card-header">
-          <h5 class="card-title mb-0">
-            <i class="bi bi-link-45deg me-2"></i>Connect to Zerodha Account
-          </h5>
-        </div>
+      <div *ngIf="!account.broker.authenticated" class="card summary-card border-start-primary h-100">
         <div class="card-body text-center py-5">
-          <div class="connection-icon mb-4">
-            <i class="bi bi-bank2" style="font-size: 4rem; color: var(--primary)"></i>
+          <div class="mb-4">
+            <div class="icon-shape bg-primary-subtle text-primary rounded-circle mx-auto"
+              style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-bank2 fs-1"></i>
+            </div>
           </div>
 
-          <h4 class="mb-3">Link Your Zerodha Account</h4>
-          <p class="text-muted mb-4">
-            Securely connect to Zerodha to view your holdings, track
-            performance, and manage your portfolio in one place.
+          <h4 class="fw-bold mb-2">Link Your Zerodha Account</h4>
+          <p class="text-muted mb-4 mx-auto" style="max-width: 600px;">
+            Securely connect to Zerodha to view your holdings, track performance, and manage your portfolio in one
+            place.
           </p>
 
-          <div class="features mb-4">
-            <div class="row">
-              <div class="col-md-4 mb-3">
-                <i class="bi bi-shield-check text-success" style="font-size: 2rem"></i>
-                <p class="mt-2 mb-0"><strong>Secure</strong></p>
-                <small class="text-muted">Bank-level encryption</small>
+          <div class="row justify-content-center mb-5">
+            <div class="col-md-3 mb-3">
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-shield-check text-success fs-4"></i>
+                <div class="text-start">
+                  <div class="fw-bold small">Secure</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">Bank-level encryption</div>
+                </div>
               </div>
-              <div class="col-md-4 mb-3">
-                <i class="bi bi-clock-history text-primary" style="font-size: 2rem"></i>
-                <p class="mt-2 mb-0"><strong>Real-time</strong></p>
-                <small class="text-muted">Live portfolio updates</small>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-lightning text-warning fs-4"></i>
+                <div class="text-start">
+                  <div class="fw-bold small">Real-time</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">Live updates</div>
+                </div>
               </div>
-              <div class="col-md-4 mb-3">
-                <i class="bi bi-graph-up-arrow text-info" style="font-size: 2rem"></i>
-                <p class="mt-2 mb-0"><strong>Analytics</strong></p>
-                <small class="text-muted">Detailed insights</small>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-graph-up text-info fs-4"></i>
+                <div class="text-start">
+                  <div class="fw-bold small">Analytics</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">Detailed insights</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <button class="btn btn-primary btn-lg px-5" (click)="connectToZerodha(account)" [disabled]="account.loading">
+          <button class="btn btn-primary px-5 py-2" (click)="connectToZerodha(account)" [disabled]="account.loading">
             <span *ngIf="!account.loading">
               <i class="bi bi-box-arrow-up-right me-2"></i>Connect to {{ account.broker.clientId }}
             </span>
@@ -104,74 +108,46 @@
       <!-- ACCOUNT CONNECTED - SUCCESS SECTION -->
       <!-- ========================================== -->
       <div *ngIf="account.broker.authenticated && !account.showHoldings && !account.showMutualFunds"
-        class="card success-card">
-        <div class="card-header bg-success">
-          <h5 class="card-title mb-0 text-white">
-            <i class="bi bi-check-circle-fill me-2"></i>Connection Successful
-          </h5>
-        </div>
+        class="card summary-card border-start-success">
         <div class="card-body text-center py-5">
-          <div class="success-icon mb-4">
-            <i class="bi bi-check-circle" style="font-size: 5rem; color: var(--success)"></i>
+          <div class="mb-4">
+            <div class="icon-shape bg-success-subtle text-success rounded-circle mx-auto"
+              style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+              <i class="bi bi-check-lg fs-1"></i>
+            </div>
           </div>
 
-          <h3 class="mb-3">Zerodha Connection Successful!</h3>
+          <h3 class="fw-bold mb-2">Connection Successful</h3>
           <p class="text-muted mb-4">
-            Your Zerodha account has been successfully linked. You can now view
-            your portfolio and manage investments.
+            Your Zerodha account has been successfully linked.
           </p>
 
-          <div class="connection-info mb-4">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <div class="info-box p-3 border rounded">
-                  <i class="bi bi-person-check text-success" style="font-size: 1.5rem"></i>
-                  <p class="mt-2 mb-0"><strong>Account Linked</strong></p>
-                  <small class="text-muted">{{ account.broker.username }}</small>
-                </div>
+          <div class="row justify-content-center mb-4">
+            <div class="col-md-5">
+              <div class="bg-light rounded-3 p-3 d-flex justify-content-between align-items-center">
+                <span class="text-muted small text-uppercase fw-bold">Account</span>
+                <span class="fw-bold text-dark">{{ account.broker.username }}</span>
               </div>
-              <div class="col-md-6 mb-3">
-                <div class="info-box p-3 border rounded">
-                  <i class="bi bi-credit-card text-primary" style="font-size: 1.5rem"></i>
-                  <p class="mt-2 mb-0"><strong>Client ID</strong></p>
-                  <small class="text-muted">{{ account.broker.clientId }}</small>
-                </div>
+            </div>
+            <div class="col-md-3">
+              <div class="bg-light rounded-3 p-3 d-flex justify-content-between align-items-center">
+                <span class="text-muted small text-uppercase fw-bold">Client ID</span>
+                <span class="fw-bold text-dark">{{ account.broker.clientId }}</span>
               </div>
             </div>
           </div>
 
-          <div class="d-grid gap-2 d-md-block">
-            <button class="btn btn-success btn-lg px-4 me-md-2" (click)="viewHoldings(account)"
-              [disabled]="account.loading">
-              <span *ngIf="!account.loading">
-                <i class="bi bi-bar-chart-line me-2"></i>Stocks
-              </span>
-              <span *ngIf="account.loading">
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                Loading...
-              </span>
+          <div class="d-flex justify-content-center gap-3">
+            <button class="btn btn-outline-primary px-4" (click)="viewHoldings(account)" [disabled]="account.loading">
+              <i class="bi bi-bar-chart-line me-2"></i>View Stocks
             </button>
-            <button class="btn btn-info btn-lg px-4 me-md-2" (click)="viewMutualFunds(account)"
-              [disabled]="account.loading">
-              <span *ngIf="!account.loading">
-                <i class="bi bi-graph-up-arrow me-2"></i>Mutual Funds
-              </span>
-              <span *ngIf="account.loading">
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                Loading...
-              </span>
+            <button class="btn btn-outline-info px-4" (click)="viewMutualFunds(account)" [disabled]="account.loading">
+              <i class="bi bi-pie-chart me-2"></i>View Mutual Funds
             </button>
-            <button class="btn btn-outline-secondary btn-lg px-4" (click)="disconnect(account)"
+            <button class="btn btn-link text-danger text-decoration-none" (click)="initiateDisconnect(account)"
               [disabled]="account.loading">
-              <i class="bi bi-x-circle me-2"></i>Disconnect
+              Disconnect
             </button>
-          </div>
-
-          <div class="mt-4">
-            <small class="text-muted">
-              <i class="bi bi-info-circle me-1"></i>
-              All data is fetched securely from your Zerodha account
-            </small>
           </div>
         </div>
       </div>
@@ -181,172 +157,138 @@
       <!-- ========================================== -->
       <div *ngIf="account.broker.authenticated && account.showHoldings">
 
-        <!-- Holdings Header with Actions -->
-        <div class="mb-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="holdings-title">
-              <i class="bi bi-briefcase me-2"></i>Your Stock Holdings ({{ account.portfolioHoldings.length }}) - {{
-              account.broker.username }}
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="fw-bold text-dark mb-1">
+              Stock Holdings ({{ account.portfolioHoldings.length }})
             </h4>
-            <div>
-              <button class="btn btn-outline-primary me-2" (click)="viewHoldings(account)" [disabled]="account.loading">
-                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-              </button>
-              <button class="btn btn-outline-secondary" (click)="account.showHoldings = false">
-                <i class="bi bi-arrow-left me-1"></i>Back
-              </button>
-            </div>
+            <p class="text-muted mb-0 small">Account: {{ account.broker.username }}</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm" (click)="account.showHoldings = false">
+              <i class="bi bi-arrow-left me-1"></i> Back
+            </button>
+            <button class="btn btn-outline-primary btn-sm" (click)="viewHoldings(account)" [disabled]="account.loading">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
           </div>
         </div>
 
-        <!-- Portfolio Summary Cards -->
-        <div class="mb-4">
-          <div class="portfolio-summary">
-            <div class="row g-3">
-              <!-- Total Investment Card -->
-              <div class="col-lg col-md">
-                <div class="summary-card">
-                  <div class="summary-icon bg-primary">
-                    <i class="bi bi-wallet2"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Total Investment</p>
-                    <h3 class="summary-value">₹{{ getTotalInvestment(account.portfolioHoldings) | number:'1.2-2' }}</h3>
-                  </div>
-                </div>
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+          <!-- Total Investment -->
+          <div class="col-md-3">
+            <div class="card summary-card border-start-primary h-100">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Total Investment</h6>
+                <h4 class="fw-bold text-dark mb-0">₹{{ getTotalInvestment(account.portfolioHoldings) | number:'1.2-2' }}
+                </h4>
               </div>
+            </div>
+          </div>
 
-              <!-- Current Value Card -->
-              <div class="col-lg col-md">
-                <div class="summary-card">
-                  <div class="summary-icon bg-info">
-                    <i class="bi bi-currency-rupee"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Current Value</p>
-                    <h3 class="summary-value">₹{{ getCurrentValue(account.portfolioHoldings) | number:'1.2-2' }}</h3>
-                  </div>
-                </div>
+          <!-- Current Value -->
+          <div class="col-md-3">
+            <div class="card summary-card border-start-info h-100">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Current Value</h6>
+                <h4 class="fw-bold text-dark mb-0">₹{{ getCurrentValue(account.portfolioHoldings) | number:'1.2-2' }}
+                </h4>
               </div>
+            </div>
+          </div>
 
-              <!-- Total P&L Card -->
-              <div class="col-lg col-md">
-                <div class="summary-card">
-                  <div class="summary-icon"
-                    [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'bg-success' : 'bg-danger'">
-                    <i class="bi"
-                      [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow'"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Total P&L</p>
-                    <h3 class="summary-value"
-                      [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'text-success' : 'text-danger'">
-                      {{ isOverallProfitable(account.portfolioHoldings) ? '+' : '' }}₹{{
-                      getTotalPnL(account.portfolioHoldings) | number:'1.2-2' }}
-                      <span class="summary-percentage">({{ getPnLPercentage(account.portfolioHoldings) | number:'1.2-2'
-                        }}%)</span>
-                    </h3>
-                  </div>
-                </div>
+          <!-- Total P&L -->
+          <div class="col-md-3">
+            <div class="card summary-card h-100"
+              [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'border-start-success' : 'border-start-danger'">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Total P&L</h6>
+                <h4 class="fw-bold mb-0"
+                  [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'text-success' : 'text-danger'">
+                  {{ isOverallProfitable(account.portfolioHoldings) ? '+' : '' }}₹{{
+                  getTotalPnL(account.portfolioHoldings) | number:'1.2-2' }}
+                </h4>
+                <small [ngClass]="isOverallProfitable(account.portfolioHoldings) ? 'text-success' : 'text-danger'">
+                  {{ getPnLPercentage(account.portfolioHoldings) | number:'1.2-2' }}%
+                </small>
               </div>
+            </div>
+          </div>
 
-              <!-- Day Change Card -->
-              <div class="col-lg col-md">
-                <div class="summary-card">
-                  <div class="summary-icon bg-warning">
-                    <i class="bi bi-clock-history"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Day Change</p>
-                    <h3 class="summary-value"
-                      [ngClass]="getTotalDayChange(account.portfolioHoldings) >= 0 ? 'text-success' : 'text-danger'">
-                      {{ getTotalDayChange(account.portfolioHoldings) >= 0 ? '+' : '' }}₹{{
-                      getTotalDayChange(account.portfolioHoldings) | number:'1.2-2' }}
-                    </h3>
-                  </div>
-                </div>
+          <!-- Day Change -->
+          <div class="col-md-3">
+            <div class="card summary-card h-100 border-start-warning">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Day Change</h6>
+                <h4 class="fw-bold mb-0"
+                  [ngClass]="getTotalDayChange(account.portfolioHoldings) >= 0 ? 'text-success' : 'text-danger'">
+                  {{ getTotalDayChange(account.portfolioHoldings) >= 0 ? '+' : '' }}₹{{
+                  getTotalDayChange(account.portfolioHoldings) | number:'1.2-2' }}
+                </h4>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Holdings Cards -->
-        <div class="row">
-          <div class="col-lg-6 col-md-6 mb-4" *ngFor="let holding of account.portfolioHoldings">
-            <div class="holding-card">
-              <div class="holding-header">
-                <div class="holding-symbol">
-                  <h5 class="mb-0">{{ holding.tradingSymbol }}</h5>
-                  <small class="text-muted">{{ holding.exchange }}</small>
-                </div>
-                <div class="holding-badge" [ngClass]="isProfitable(holding) ? 'badge-success' : 'badge-danger'">
-                  {{ isProfitable(holding) ? 'Profit' : 'Loss' }}
-                </div>
-              </div>
-
-              <div class="holding-body">
-                <div class="holding-stats">
-                  <div class="stat-row">
-                    <span class="stat-label">Quantity:</span>
-                    <span class="stat-value">{{ holding.quantity }}</span>
+        <!-- Holdings Grid -->
+        <div class="row g-3">
+          <div class="col-lg-6 mb-3" *ngFor="let holding of account.portfolioHoldings">
+            <div class="card summary-card h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h5 class="fw-bold text-dark mb-0">{{ holding.tradingSymbol }}</h5>
+                    <span class="badge bg-light text-secondary border">{{ holding.exchange }}</span>
                   </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Avg. Price:</span>
-                    <span class="stat-value">₹{{ holding.averagePrice | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">LTP:</span>
-                    <span class="stat-value">₹{{ holding.lastPrice | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Investment:</span>
-                    <span class="stat-value">₹{{ (holding.averagePrice * holding.quantity) | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Current Value:</span>
-                    <span class="stat-value">₹{{ (holding.lastPrice * holding.quantity) | number:'1.2-2' }}</span>
-                  </div>
-                </div>
-
-                <div class="holding-divider"></div>
-
-                <div class="holding-performance">
-                  <div class="performance-item">
-                    <div class="performance-label">Overall P&L</div>
-                    <div class="performance-value" [ngClass]="isProfitable(holding) ? 'text-success' : 'text-danger'">
-                      <i class="bi" [ngClass]="isProfitable(holding) ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+                  <div class="text-end">
+                    <div class="fw-bold fs-5" [ngClass]="isProfitable(holding) ? 'text-success' : 'text-danger'">
                       {{ isProfitable(holding) ? '+' : '' }}₹{{ holding.pnl | number:'1.2-2' }}
                     </div>
+                    <small class="text-muted d-block">P&L</small>
                   </div>
-                  <div class="performance-item">
-                    <div class="performance-label">Day Change</div>
-                    <div class="performance-value"
-                      [ngClass]="isDayChangePositive(holding) ? 'text-success' : 'text-danger'">
-                      <i class="bi" [ngClass]="isDayChangePositive(holding) ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
-                      {{ isDayChangePositive(holding) ? '+' : '' }}₹{{ holding.dayChange | number:'1.2-2' }}
-                      ({{ holding.dayChangePercentage | number:'1.2-2' }}%)
-                    </div>
+                </div>
+
+                <hr class="text-muted opacity-25">
+
+                <div class="row g-2 text-muted small">
+                  <div class="col-6">
+                    <span>Qty: <strong class="text-dark">{{ holding.quantity }}</strong></span>
+                  </div>
+                  <div class="col-6 text-end">
+                    <span>LTP: <strong class="text-dark">₹{{ holding.lastPrice | number:'1.2-2' }}</strong></span>
+                  </div>
+                  <div class="col-6">
+                    <span>Avg: <strong class="text-dark">₹{{ holding.averagePrice | number:'1.2-2' }}</strong></span>
+                  </div>
+                  <div class="col-6 text-end">
+                    <span>Cur: <strong class="text-dark">₹{{ (holding.lastPrice * holding.quantity) | number:'1.2-2'
+                        }}</strong></span>
                   </div>
                 </div>
               </div>
-
-              <div class="holding-footer">
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>Product: {{ holding.product }}
-                </small>
+              <div class="card-footer bg-light border-0 py-2">
+                <div class="d-flex justify-content-between align-items-center small">
+                  <span class="text-muted">Day Change</span>
+                  <span [ngClass]="isDayChangePositive(holding) ? 'text-success' : 'text-danger'" class="fw-bold">
+                    {{ isDayChangePositive(holding) ? '+' : '' }}₹{{ holding.dayChange | number:'1.2-2' }} ({{
+                    holding.dayChangePercentage | number:'1.2-2' }}%)
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Empty State -->
           <div class="col-12" *ngIf="account.portfolioHoldings.length === 0">
-            <div class="empty-state">
-              <i class="bi bi-inbox" style="font-size: 4rem; color: var(--secondary);"></i>
-              <h4 class="mt-3">No Stock Holdings Found</h4>
-              <p class="text-muted">Your stock portfolio is empty. Start investing to see your holdings here.</p>
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-1 opacity-50"></i>
+              <p class="mt-2">No stock holdings found in this account.</p>
             </div>
           </div>
         </div>
+
       </div>
 
       <!-- ========================================== -->
@@ -354,195 +296,149 @@
       <!-- ========================================== -->
       <div *ngIf="account.broker.authenticated && account.showMutualFunds">
 
-        <!-- Mutual Funds Header with Actions -->
-        <div class="mb-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="holdings-title">
-              <i class="bi bi-graph-up-arrow me-2"></i>Your Mutual Funds ({{ account.mutualFundHoldings.length }}) - {{
-              account.broker.username }}
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="fw-bold text-dark mb-1">
+              Mutual Funds ({{ account.mutualFundHoldings.length }})
             </h4>
-            <div>
-              <button class="btn btn-outline-primary me-2" (click)="viewMutualFunds(account)"
-                [disabled]="account.loading">
-                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-              </button>
-              <button class="btn btn-outline-secondary" (click)="account.showMutualFunds = false">
-                <i class="bi bi-arrow-left me-1"></i>Back
-              </button>
-            </div>
+            <p class="text-muted mb-0 small">Account: {{ account.broker.username }}</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm" (click)="account.showMutualFunds = false">
+              <i class="bi bi-arrow-left me-1"></i> Back
+            </button>
+            <button class="btn btn-outline-primary btn-sm" (click)="viewMutualFunds(account)"
+              [disabled]="account.loading">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
           </div>
         </div>
 
-
-        <!-- Mutual Funds Summary Cards -->
-        <div class="mb-4">
-          <div class="portfolio-summary">
-            <div class="row g-3">
-              <!-- Total Investment Card -->
-              <div class="col-lg-4 col-md-6">
-                <div class="summary-card">
-                  <div class="summary-icon bg-primary">
-                    <i class="bi bi-wallet2"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Total Investment</p>
-                    <h3 class="summary-value">₹{{ getMFTotalInvestment(account.mutualFundHoldings) | number:'1.2-2' }}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Current Value Card -->
-              <div class="col-lg-4 col-md-6">
-                <div class="summary-card">
-                  <div class="summary-icon bg-info">
-                    <i class="bi bi-currency-rupee"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Current Value</p>
-                    <h3 class="summary-value">₹{{ getMFCurrentValue(account.mutualFundHoldings) | number:'1.2-2' }}</h3>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Total P&L Card -->
-              <div class="col-lg-4 col-md-6">
-                <div class="summary-card">
-                  <div class="summary-icon"
-                    [ngClass]="isMFOverallProfitable(account.mutualFundHoldings) ? 'bg-success' : 'bg-danger'">
-                    <i class="bi"
-                      [ngClass]="isMFOverallProfitable(account.mutualFundHoldings) ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow'"></i>
-                  </div>
-                  <div class="summary-content">
-                    <p class="summary-label">Total P&L</p>
-                    <h3 class="summary-value"
-                      [ngClass]="isMFOverallProfitable(account.mutualFundHoldings) ? 'text-success' : 'text-danger'">
-                      {{ isMFOverallProfitable(account.mutualFundHoldings) ? '+' : '' }}₹{{
-                      getMFTotalPnL(account.mutualFundHoldings) | number:'1.2-2' }}
-                      <span class="summary-percentage">({{ getMFPnLPercentage(account.mutualFundHoldings) |
-                        number:'1.2-2' }}%)</span>
-                    </h3>
-                  </div>
-                </div>
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+          <!-- Total Investment -->
+          <div class="col-md-4">
+            <div class="card summary-card border-start-primary h-100">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Total Investment</h6>
+                <h4 class="fw-bold text-dark mb-0">₹{{ getMFTotalInvestment(account.mutualFundHoldings) | number:'1.2-2'
+                  }}</h4>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Mutual Funds Cards -->
-        <div class="row">
-          <div class="col-lg-6 col-md-6 mb-4" *ngFor="let mf of account.mutualFundHoldings">
-            <div class="holding-card">
-              <div class="holding-header">
-                <div class="holding-symbol">
-                  <h5 class="mb-0">{{ mf.fund }}</h5>
-                  <!-- <small class="text-muted">{{ mf.fund }}</small> -->
-                </div>
-                <div class="holding-badge" [ngClass]="isMFProfitable(mf) ? 'badge-success' : 'badge-danger'">
-                  {{ isMFProfitable(mf) ? 'Profit' : 'Loss' }}
-                </div>
+          <!-- Current Value -->
+          <div class="col-md-4">
+            <div class="card summary-card border-start-info h-100">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Current Value</h6>
+                <h4 class="fw-bold text-dark mb-0">₹{{ getMFCurrentValue(account.mutualFundHoldings) | number:'1.2-2' }}
+                </h4>
               </div>
+            </div>
+          </div>
 
-              <div class="holding-body">
-                <div class="holding-stats">
-                  <div class="stat-row">
-                    <span class="stat-label">Folio:</span>
-                    <span class="stat-value">{{ mf.folio }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Quantity:</span>
-                    <span class="stat-value">{{ mf.quantity }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Invested Price:</span>
-                    <span class="stat-value">₹{{ mf.averagePrice | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Current Price:</span>
-                    <span class="stat-value">₹{{ mf.lastPrice | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Investment:</span>
-                    <span class="stat-value">₹{{ (mf.investedAmount) | number:'1.2-2' }}</span>
-                  </div>
-                  <div class="stat-row">
-                    <span class="stat-label">Current Value:</span>
-                    <span class="stat-value">₹{{ (mf.currentValue) | number:'1.2-2' }}</span>
-                  </div>
-                </div>
-
-                <div class="holding-divider"></div>
-
-                <div class="holding-performance">
-                  <div class="performance-item">
-                    <div class="performance-label">Overall P&L</div>
-                    <div class="performance-value" [ngClass]="isMFProfitable(mf) ? 'text-success' : 'text-danger'">
-                      <i class="bi" [ngClass]="isMFProfitable(mf) ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
-                      {{ isMFProfitable(mf) ? '+' : '' }}₹{{ mf.pnl | number:'1.2-2' }}
-                      ({{ mf.pnlPercentage | number:'1.2-2' }}%)
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="holding-footer">
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>Fund: {{ mf.fund }}
+          <!-- Total P&L -->
+          <div class="col-md-4">
+            <div class="card summary-card h-100"
+              [ngClass]="isMFOverallProfitable(account.mutualFundHoldings) ? 'border-start-success' : 'border-start-danger'">
+              <div class="card-body">
+                <h6 class="text-uppercase text-muted small fw-bold mb-2">Total P&L</h6>
+                <h4 class="fw-bold mb-0"
+                  [ngClass]="isMFOverallProfitable(account.mutualFundHoldings) ? 'text-success' : 'text-danger'">
+                  {{ isMFOverallProfitable(account.mutualFundHoldings) ? '+' : '' }}₹{{
+                  getMFTotalPnL(account.mutualFundHoldings) | number:'1.2-2' }}
+                </h4>
+                <small [ngClass]="isMFOverallProfitable(account.mutualFundHoldings) ? 'text-success' : 'text-danger'">
+                  {{ getMFPnLPercentage(account.mutualFundHoldings) | number:'1.2-2' }}%
                 </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MF Grid -->
+        <div class="row g-3">
+          <div class="col-lg-6 mb-3" *ngFor="let mf of account.mutualFundHoldings">
+            <div class="card summary-card h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div style="max-width: 70%;">
+                    <h6 class="fw-bold text-dark mb-1 text-truncate" title="{{ mf.fund }}">{{ mf.fund }}</h6>
+                    <span class="badge bg-light text-secondary border">Folio: {{ mf.folio }}</span>
+                  </div>
+                  <div class="text-end">
+                    <div class="fw-bold fs-5" [ngClass]="isMFProfitable(mf) ? 'text-success' : 'text-danger'">
+                      {{ isMFProfitable(mf) ? '+' : '' }}₹{{ mf.pnl | number:'1.2-2' }}
+                    </div>
+                    <small class="text-muted d-block">{{ mf.pnlPercentage | number:'1.2-2' }}%</small>
+                  </div>
+                </div>
+
+                <hr class="text-muted opacity-25">
+
+                <div class="row g-2 text-muted small">
+                  <div class="col-6">
+                    <span>Units: <strong class="text-dark">{{ mf.quantity }}</strong></span>
+                  </div>
+                  <div class="col-6 text-end">
+                    <span>NAV: <strong class="text-dark">₹{{ mf.lastPrice | number:'1.2-2' }}</strong></span>
+                  </div>
+                  <div class="col-6">
+                    <span>Inv: <strong class="text-dark">₹{{ mf.investedAmount | number:'1.2-2' }}</strong></span>
+                  </div>
+                  <div class="col-6 text-end">
+                    <span>Cur: <strong class="text-dark">₹{{ mf.currentValue | number:'1.2-2' }}</strong></span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Empty State -->
           <div class="col-12" *ngIf="account.mutualFundHoldings.length === 0">
-            <div class="empty-state">
-              <i class="bi bi-inbox" style="font-size: 4rem; color: var(--secondary);"></i>
-              <h4 class="mt-3">No Mutual Funds Found</h4>
-              <p class="text-muted">You don't have any mutual fund investments yet. Start your SIP journey today!</p>
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-1 opacity-50"></i>
+              <p class="mt-2">No mutual funds found in this account.</p>
             </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Divider between accounts (if not last account) -->
-      <hr *ngIf="i < brokerAccounts.length - 1" class="my-5">
+      <!-- Divider -->
+      <hr *ngIf="i < brokerAccounts.length - 1" class="my-5 opacity-25">
     </div>
 
-    <!-- Add Additional Accouts-->
-    <div *ngIf="brokerAccounts.length > 0" class="row mt-5 mb-4">
-      <div class="col-lg-8 offset-lg-2">
-        <div class="card border rounded" style="border: 1px dashed #dee2e6;">
-          <div class="card-body p-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="mb-0">
-                  <i class="bi bi-plus-circle"></i> Add Another Account
-                </h6>
-                <small class="text-muted">Link additional Zerodha accounts</small>
-              </div>
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleOnboardingForm()">
-                {{ showOnboardingForm ? 'Cancel' : 'Add Account' }}
-              </button>
-            </div>
+    <!-- Onboarding Section -->
+    <div class="col-12 mt-4">
+      <div *ngIf="brokerAccounts.length === 0" class="text-center py-5">
+        <i class="bi bi-wallet2 text-muted opacity-25" style="font-size: 4rem;"></i>
+        <h3 class="mt-3 text-secondary">No Accounts Connected</h3>
+        <p class="text-muted">Link your Zerodha account to get started.</p>
+      </div>
 
-            <!-- Inline Onboarding Form (Compact) -->
-            <div *ngIf="showOnboardingForm" class="mt-3 pt-3 border-top">
-              <div class="row">
-                <div class="mt-3 col-md-8">
-                  <input type="text" class="form-control form-control-sm" placeholder="Enter Client ID"
-                    [(ngModel)]="onboardingClientId" [disabled]="onboardingLoading" autocomplete="off" />
-                </div>
-                <div class="mt-3 col-md-4">
-                  <button type="button" class="btn btn-sm btn-primary w-100" (click)="onboardZerodhaAccount()"
-                    [disabled]="onboardingLoading || onboardingClientId.trim() === ''">
-                    <span *ngIf="!onboardingLoading">
-                      <i class="bi bi-check"></i> Onboard
-                    </span>
-                    <span *ngIf="onboardingLoading">
-                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </span>
-                  </button>
-                </div>
+      <!-- Onboarding Form -->
+      <div *ngIf="showOnboardingForm" class="row justify-content-center mt-4 fade-in">
+        <div class="col-md-6">
+          <div class="card summary-card">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Link New Account</h5>
+              <div class="mb-3">
+                <label class="form-label text-muted small">Client ID</label>
+                <input type="text" class="form-control" placeholder="Enter Zerodha Client ID"
+                  [(ngModel)]="onboardingClientId" [disabled]="onboardingLoading">
+              </div>
+              <div class="d-grid">
+                <button class="btn btn-primary" (click)="onboardZerodhaAccount()"
+                  [disabled]="onboardingLoading || !onboardingClientId">
+                  <span *ngIf="!onboardingLoading">Onboard</span>
+                  <span *ngIf="onboardingLoading" class="spinner-border spinner-border-sm"></span>
+                </button>
+              </div>
+              <div *ngIf="onboardingSuccess" class="alert alert-success mt-3 mb-0 py-2 small">
+                {{ onboardingMessage }}
               </div>
             </div>
           </div>
@@ -550,92 +446,49 @@
       </div>
     </div>
 
-    <!-- Empty State - No Accounts -->
-    <div *ngIf="brokerAccounts.length === 0" class="col-lg-8 offset-lg-2">
-      <div class="card form-card">
-        <div class="card-body text-center py-5">
-          <!-- <div class="connection-icon mb-4">
-            <i class="bi bi-bank2" style="font-size: 4rem; color: var(--secondary)"></i>
-          </div> -->
-          <!-- <h4 class="mb-3">No Zerodha Accounts</h4>
-          <p class="text-muted mb-4">
-            You don't have any Zerodha accounts connected yet. Please contact your administrator to set up your account.
-          </p> -->
-
-          <!-- Inform to link account -->
-          <div class="text-center mb-4">
-            <div class="connection-icon mb-4">
-              <i class="bi bi-shield-lock" style="font-size: 4rem; color: var(--primary)"></i>
-            </div>
-            <h3 class="mb-3">Link Your Zerodha Account</h3>
-            <p class="text-muted mb-4">
-              Securely connect to Zerodha to view your holdings, track performance, and manage your portfolio in one
-              place.
-            </p>
-          </div>
-
-          <!-- Features List -->
-          <div class="row features mb-4">
-            <div class="col-md-4">
-              <div class="info-box p-3 rounded">
-                <i class="bi bi-lock"
-                  style="font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; display: block;"></i>
-                <strong>Secure</strong>
-                <p class="text-muted small mt-2 mb-0">Bank-level encryption</p>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="info-box p-3 rounded">
-                <i class="bi bi-lightning"
-                  style="font-size: 2rem; color: var(--success); margin-bottom: 0.5rem; display: block;"></i>
-                <strong>Real-time</strong>
-                <p class="text-muted small mt-2 mb-0">Live portfolio updates</p>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="info-box p-3 rounded">
-                <i class="bi bi-graph-up"
-                  style="font-size: 2rem; color: var(--warning); margin-bottom: 0.5rem; display: block;"></i>
-                <strong>Analytics</strong>
-                <p class="text-muted small mt-2 mb-0">Detailed insights</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Onboarding Form -->
-          <div class="onboarding-form">
-            <div *ngIf="showOnboardingForm" class="mt-3 pt-3 border-top">
-              <div class="row">
-                <div class="col-md-8">
-                  <input type="text" class="form-control form-control-sm" placeholder="Enter Client ID"
-                    [(ngModel)]="onboardingClientId" [disabled]="onboardingLoading" autocomplete="off" />
-                </div>
-                <div class="col-md-4">
-                  <button type="button" class="btn btn-sm btn-primary w-100" (click)="onboardZerodhaAccount()"
-                    [disabled]="onboardingLoading || onboardingClientId.trim() === ''">
-                    <span *ngIf="!onboardingLoading">
-                      <i class="bi bi-check"></i> Onboard
-                    </span>
-                    <span *ngIf="onboardingLoading">
-                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <button type="button" class="btn btn-sm btn-outline-primary mt-3" (click)="toggleOnboardingForm()">
-              {{ showOnboardingForm ? 'Cancel' : 'Add Account' }}
-            </button>
-            <!-- Success Message -->
-            <div *ngIf="onboardingSuccess" class="alert alert-success mt-3 mb-0">
-              <i class="bi bi-check-circle"></i>
-              <span class="ms-2">{{ onboardingMessage }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="d-flex justify-content-center mt-3">
+      <button class="btn btn-outline-primary" (click)="toggleOnboardingForm()">
+        <i class="bi" [ngClass]="showOnboardingForm ? 'bi-x-lg' : 'bi-plus-lg'"></i>
+        {{ showOnboardingForm ? 'Cancel' : 'Link Another Account' }}
+      </button>
     </div>
 
   </div>
+
+  <!-- Disconnect Confirmation Modal -->
+  <div class="modal fade show d-block" tabindex="-1" *ngIf="showDisconnectModal"
+    style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-danger">Disconnect Account?</h5>
+          <button type="button" class="btn-close" (click)="cancelDisconnect()"></button>
+        </div>
+        <div class="modal-body py-4">
+          <div class="text-center mb-3">
+            <div class="icon-shape bg-danger-subtle text-danger rounded-circle mx-auto mb-3"
+              style="width: 60px; height: 60px;">
+              <i class="bi bi-exclamation-triangle fs-3"></i>
+            </div>
+            <p class="mb-1 fw-bold fs-5">{{ accountToDisconnect?.broker?.username }}</p>
+            <p class="text-muted small mb-0">Client ID: {{ accountToDisconnect?.broker?.clientId }}</p>
+          </div>
+          <p class="text-center text-secondary mb-0">
+            Are you sure you want to disconnect this Zerodha account? You will lose access to its portfolio data until
+            you reconnect.
+          </p>
+        </div>
+        <div class="modal-footer border-0 pt-0 justify-content-center pb-4">
+          <button type="button" class="btn btn-light px-4 me-2" (click)="cancelDisconnect()"
+            [disabled]="disconnecting">Cancel</button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmDisconnect()" [disabled]="disconnecting">
+            <span *ngIf="!disconnecting">Yes, Disconnect</span>
+            <span *ngIf="disconnecting"><span
+                class="spinner-border spinner-border-sm me-2"></span>Disconnecting...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
