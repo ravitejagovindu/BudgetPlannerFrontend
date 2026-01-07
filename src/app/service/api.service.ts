@@ -288,4 +288,66 @@ export class ApiService {
       }
     );
   }
+  // ========================================
+  // BANK PORTFOLIO MOCK APIs
+  // ========================================
+
+  getBankAccounts(): Observable<any> {
+    const mockData = [
+      { id: 1, bankName: 'HDFC Bank', accountType: 'Savings', accountNumber: 'XXXX1234', balance: 145000.50, logo: 'hdfc' },
+      { id: 2, bankName: 'SBI', accountType: 'Savings', accountNumber: 'XXXX5678', balance: 25000.00, logo: 'sbi' },
+      { id: 3, bankName: 'ICICI Bank', accountType: 'Current', accountNumber: 'XXXX9012', balance: 450000.00, logo: 'icici' }
+    ];
+    return of({ data: mockData }).pipe(delay(800));
+  }
+
+  getFixedDeposits(): Observable<any> {
+    const mockData = [
+      { id: 1, bankName: 'HDFC Bank', fdNumber: 'FD-8899', principal: 100000, interestRate: 7.1, maturityDate: '2025-12-01', maturityAmount: 115000 },
+      { id: 2, bankName: 'SBI', fdNumber: 'FD-7766', principal: 50000, interestRate: 6.8, maturityDate: '2024-10-15', maturityAmount: 54000 }
+    ];
+    return of({ data: mockData }).pipe(delay(700));
+  }
+
+  getRecurringDeposits(): Observable<any> {
+    const mockData = [
+      { id: 1, bankName: 'ICICI Bank', rdNumber: 'RD-3344', monthlyAmount: 5000, interestRate: 7.0, maturityDate: '2026-05-01', accumulatedAmount: 35000 }
+    ];
+    return of({ data: mockData }).pipe(delay(600));
+  }
+
+  // ========================================
+  // DEMAT PORTFOLIO EXTRA MOCK APIs
+  // ========================================
+
+  // Mutual funds bought via Bank/Apps (Not Zerodha)
+  getOtherMutualFunds(): Observable<any> {
+    const mockData = [
+      { id: 1, fundName: 'Axis Bluechip Fund', units: 150.5, nav: 45.2, currentValue: 6802.6, investedValue: 5000 },
+      { id: 2, fundName: 'Mirae Asset Emerging Bluechip', units: 200, nav: 89.5, currentValue: 17900, investedValue: 12000 }
+    ];
+    return of({ data: mockData }).pipe(delay(800));
+  }
+
+  getNPSDetails(): Observable<any> {
+    const mockData = {
+      pran: 'XXXX-XXXX-1234',
+      tier1Balance: 560000,
+      tier2Balance: 0,
+      totalHoldings: 560000,
+      schemeName: 'HDFC Pension Fund'
+    };
+    return of({ data: mockData }).pipe(delay(900));
+  }
+
+  getPPFDetails(): Observable<any> {
+    const mockData = {
+      accountNumber: 'XXXX-XXXX-9988',
+      bankName: 'SBI',
+      balance: 1250000,
+      maturityDate: '2030-04-01',
+      yearlyContribution: 150000
+    };
+    return of({ data: mockData }).pipe(delay(600));
+  }
 }

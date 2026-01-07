@@ -1,0 +1,94 @@
+/* Summary Card Base */
+.summary-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+    border-left: 4px solid transparent;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Border Helpers (Mapping to Bootstrap standard names but custom logic if needed) */
+.border-start-primary {
+    border-left: 4px solid var(--primary) !important;
+}
+
+.border-start-success {
+    border-left: 4px solid var(--success) !important;
+}
+
+.border-start-info {
+    border-left: 4px solid var(--info) !important;
+}
+
+.border-start-warning {
+    border-left: 4px solid var(--warning) !important;
+}
+
+.border-start-danger {
+    border-left: 4px solid var(--danger) !important;
+}
+
+/* Icon Utilities */
+.icon-lg {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.icon-square {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+/* Button & Layout Utilities */
+.btn-white {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #e9ecef;
+}
+
+.btn-white:hover,
+.btn-white.active {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.mw-600 {
+    max-width: 600px;
+}
+
+.border-none {
+    border: none !important;
+}
+
+/* Transitions */
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}

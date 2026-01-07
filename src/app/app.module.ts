@@ -19,6 +19,8 @@ import { PortfolioComponent } from './portfolio/portfolio.component';
 import { JwtInterceptor } from './interceptor/jwt.interceptor';
 import { HttpErrorInterceptor } from './interceptor/http-error.interceptor';
 import { MonthPickerComponent } from './shared/components/month-picker/month-picker.component';
+import { BankPortfolioComponent } from './portfolio/bank-portfolio/bank-portfolio.component';
+import { DematPortfolioComponent } from './portfolio/demat-portfolio/demat-portfolio.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import { MonthPickerComponent } from './shared/components/month-picker/month-pic
     LoginComponent,
     PortfolioComponent,
     MonthPickerComponent,
+    BankPortfolioComponent,
+    DematPortfolioComponent,
   ],
   imports: [
     BrowserModule,
