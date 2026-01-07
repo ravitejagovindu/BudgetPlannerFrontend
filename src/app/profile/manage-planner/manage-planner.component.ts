@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  FormArray,
-  FormControl,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { ApiService } from '../../service/api.service';
+
+/* Data Models */
+export interface SubCategory {
+  name: string;
+  amount: number;
+}
 
 export interface Category {
   id?: number;
   budgetType: string;
   categoryName: string;
   categoryAmount: number;
-  subCategories: string[];
+  subCategories: SubCategory[];
 }
 
 @Component({
@@ -25,231 +25,253 @@ export interface Category {
 export class ManagePlannerComponent implements OnInit {
   budgetTypes: string[] = ['Income', 'Expense', 'Investments', 'Savings'];
   allCategories: Category[] = [];
+  filteredCategories: Category[] = [];
 
-  categoryForm!: FormGroup;
-  existingCategoryForm!: FormGroup;
+  // Main Form
+  plannerForm!: FormGroup;
 
+  // UI State State
   loading: boolean = false;
   alertMessage: string = '';
   alertType: 'success' | 'error' = 'success';
 
-  constructor(private fb: FormBuilder, private apiService: ApiService) {}
+  // Selection State
+  selectedType: string = '';
+  creationMode: 'existing' | 'new' = 'existing';
+  selectedCategoryIndex: number = -1; // Index in filteredCategories
+
+  constructor(private fb: FormBuilder, private apiService: ApiService) { }
 
   ngOnInit(): void {
-    this.initializeForms();
+    this.initializeForm();
     this.loadAllCategories();
   }
 
-  initializeForms(): void {
-    // Form for adding new category
-    this.categoryForm = this.fb.group({
+  initializeForm(): void {
+    this.plannerForm = this.fb.group({
       budgetType: ['', Validators.required],
+      creationMode: ['existing'], // 'existing' or 'new'
+
+      // Existing Category Selection
+      selectedCategoryId: [''],
+
+      // New/Edit Category Fields
       categoryName: ['', Validators.required],
-      categoryAmount: ['', [Validators.required, Validators.min(0.01)]],
-      subCategories: this.fb.array([new FormControl('', Validators.required)]),
+      categoryAmount: ['', [Validators.required, Validators.min(1)]],
+
+      // Subcategories
+      subCategories: this.fb.array([])
     });
 
-    // Form for adding subcategories to existing category
-    this.existingCategoryForm = this.fb.group({
-      selectedCategoryId: ['', Validators.required],
-      newSubCategories: this.fb.array([
-        new FormControl('', Validators.required),
-      ]),
+    // Watch for Type changes
+    this.plannerForm.get('budgetType')?.valueChanges.subscribe(type => {
+      this.selectedType = type;
+      this.filterCategories(type);
+      this.resetSelection();
+    });
+
+    // Watch for Mode changes
+    this.plannerForm.get('creationMode')?.valueChanges.subscribe(mode => {
+      this.creationMode = mode;
+      this.resetSelection();
+      if (mode === 'new') {
+        // Enable Name field
+        this.plannerForm.get('categoryName')?.enable();
+        this.plannerForm.get('categoryName')?.reset();
+        this.plannerForm.get('categoryAmount')?.reset();
+        this.subCategories.clear();
+        this.addSubCategory(); // Add initial empty subcategory
+      } else {
+        // Disable Name field initially until a category is picked
+        this.plannerForm.get('categoryName')?.disable();
+      }
+    });
+
+    // Watch for Existing Category Selection
+    this.plannerForm.get('selectedCategoryId')?.valueChanges.subscribe(id => {
+      if (this.creationMode === 'existing' && id) {
+        this.selectCategory(id);
+      }
     });
   }
 
   get subCategories(): FormArray {
-    return this.categoryForm.get('subCategories') as FormArray;
+    return this.plannerForm.get('subCategories') as FormArray;
   }
 
-  get newSubCategories(): FormArray {
-    return this.existingCategoryForm.get('newSubCategories') as FormArray;
+  /* Loaders */
+  loadAllCategories(): void {
+    this.loading = true;
+    this.apiService.getAllCategories().subscribe({
+      next: (response: any) => {
+        this.allCategories = response;
+        this.loading = false;
+        // Re-filter if type is selected
+        if (this.selectedType) {
+          this.filterCategories(this.selectedType);
+        }
+      },
+      error: (error: any) => {
+        this.loading = false;
+        console.error('Error loading categories', error);
+        this.showAlert('Failed to load categories', 'error');
+      }
+    });
   }
 
+  filterCategories(type: string): void {
+    this.filteredCategories = this.allCategories.filter(c => c.budgetType === type);
+  }
+
+  /* Selection Logic */
+  resetSelection(): void {
+    this.selectedCategoryIndex = -1;
+    this.plannerForm.patchValue({
+      selectedCategoryId: '',
+      categoryName: '',
+      categoryAmount: ''
+    }, { emitEvent: false });
+
+    // reset subcategories
+    this.subCategories.clear();
+
+    if (this.creationMode === 'existing') {
+      this.plannerForm.get('categoryName')?.disable(); // Name is read-only for existing
+    } else {
+      this.plannerForm.get('categoryName')?.enable();
+    }
+  }
+
+  selectCategory(id: string): void {
+    const category = this.filteredCategories.find(c => c.id?.toString() == id);
+    if (category) {
+      this.selectedCategoryIndex = category.id || -1;
+
+      // Populate form
+      this.plannerForm.patchValue({
+        categoryName: category.categoryName,
+        categoryAmount: category.categoryAmount
+      }, { emitEvent: false });
+
+      // Populate Subcategories
+      this.subCategories.clear();
+      if (category.subCategories && category.subCategories.length > 0) {
+        category.subCategories.forEach(sub => {
+          this.subCategories.push(this.fb.group({
+            name: [sub.name, Validators.required],
+            amount: [sub.amount, [Validators.required, Validators.min(1)]]
+          }));
+        });
+      } else {
+        // Should not happen based on rules, but just in case
+        this.addSubCategory();
+      }
+    }
+  }
+
+  /* Subcategory Management */
   addSubCategory(): void {
-    this.subCategories.push(new FormControl('', Validators.required));
+    this.subCategories.push(this.fb.group({
+      name: ['', Validators.required],
+      amount: ['', [Validators.required, Validators.min(1)]]
+    }));
   }
 
   removeSubCategory(index: number): void {
-    if (this.subCategories.length > 1) {
-      this.subCategories.removeAt(index);
-    }
+    this.subCategories.removeAt(index);
   }
 
-  addNewSubCategory(): void {
-    this.newSubCategories.push(new FormControl('', Validators.required));
-  }
-
-  removeNewSubCategory(index: number): void {
-    if (this.newSubCategories.length > 1) {
-      this.newSubCategories.removeAt(index);
-    }
-  }
-
-  onSubmitNewCategory(): void {
-    // Mark all fields as touched to show validation errors
-    this.markFormGroupTouched(this.categoryForm);
-
-    if (this.categoryForm.invalid) {
-      this.showAlert('Please fill in all required fields correctly.', 'error');
+  /* Form Submission */
+  onSubmit(): void {
+    if (this.plannerForm.invalid) {
+      this.markFormGroupTouched(this.plannerForm);
+      this.showAlert('Please fill in all required fields.', 'error');
       return;
     }
 
-    // Validate at least one subcategory
+    const formVal = this.plannerForm.getRawValue(); // Use getRawValue to include disabled fields
+
+    // Custom Validation: At least one subcategory
     if (this.subCategories.length === 0) {
-      this.showAlert('At least one subcategory is required.', 'error');
+      this.showAlert('At least one subcategory is mandatory.', 'error');
       return;
     }
 
-    // Check if all subcategories have values
-    const hasEmptySubcategory = this.subCategories.value.some(
-      (sub: string) => !sub || sub.trim() === ''
-    );
-    if (hasEmptySubcategory) {
-      this.showAlert('All subcategories must have a name.', 'error');
-      return;
-    }
-
+    // Prepare Data
     const categoryData: Category = {
-      budgetType: this.categoryForm.value.budgetType,
-      categoryName: this.categoryForm.value.categoryName,
-      categoryAmount: this.categoryForm.value.categoryAmount,
-      subCategories: this.subCategories.value.filter(
-        (sub: string) => sub && sub.trim() !== ''
-      ),
+      id: this.creationMode === 'existing' ? parseInt(formVal.selectedCategoryId) : undefined,
+      budgetType: formVal.budgetType,
+      categoryName: formVal.categoryName,
+      categoryAmount: formVal.categoryAmount,
+      subCategories: formVal.subCategories
     };
 
     this.loading = true;
 
-    // Call API service to create category
-    this.apiService.createCategory(categoryData).subscribe({
-      next: (response: any) => {
-        this.loading = false;
-        this.showAlert(
-          `Category "${categoryData.categoryName}" created successfully with ${categoryData.subCategories.length} subcategories!`,
-          'success'
-        );
-
-        // Reset form
-        this.categoryForm.reset();
-        this.subCategories.clear();
-        this.subCategories.push(new FormControl('', Validators.required));
-
-        // Reload categories
-        this.loadAllCategories();
-      },
-      error: (error: any) => {
-        this.loading = false;
-        this.showAlert('Failed to create category. Please try again.', 'error');
-        console.error('Error creating category:', error);
-      },
-    });
-  }
-
-  onSubmitExistingCategory(): void {
-    // Mark all fields as touched
-    this.markFormGroupTouched(this.existingCategoryForm);
-
-    if (this.existingCategoryForm.invalid) {
-      this.showAlert(
-        'Please select a category and add at least one subcategory.',
-        'error'
-      );
-      return;
-    }
-
-    if (this.newSubCategories.length === 0) {
-      this.showAlert('Please add at least one subcategory.', 'error');
-      return;
-    }
-
-    // Check if all subcategories have values
-    const hasEmptySubcategory = this.newSubCategories.value.some(
-      (sub: string) => !sub || sub.trim() === ''
-    );
-    if (hasEmptySubcategory) {
-      this.showAlert('All subcategories must have a name.', 'error');
-      return;
-    }
-
-    const categoryId = this.existingCategoryForm.value.selectedCategoryId;
-    const subcategories = this.newSubCategories.value.filter(
-      (sub: string) => sub && sub.trim() !== ''
-    );
-
-    this.loading = true;
-
-    // Call API service to add subcategories
-    this.apiService
-      .addSubCategoriesToCategory(categoryId, subcategories)
-      .subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          const selectedCategory = this.allCategories.find(
-            (cat) => cat.id?.toString() === categoryId
-          );
-          this.showAlert(
-            `Successfully added ${subcategories.length} subcategories to "${selectedCategory?.categoryName}"!`,
-            'success'
-          );
-
-          // Reset form
-          this.existingCategoryForm.reset();
-          this.newSubCategories.clear();
-          this.newSubCategories.push(new FormControl('', Validators.required));
-
-          // Reload categories
-          this.loadAllCategories();
-        },
-        error: (error: any) => {
-          this.loading = false;
-          this.showAlert(
-            'Failed to add subcategories. Please try again.',
-            'error'
-          );
-          console.error('Error adding subcategories:', error);
-        },
+    if (this.creationMode === 'new') {
+      this.apiService.createCategory(categoryData).subscribe({
+        next: (res: any) => this.handleSuccess('Category created successfully!'),
+        error: (err: any) => this.handleError('Failed to create category.')
       });
+    } else {
+      this.apiService.updateCategory(categoryData.id, categoryData).subscribe({
+        next: (res: any) => this.handleSuccess('Category updated successfully!'),
+        error: (err: any) => this.handleError('Failed to update category.')
+      });
+    }
   }
 
-  loadAllCategories(): void {
-    // Call API service to get all categories
-    this.apiService.getAllCategories().subscribe({
-      next: (response: any) => {
-        this.allCategories = response;
-      },
-      error: (error: any) => {
-        console.error('Error loading categories:', error);
-        this.allCategories = [];
-      },
-    });
+  deleteCategory(): void {
+    if (confirm('Are you sure you want to delete this category? This cannot be undone.')) {
+      const id = this.plannerForm.get('selectedCategoryId')?.value;
+      if (id) {
+        this.loading = true;
+        this.apiService.deleteCategory(id).subscribe({
+          next: () => {
+            this.loading = false;
+            this.showAlert('Category deleted.', 'success');
+            this.loadAllCategories();
+            this.resetSelection();
+          },
+          error: () => {
+            this.loading = false;
+            this.showAlert('Failed to delete category.', 'error');
+          }
+        });
+      }
+    }
+  }
+
+  /* Helpers */
+  handleSuccess(msg: string): void {
+    this.loading = false;
+    this.showAlert(msg, 'success');
+    this.loadAllCategories();
+    this.resetSelection();
+    // Keep mode but reset fields
+    if (this.creationMode === 'new') {
+      this.subCategories.clear();
+      this.addSubCategory();
+    }
+  }
+
+  handleError(msg: string): void {
+    this.loading = false;
+    this.showAlert(msg, 'error');
   }
 
   showAlert(message: string, type: 'success' | 'error'): void {
     this.alertMessage = message;
     this.alertType = type;
-
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      this.closeAlert();
-    }, 5000);
+    setTimeout(() => this.alertMessage = '', 5000);
   }
 
-  closeAlert(): void {
-    this.alertMessage = '';
-  }
-
-  private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
+  markFormGroupTouched(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
       const control = formGroup.get(key);
       control?.markAsTouched();
-
-      if (control instanceof FormGroup) {
-        this.markFormGroupTouched(control);
-      } else if (control instanceof FormArray) {
-        control.controls.forEach((ctrl) => {
-          ctrl.markAsTouched();
-        });
+      if (control instanceof FormArray) {
+        control.controls.forEach(ctrl => this.markFormGroupTouched(ctrl as FormGroup));
       }
     });
   }

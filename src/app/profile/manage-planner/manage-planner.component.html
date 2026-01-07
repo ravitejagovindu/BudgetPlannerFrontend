@@ -1,208 +1,190 @@
-<!-- ============================================== -->
-<!-- MANAGE PLANNER COMPONENT -->
-<!-- Category and Subcategory Management Interface -->
-<!-- ============================================== -->
+<div class="planner-container fade-in">
 
-<div class="planner-container">
-  <!-- Header Section -->
-  <div class="planner-header">
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <h1 class="page-title">
-          <i class="bi bi-gear-fill me-3"></i>Manage Categories
-        </h1>
-        <p class="page-subtitle">Configure your budget categories and subcategories</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Alert Messages - Global -->
-  <div class="row" *ngIf="alertMessage">
+  <!-- Header -->
+  <div class="row mb-4">
     <div class="col-12">
-      <div class="alert" [ngClass]="alertType === 'success' ? 'alert-success' : 'alert-danger'" role="alert">
-        <i class="bi me-2"
+      <h1 class="page-title">
+        <i class="bi bi-gear-wide-connected me-2"></i>Manage Planner
+      </h1>
+      <p class="page-subtitle">Configure your budget structure, categories and subcategories</p>
+    </div>
+  </div>
+
+  <!-- Global Alert -->
+  <div class="row mb-3" *ngIf="alertMessage">
+    <div class="col-12">
+      <div class="alert shadow-sm border-0 d-flex align-items-center"
+        [ngClass]="alertType === 'success' ? 'alert-success text-success bg-success-subtle' : 'alert-danger text-danger bg-danger-subtle'"
+        role="alert">
+        <i class="bi me-2 fs-5"
           [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
-        {{ alertMessage }}
-        <button type="button" class="btn-close" (click)="closeAlert()"></button>
+        <div>{{ alertMessage }}</div>
       </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="row">
-    <!-- Section 1: Add New Category -->
-    <div class="col-lg-6 mb-4">
-      <div class="card form-card">
-        <div class="card-header">
-          <h5 class="card-title mb-0">
-            <i class="bi bi-plus-circle-fill me-2"></i>Add New Category
-          </h5>
+  <!-- Main Content Card -->
+  <div class="card border-0 shadow-sm rounded-4 bg-white">
+    <div class="card-body p-4">
+
+      <form [formGroup]="plannerForm" (ngSubmit)="onSubmit()">
+
+        <!-- Step 1: Select Budget Type -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-secondary">1. Select Budget Type</label>
+            <select class="form-select form-select-lg"
+              [class.is-invalid]="plannerForm.get('budgetType')?.invalid && (plannerForm.get('budgetType')?.dirty || plannerForm.get('budgetType')?.touched)"
+              formControlName="budgetType">
+              <option value="" disabled selected>Choose Type...</option>
+              <option *ngFor="let type of budgetTypes" [value]="type">{{ type }}</option>
+            </select>
+            <div class="invalid-feedback">Please select a budget type.</div>
+          </div>
         </div>
-        <div class="card-body">
-          <form [formGroup]="categoryForm" (ngSubmit)="onSubmitNewCategory()">
-            <!-- Budget Type Selection -->
-            <div class="form-group mb-3">
-              <label for="budgetType" class="form-label">
-                <i class="bi bi-tag-fill me-2"></i>Budget Type <span class="text-danger">*</span>
-              </label>
-              <select class="form-select form-control" formControlName="budgetType" id="budgetType"
-                [class.is-invalid]="categoryForm.get('budgetType')?.invalid && categoryForm.get('budgetType')?.touched">
-                <option value="">Select Budget Type</option>
-                <option *ngFor="let type of budgetTypes" [value]="type">{{ type }}</option>
-              </select>
-              <div class="invalid-feedback"
-                *ngIf="categoryForm.get('budgetType')?.invalid && categoryForm.get('budgetType')?.touched">
-                Please select a budget type
+
+        <div *ngIf="selectedType">
+          <hr class="text-muted opacity-25 my-4">
+
+          <!-- Step 2: Select Action (New or Existing) -->
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <label class="form-label fw-bold text-secondary d-block">2. Choose Action</label>
+              <div class="btn-group w-100 w-md-50" role="group">
+                <input type="radio" class="btn-check" formControlName="creationMode" value="existing" id="modeExisting">
+                <label class="btn btn-outline-primary" for="modeExisting">
+                  <i class="bi bi-pencil-square me-2"></i>Edit Existing
+                </label>
+
+                <input type="radio" class="btn-check" formControlName="creationMode" value="new" id="modeNew">
+                <label class="btn btn-outline-success" for="modeNew">
+                  <i class="bi bi-plus-lg me-2"></i>Create New
+                </label>
               </div>
             </div>
+          </div>
 
-            <!-- Category Name -->
-            <div class="form-group mb-3">
-              <label for="categoryName" class="form-label">
-                <i class="bi bi-bookmark-fill me-2"></i>Category Name <span class="text-danger">*</span>
-              </label>
-              <input type="text" class="form-control" formControlName="categoryName" id="categoryName"
-                placeholder="Enter category name (e.g., Groceries, Rent)"
-                [class.is-invalid]="categoryForm.get('categoryName')?.invalid && categoryForm.get('categoryName')?.touched" />
-              <div class="invalid-feedback"
-                *ngIf="categoryForm.get('categoryName')?.invalid && categoryForm.get('categoryName')?.touched">
-                Category name is required
-              </div>
-            </div>
-
-            <!-- Category Amount -->
-            <div class="form-group mb-3">
-              <label for="categoryAmount" class="form-label">
-                <i class="bi bi-currency-rupee me-2"></i>Category Amount <span class="text-danger">*</span>
-              </label>
-              <input type="number" class="form-control" formControlName="categoryAmount" id="categoryAmount"
-                placeholder="Enter total amount for this category" min="0" step="0.01"
-                [class.is-invalid]="categoryForm.get('categoryAmount')?.invalid && categoryForm.get('categoryAmount')?.touched" />
-              <div class="invalid-feedback"
-                *ngIf="categoryForm.get('categoryAmount')?.invalid && categoryForm.get('categoryAmount')?.touched">
-                Category amount is required and must be greater than 0
-              </div>
-            </div>
-
-            <!-- Subcategories Section -->
-            <div class="form-group mb-3">
-              <label class="form-label">
-                <i class="bi bi-list-ul me-2"></i>Subcategories <span class="text-danger">*</span>
-                <small class="text-muted">(At least one required)</small>
-              </label>
-
-              <div formArrayName="subCategories">
-                <div *ngFor="let sub of subCategories.controls; let i = index" class="subcategory-row mb-2">
-                  <div class="input-group">
-                    <input type="text" class="form-control" [formControlName]="i" placeholder="Subcategory name"
-                      [class.is-invalid]="sub.invalid && sub.touched" />
-                    <button type="button" class="btn btn-outline-danger" (click)="removeSubCategory(i)"
-                      [disabled]="subCategories.length === 1" title="Remove subcategory">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
-                  <div class="invalid-feedback d-block" *ngIf="sub.invalid && sub.touched">
-                    Subcategory name is required
-                  </div>
-                </div>
-              </div>
-
-              <button type="button" class="btn btn-outline-success btn-sm mt-2" (click)="addSubCategory()">
-                <i class="bi bi-plus-circle me-1"></i>Add Subcategory
-              </button>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-primary btn-lg" [disabled]="categoryForm.invalid || loading">
-                <span *ngIf="!loading">
-                  <i class="bi bi-save me-2"></i>Save Category
-                </span>
-                <span *ngIf="loading">
-                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                  Saving...
-                </span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 2: Add Subcategories to Existing Category -->
-    <div class="col-lg-6 mb-4">
-      <div class="card form-card">
-        <div class="card-header bg-info">
-          <h5 class="card-title mb-0 text-white">
-            <i class="bi bi-folder-plus me-2"></i>Add Subcategories to Existing Category
-          </h5>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="existingCategoryForm" (ngSubmit)="onSubmitExistingCategory()">
-            <!-- Select Existing Category -->
-            <div class="form-group mb-3">
-              <label for="existingCategory" class="form-label">
-                <i class="bi bi-folder-fill me-2"></i>Select Category <span class="text-danger">*</span>
-              </label>
-              <select class="form-select form-control" formControlName="selectedCategoryId" id="existingCategory"
-                [class.is-invalid]="existingCategoryForm.get('selectedCategoryId')?.invalid && existingCategoryForm.get('selectedCategoryId')?.touched">
-                <option value="">Choose a category</option>
-                <option *ngFor="let cat of allCategories" [value]="cat.id">
-                  {{ cat.budgetType }} - {{ cat.categoryName }}
+          <!-- Step 3: Category Details -->
+          <div class="row g-3 mb-4">
+            <!-- If Existing: Show Dropdown -->
+            <div class="col-md-6" *ngIf="creationMode === 'existing'">
+              <label class="form-label fw-bold text-secondary">Select Category</label>
+              <select class="form-select" formControlName="selectedCategoryId">
+                <option value="" disabled selected>Select a category to edit...</option>
+                <option *ngFor="let cat of filteredCategories" [value]="cat.id">
+                  {{ cat.categoryName }} (₹{{ cat.categoryAmount }})
                 </option>
               </select>
-              <div class="invalid-feedback"
-                *ngIf="existingCategoryForm.get('selectedCategoryId')?.invalid && existingCategoryForm.get('selectedCategoryId')?.touched">
-                Please select a category
-              </div>
-              <small class="form-text text-muted" *ngIf="allCategories.length === 0">
-                No categories available. Please add a new category first.
-              </small>
+              <div class="form-text text-muted" *ngIf="filteredCategories.length === 0">No categories found for {{
+                selectedType }}. Create a new one.</div>
             </div>
 
-            <!-- New Subcategories Section -->
-            <div class="form-group mb-3">
-              <label class="form-label">
-                <i class="bi bi-list-ul me-2"></i>New Subcategories <span class="text-danger">*</span>
-              </label>
+            <!-- Category Name Input -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary">Category Name</label>
+              <input type="text" class="form-control"
+                [class.is-invalid]="plannerForm.get('categoryName')?.invalid && (plannerForm.get('categoryName')?.dirty || plannerForm.get('categoryName')?.touched)"
+                formControlName="categoryName" placeholder="e.g. Groceries">
+              <div class="invalid-feedback">Category Name is required.</div>
+            </div>
 
-              <div formArrayName="newSubCategories">
-                <div *ngFor="let sub of newSubCategories.controls; let i = index" class="subcategory-row mb-2">
-                  <div class="input-group">
-                    <input type="text" class="form-control" [formControlName]="i" placeholder="Subcategory name"
-                      [class.is-invalid]="sub.invalid && sub.touched" />
-                    <button type="button" class="btn btn-outline-danger" (click)="removeNewSubCategory(i)"
-                      [disabled]="newSubCategories.length === 1" title="Remove subcategory">
+            <!-- Category Amount Input -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary">Total Allocated Amount (₹)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-muted">₹</span>
+                <input type="number" class="form-control border-start-0 ps-0"
+                  [class.is-invalid]="plannerForm.get('categoryAmount')?.invalid && (plannerForm.get('categoryAmount')?.dirty || plannerForm.get('categoryAmount')?.touched)"
+                  formControlName="categoryAmount" placeholder="0.00">
+                <div class="invalid-feedback">Amount is required and must be greater than 0.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Visibility Check -->
+          <div
+            *ngIf="creationMode === 'new' || (creationMode === 'existing' && plannerForm.get('selectedCategoryId')?.value)">
+
+            <hr class="text-muted opacity-25 my-4">
+
+            <!-- Step 4: Subcategories -->
+            <div class="row mb-2 align-items-center">
+              <div class="col">
+                <h5 class="fw-bold text-dark mb-0">
+                  <i class="bi bi-diagram-3 me-2 text-primary"></i>Subcategories
+                </h5>
+                <p class="text-muted small mb-0"
+                  [class.text-danger]="subCategories.length === 0 && plannerForm.touched">
+                  At least one subcategory with an amount is required.
+                </p>
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-outline-primary btn-sm" (click)="addSubCategory()">
+                  <i class="bi bi-plus-lg me-1"></i> Add Subcategory
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-light rounded-3 p-3 mb-4">
+              <div formArrayName="subCategories">
+                <div *ngFor="let sub of subCategories.controls; let i = index" [formGroupName]="i"
+                  class="row g-2 align-items-center mb-2">
+                  <div class="col-md-6">
+                    <input type="text" class="form-control form-control-sm"
+                      [class.is-invalid]="sub.get('name')?.invalid && (sub.get('name')?.dirty || sub.get('name')?.touched)"
+                      formControlName="name" placeholder="Name (e.g. Vegetables)">
+                    <div class="invalid-feedback">Name is required.</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="input-group input-group-sm has-validation">
+                      <span class="input-group-text bg-white border-end-0">₹</span>
+                      <input type="number" class="form-control border-start-0"
+                        [class.is-invalid]="sub.get('amount')?.invalid && (sub.get('amount')?.dirty || sub.get('amount')?.touched)"
+                        formControlName="amount" placeholder="0.00">
+                      <div class="invalid-feedback">Amount > 0 required.</div>
+                    </div>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm border-0" (click)="removeSubCategory(i)"
+                      title="Remove">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
-                  <div class="invalid-feedback d-block" *ngIf="sub.invalid && sub.touched">
-                    Subcategory name is required
-                  </div>
+                </div>
+                <div *ngIf="subCategories.length === 0" class="text-center text-danger py-3">
+                  <small><i class="bi bi-exclamation-circle me-1"></i> No subcategories added. Please add at least
+                    one.</small>
                 </div>
               </div>
-
-              <button type="button" class="btn btn-outline-info btn-sm mt-2" (click)="addNewSubCategory()">
-                <i class="bi bi-plus-circle me-1"></i>Add Subcategory
-              </button>
             </div>
 
-            <!-- Submit Button -->
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-info btn-lg text-white"
-                [disabled]="existingCategoryForm.invalid || newSubCategories.length === 0 || loading">
-                <span *ngIf="!loading">
-                  <i class="bi bi-save me-2"></i>Add to Category
-                </span>
-                <span *ngIf="loading">
-                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                  Adding...
-                </span>
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+              <button type="button" class="btn btn-outline-danger" *ngIf="creationMode === 'existing'"
+                (click)="deleteCategory()">
+                <i class="bi bi-trash me-2"></i>Delete Category
               </button>
+              <div class="ms-auto">
+                <button type="button" class="btn btn-light me-2" (click)="resetSelection()">Cancel</button>
+                <button type="submit" class="btn btn-primary px-4"
+                  [disabled]="loading || plannerForm.invalid || subCategories.length === 0">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"
+                    aria-hidden="true"></span>
+                  <i class="bi bi-check-lg me-2" *ngIf="!loading"></i>
+                  {{ creationMode === 'new' ? 'Create Category' : 'Save Changes' }}
+                </button>
+              </div>
             </div>
-          </form>
+
+          </div>
+          <!-- End Details Section -->
+
         </div>
-      </div>
+        <!-- End Selected Type Section -->
+
+      </form>
+
     </div>
   </div>
+
 </div>

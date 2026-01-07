@@ -18,7 +18,7 @@ export class ApiService {
     // 'localhost:8080/';
     environment.apiBaseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(loginRequest: LoginRequest) {
     return this.http.post<any>(this.hostUrl + 'auth/login', loginRequest);
@@ -80,10 +80,10 @@ export class ApiService {
   getIndividualBalances(month: number, year: number) {
     return this.http.get<any>(
       this.hostUrl +
-        'dashboard/individualBalances?month=' +
-        month +
-        '&year=' +
-        year
+      'dashboard/individualBalances?month=' +
+      month +
+      '&year=' +
+      year
     );
   }
 
@@ -142,47 +142,55 @@ export class ApiService {
 
   // ========================================
   // CATEGORY MANAGEMENT METHODS - DUMMY API CALLS
-  // Replace these with actual backend endpoints
   // ========================================
 
   /**
    * Get all categories
-   * TODO: Replace with actual API call when backend is ready
-   * Expected endpoint: GET /categories
    */
   getAllCategories(): Observable<any> {
-    // DUMMY IMPLEMENTATION - Mock data with delay
+    // DUMMY IMPLEMENTATION - Mock data with subcategory amounts
     const mockCategories = [
       {
         id: 1,
         budgetType: 'Expense',
         categoryName: 'Groceries',
-        categoryAmount: 10000,
-        subCategories: ['Vegetables', 'Fruits', 'Dairy'],
+        categoryAmount: 15000,
+        subCategories: [
+          { name: 'Vegetables', amount: 5000 },
+          { name: 'Fruits', amount: 3000 },
+          { name: 'Provisions', amount: 7000 }
+        ],
       },
       {
         id: 2,
         budgetType: 'Income',
         categoryName: 'Salary',
-        categoryAmount: 50000,
-        subCategories: ['Base Pay', 'Bonus', 'Allowances'],
+        categoryAmount: 80000,
+        subCategories: [
+          { name: 'Base Pay', amount: 60000 },
+          { name: 'Bonus', amount: 20000 }
+        ],
       },
+      {
+        id: 3,
+        budgetType: 'Investments',
+        categoryName: 'Mutual Funds',
+        categoryAmount: 20000,
+        subCategories: [
+          { name: 'SIP', amount: 15000 },
+          { name: 'Lumpsum', amount: 5000 }
+        ],
+      }
     ];
 
     return of(mockCategories).pipe(delay(500));
-
-    // ACTUAL IMPLEMENTATION (uncomment when backend is ready):
-    // return this.http.get<any>(this.hostUrl + 'categories');
   }
 
   /**
    * Create a new category
-   * TODO: Replace with actual API call when backend is ready
-   * Expected endpoint: POST /categories
-   * @param category - Category object with budgetType, categoryName, categoryAmount, subCategories
    */
   createCategory(category: any): Observable<any> {
-    // DUMMY IMPLEMENTATION - Simulate success response with delay
+    // DUMMY IMPLEMENTATION
     const mockResponse = {
       success: true,
       message: 'Category created successfully',
@@ -191,70 +199,23 @@ export class ApiService {
         ...category,
       },
     };
-
     return of(mockResponse).pipe(delay(800));
-
-    // ACTUAL IMPLEMENTATION (uncomment when backend is ready):
-    // return this.http.post<any>(this.hostUrl + 'categories', category);
   }
 
   /**
-   * Add subcategories to an existing category
-   * TODO: Replace with actual API call when backend is ready
-   * Expected endpoint: POST /categories/{categoryId}/subcategories
-   * @param categoryId - ID of the category
-   * @param subCategories - Array of subcategory names
+   * Update an existing category (amount or subcategories)
    */
-  addSubCategoriesToCategory(
-    categoryId: string,
-    subCategories: string[]
-  ): Observable<any> {
-    // DUMMY IMPLEMENTATION - Simulate success response with delay
-    const mockResponse = {
-      success: true,
-      message: 'Subcategories added successfully',
-      data: {
-        categoryId: categoryId,
-        subCategories: subCategories,
-      },
-    };
-
-    return of(mockResponse).pipe(delay(800));
-
-    // ACTUAL IMPLEMENTATION (uncomment when backend is ready):
-    // return this.http.post<any>(
-    //   this.hostUrl + 'categories/' + categoryId + '/subcategories',
-    //   { subCategories: subCategories }
-    // );
-  }
-
-  /**
-   * Update an existing category
-   * TODO: Replace with actual API call when backend is ready
-   * Expected endpoint: PUT /categories/{categoryId}
-   * @param categoryId - ID of the category
-   * @param category - Updated category object
-   */
-  updateCategory(categoryId: number, category: any): Observable<any> {
+  updateCategory(categoryId: number | undefined, category: any): Observable<any> {
     // DUMMY IMPLEMENTATION
-    return of({ success: true, message: 'Category updated' }).pipe(delay(800));
-
-    // ACTUAL IMPLEMENTATION (uncomment when backend is ready):
-    // return this.http.put<any>(this.hostUrl + 'categories/' + categoryId, category);
+    return of({ success: true, message: 'Category updated successfully', data: category }).pipe(delay(800));
   }
 
   /**
    * Delete a category
-   * TODO: Replace with actual API call when backend is ready
-   * Expected endpoint: DELETE /categories/{categoryId}
-   * @param categoryId - ID of the category to delete
    */
-  deleteCategory(categoryId: number): Observable<any> {
+  deleteCategory(categoryId: number | undefined): Observable<any> {
     // DUMMY IMPLEMENTATION
-    return of({ success: true, message: 'Category deleted' }).pipe(delay(500));
-
-    // ACTUAL IMPLEMENTATION (uncomment when backend is ready):
-    // return this.http.delete<any>(this.hostUrl + 'categories/' + categoryId);
+    return of({ success: true, message: 'Category deleted successfully' }).pipe(delay(500));
   }
 
   // ========================================
