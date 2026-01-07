@@ -40,10 +40,15 @@ const routes: Routes = [
     component: PortfolioComponent,
     canActivate: [AuthGuard],
   },
+  {
+    path: 'analytics',
+    loadChildren: () => import('./analytics/analytics.module').then(m => m.AnalyticsModule),
+    canActivate: [AuthGuard]
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

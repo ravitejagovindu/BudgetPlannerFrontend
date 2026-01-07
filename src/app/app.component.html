@@ -11,9 +11,25 @@
 
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/dashboard" data-bs-toggle="collapse"
-              data-bs-target=".navbar-collapse.show">Dashboard</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="dashboardDropdown" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Dashboard
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dashboardDropdown">
+              <li>
+                <a class="dropdown-item" routerLink="/dashboard" data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show">
+                  <i class="bi bi-speedometer2 me-2"></i>Financial Dashboard
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/analytics" data-bs-toggle="collapse"
+                  data-bs-target=".navbar-collapse.show">
+                  <i class="bi bi-graph-up-arrow me-2"></i>Analytics
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item">
             <a class="nav-link" routerLink="/monthly-planner" data-bs-toggle="collapse"

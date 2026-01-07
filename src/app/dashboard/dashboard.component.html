@@ -1,394 +1,193 @@
 <div class="container-fluid dashboard-container fade-in">
 
-  <div class="dashboard-header">
-    <div class="row align-items-center mb-4">
-      <div class="col-md-9">
-        <h1 class="page-title">
-          <i class="bi bi-speedometer2 me-2"></i>Financial Dashboard
-        </h1>
-        <p class="page-subtitle">Monthly financial overview and analysis</p>
-      </div>
-      <div class="col-md-3 text-end">
-        <div class="d-flex align-items-center gap-2 glassy p-2 rounded-4 shadow-sm"
-          style="background: rgba(255, 255, 255, 0.7)">
-          <label for="monthPicker" class="form-label fw-semibold text-secondary mb-0 d-flex align-items-center"
-            style="gap: 0.3rem">
-            <i class="bi bi-calendar-fill text-secondary fs-5"></i> Month
-          </label>
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-md-9">
+      <h1 class="page-title">
+        <i class="bi bi-speedometer2 me-2"></i>Financial Dashboard
+      </h1>
+      <p class="page-subtitle">Monthly financial overview and analysis</p>
+    </div>
+    <div class="col-md-3">
+      <div class="header-controls">
+        <div class="input-group shadow-sm month-selector">
+          <span class="input-group-text bg-white border-end-0">
+            <i class="bi bi-calendar-event text-primary"></i>
+          </span>
           <input type="month" id="monthPicker" [(ngModel)]="currentMonthYear" (change)="onMonthSelect(currentMonthYear)"
-            class="form-control form-control-sm border-0 shadow-none text-primary" style="
-          min-width: 120px;
-          background: rgba(240, 245, 255, 0.7);
-          font-weight: 500;
-        " aria-label="Select month" />
+            class="form-control border-start-0 ps-0 text-primary fw-bold" aria-label="Select month">
         </div>
       </div>
     </div>
   </div>
-
 
   <!-- Financial Overview Cards -->
-  <div class="row mb-4" *ngIf="projections">
-    <div class="">
-      <div class="overview-cards">
-        <div class="row g-3">
-          <!-- Projection Cards -->
-          <div class="col-md-4" *ngFor="let projection of incomeProjections">
-            <div class="summary-card income-card" [ngClass]="getSummaryCardClass(projection.difference)">
-              <div class="summary-card-header">
-                <h6 class="summary-card-title fw-bold">{{ projection.type }}</h6>
-                <i class="summary-card-icon" [ngClass]="getSummaryCardIcon(projection.type)"></i>
+  <div class="row mb-4 g-3" *ngIf="projections">
+    <div class="col-md-12">
+      <div class="row g-3">
+        <!-- Income Projection -->
+        <div class="col-md-4" *ngFor="let projection of incomeProjections">
+          <div class="card summary-card h-100 border-start-success">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h6 class="text-uppercase text-muted small fw-bold mb-1">{{ projection.type }}</h6>
+                  <h3 class="fw-bold text-dark mb-0">₹{{ projection.actual | number:'1.2-2' }}</h3>
+                </div>
+                <div class="icon-shape bg-success-subtle text-success rounded-3 p-2">
+                  <i class="bi bi-arrow-up-circle fs-4"></i>
+                </div>
               </div>
-              <div class="summary-card-body">
-                <div class="amount-row">
-                  <span class="amount-label">Projected</span>
-                  <span class="amount-value">₹{{ projection.projected | number:'1.2-2' }}</span>
+              <div class="mt-2 text-muted small">
+                <div class="d-flex justify-content-between">
+                  <span>Projected: <strong>₹{{ projection.projected | number:'1.0-0' }}</strong></span>
+                  <span
+                    [ngClass]="{'text-success': projection.difference <= 0, 'text-danger': projection.difference > 0}">
+                    {{ projection.difference <= 0 ? '+' : '' }}₹{{ (projection.difference * (-1)) | number:'1.0-0' }}
+                      </span>
                 </div>
-                <div class="amount-row">
-                  <span class="amount-label">Actual</span>
-                  <span class="amount-value">₹{{ projection.actual | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Individual Balances -->
+        <div class="col-md-4" *ngFor="let individual of individualBalances">
+          <div class="card summary-card h-100 border-start-primary">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h6 class="text-uppercase text-muted small fw-bold mb-1">{{ individual.name }}</h6>
+                  <h3 class="fw-bold text-dark mb-0">₹{{ individual.balance | number:'1.2-2' }}</h3>
                 </div>
-                <div class="amount-row difference-row">
-                  <span class="amount-label">Balance</span>
-                  <span class="amount-value" [ngClass]="getDifferenceClass(projection.difference)">
-                    ₹{{ projection.difference | number:'1.2-2' }}
+                <div class="icon-shape bg-primary-subtle text-primary rounded-3 p-2">
+                  <i class="bi bi-wallet2 fs-4"></i>
+                </div>
+              </div>
+              <div class="mt-2 text-muted small">
+                <div class="d-flex justify-content-between">
+                  <span>Income: <span class="text-success">₹{{ individual.income | number:'1.0-0' }}</span></span>
+                  <span>Spent: <span class="text-danger">₹{{ individual.spent | number:'1.0-0' }}</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expense Projection -->
+        <div class="col-md-4" *ngFor="let projection of otherProjections">
+          <div class="card summary-card h-100 border-start-danger">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h6 class="text-uppercase text-muted small fw-bold mb-1">{{ projection.type }}</h6>
+                  <h3 class="fw-bold text-dark mb-0">₹{{ projection.actual | number:'1.2-2' }}</h3>
+                </div>
+                <div class="icon-shape bg-danger-subtle text-danger rounded-3 p-2">
+                  <i class="bi bi-arrow-down-circle fs-4"></i>
+                </div>
+              </div>
+              <div class="mt-2 text-muted small">
+                <div class="d-flex justify-content-between">
+                  <span>Projected: <strong>₹{{ projection.projected | number:'1.0-0' }}</strong></span>
+                  <span
+                    [ngClass]="{'text-success': projection.difference >= 0, 'text-danger': projection.difference < 0}">
+                    {{ projection.difference >= 0 ? '+' : '' }}₹{{ projection.difference | number:'1.0-0' }}
                   </span>
                 </div>
               </div>
             </div>
           </div>
-
-          <div class="col-md-4" *ngFor="let individual of individualBalances">
-            <div class="summary-card income-card">
-              <div class="summary-card-header">
-                <h6 class="summary-card-title fw-bold">{{ individual.name }}</h6>
-                <i class="summary-card-icon bi bi-wallet2"></i>
-              </div>
-              <div class="summary-card-body">
-                <div class="amount-row">
-                  <span class="amount-label">Income</span>
-                  <span class="amount-value">₹{{ individual.income| number:'1.2-2' }}</span>
-                </div>
-                <div class="amount-row">
-                  <span class="amount-label">Spent</span>
-                  <span class="amount-value">₹{{ individual.spent| number:'1.2-2' }}</span>
-                </div>
-                <div class="amount-row difference-row">
-                  <span class="amount-label">Balance</span>
-                  <span class="amount-value" [ngClass]="getDifferenceClass(individual.balance)">
-                    ₹{{ individual.balance | number:'1.2-2' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-4" *ngFor="let projection of otherProjections">
-            <div class="summary-card expense-card" [ngClass]="getSummaryCardClass(projection.difference)">
-              <div class="summary-card-header">
-                <h6 class="summary-card-title fw-bold">{{ projection.type }}</h6>
-                <i class="summary-card-icon" [ngClass]="getSummaryCardIcon(projection.type)"></i>
-              </div>
-              <div class="summary-card-body">
-                <div class="amount-row">
-                  <span class="amount-label">Projected</span>
-                  <span class="amount-value">₹{{ projection.projected | number:'1.2-2' }}</span>
-                </div>
-                <div class="amount-row">
-                  <span class="amount-label">Actual</span>
-                  <span class="amount-value">₹{{ projection.actual | number:'1.2-2' }}</span>
-                </div>
-                <div class="amount-row difference-row">
-                  <span class="amount-label">Difference</span>
-                  <span class="amount-value" [ngClass]="getDifferenceClass(projection.difference)">
-                    ₹{{ projection.difference | number:'1.2-2' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
         </div>
       </div>
     </div>
   </div>
 
 
-  <!-- Progress bar sections -->
-  <div class="card shadow">
-    <div
-      class="card-header budget-progress-header text-white fw-bold d-flex justify-content-between align-items-center">
-      <span>Budget Progress</span>
-      <button class="btn btn-light btn-sm" (click)="exportDetailedBreakdownTableToExcel()">
-        <i class="bi bi-file-earmark-excel me-2"></i>Export to Excel
+  <!-- Budget Progress Section -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0 text-dark fw-bold">
+        <i class="bi bi-bar-chart-Line me-2 text-primary"></i>Budget Progress
+      </h5>
+      <button class="btn btn-outline-secondary btn-sm" (click)="exportDetailedBreakdownTableToExcel()">
+        <i class="bi bi-file-earmark-excel me-1"></i> Export
       </button>
     </div>
-    <div class="d-flex justify-content-center">
-      <div class="d-flex flex-wrap gap-2 mb-5 mt-5">
-        <button class="btn d-flex align-items-center gap-2 shadow-sm transition-all"
-          [ngClass]="showIncome ? 'btn-success active-tab' : 'btn-outline-success'" type="button"
-          (click)="showIncomeData()">
-          <i class="bi bi-cash-coin"></i> Income
-        </button>
 
-        <button class="btn d-flex align-items-center gap-2 shadow-sm transition-all"
-          [ngClass]="showSavings ? 'btn-info active-tab' : 'btn-outline-secondary'" type="button"
-          (click)="showSavingsData()">
-          <i class="bi bi-piggy-bank"></i> Savings
-        </button>
-
-        <button class="btn d-flex align-items-center gap-2 shadow-sm transition-all"
-          [ngClass]="showInvestments ? 'btn-info active-tab' : 'btn-outline-info'" type="button"
-          (click)="showInvestmentData()">
-          <i class="bi bi-bar-chart-fill"></i> Investments
-        </button>
-
-        <button class="btn d-flex align-items-center gap-2 shadow-sm transition-all"
-          [ngClass]="showExpenses ? 'btn-danger active-tab' : 'btn-outline-danger'" type="button"
-          (click)="showExpenseData()">
-          <i class="bi bi-basket-fill"></i> Expenses
-        </button>
+    <div class="card-body p-4">
+      <!-- Tabs -->
+      <div class="d-flex justify-content-center mb-4">
+        <div class="btn-group shadow-sm" role="group">
+          <button type="button" class="btn" [ngClass]="showIncome ? 'btn-success' : 'btn-outline-success'"
+            (click)="showIncomeData()">
+            <i class="bi bi-cash-coin me-1"></i> Income
+          </button>
+          <button type="button" class="btn" [ngClass]="showSavings ? 'btn-info text-white' : 'btn-outline-info'"
+            (click)="showSavingsData()">
+            <i class="bi bi-piggy-bank me-1"></i> Savings
+          </button>
+          <button type="button" class="btn" [ngClass]="showInvestments ? 'btn-primary' : 'btn-outline-primary'"
+            (click)="showInvestmentData()">
+            <i class="bi bi-graph-up me-1"></i> Investments
+          </button>
+          <button type="button" class="btn" [ngClass]="showExpenses ? 'btn-danger' : 'btn-outline-danger'"
+            (click)="showExpenseData()">
+            <i class="bi bi-cart me-1"></i> Expenses
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div class="d-flex justify-content-center">
-      <div class="col-lg-10 col-xl-8">
-        <!-- Expenses Progress section -->
-        <div class="card shadow-sm mb-5" *ngIf="showExpenses">
-          <!-- <div class="card-header bg-white text-dark fw-bold d-flex justify-content-between align-items-center">
-            <span>Expenses</span>
-          </div> -->
-          <div class="card-body">
-            <div *ngIf="!expenseData || expenseData.length === 0" class="text-center text-muted py-5">
-              <i class="bi bi-folder-x me-2 fs-4"></i> No records for this month.
-            </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-            <!-- Progress Bar Cards -->
-            <div *ngFor="let expense of expenseData" class="progress-card mb-3">
-              <div class="row align-items-center g-3">
-                <!-- Left Section: Type and Category -->
-                <div class="col-md-2">
-                  <div class="category-info">
-                    <h6 class="category-type mb-1">{{ expense.category }}</h6>
-                    <!-- <p class="category-name mb-0 text-muted">{{ expense.type }}</p> -->
-                  </div>
+          <!-- Empty State -->
+          <div *ngIf="(showExpenses && (!expenseData || expenseData.length === 0)) || 
+                      (showInvestments && (!investmentData || investmentData.length === 0)) ||
+                      (showSavings && (!savingsData || savingsData.length === 0)) ||
+                      (showIncome && (!incomeData || incomeData.length === 0))" class="text-center text-muted py-5">
+            <i class="bi bi-clipboard-x fs-1 opacity-50"></i>
+            <p class="mt-2">No records found for this category.</p>
+          </div>
+
+          <!-- Progress Items -->
+          <ng-container
+            *ngFor="let item of (showExpenses ? expenseData : (showInvestments ? investmentData : (showSavings ? savingsData : incomeData)))">
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-end mb-1">
+                <div>
+                  <h6 class="fw-bold text-dark mb-0">{{ item.category }}</h6>
+                  <!-- <small class="text-muted">{{ item.type }}</small> -->
                 </div>
-
-                <!-- Middle Section: Progress Bar -->
-                <div class="col-md">
-                  <div class="progress-container">
-                    <div class="d-flex justify-content-between mb-1">
-                      <small class="text-muted">Projected: <strong>₹{{ expense.projected }}</strong></small>
-                      <small class="text-muted">Actual: <strong>₹{{ expense.actual }}</strong></small>
-                    </div>
-                    <div class="progress" style="height: 28px;">
-                      <div class="progress-bar progress-bar-striped progress-bar-animated fw-bold" [ngClass]="{
-                    'bg-success': getProgressPercentage(expense.actual, expense.projected) < 50,
-                    'bg-warning': getProgressPercentage(expense.actual, expense.projected) >= 50 && getProgressPercentage(expense.actual, expense.projected) < 100,
-                    'bg-danger': getProgressPercentage(expense.actual, expense.projected) >= 100
-                  }" [style.width.%]="getProgressPercentage(expense.actual, expense.projected)" role="progressbar"
-                        [attr.aria-valuenow]="getProgressPercentage(expense.actual, expense.projected)"
-                        aria-valuemin="0" aria-valuemax="100">
-                        {{ getProgressPercentage(expense.actual, expense.projected) }}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Section: Difference -->
-                <div class="col-md-2 text-end">
-                  <div class="difference-info">
-                    <small class="text-muted d-block mb-1">Difference</small>
-                    <h5 class="mb-0"
-                      [ngClass]="{ 'text-success': expense.difference >= 0, 'text-danger': expense.difference < 0 }">
-                      ₹{{ expense.difference }}
-                    </h5>
-                  </div>
+                <div class="text-end">
+                  <span class="fw-bold"
+                    [ngClass]="{'text-success': item.difference >= 0, 'text-danger': item.difference < 0}">
+                    {{ item.difference >= 0 ? '+' : '' }}₹{{ item.difference }}
+                  </span>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Reserved: ₹{{ item.difference }}</small>
                 </div>
               </div>
-              <hr class="my-2">
-            </div>
-          </div>
-        </div>
 
-        <!-- Investments Progress section -->
-        <div *ngIf="showInvestments" class="card shadow-sm mb-5">
-          <!-- <div class="card-header bg-secondry text-dark fw-bold d-flex justify-content-between align-items-center">
-            <span>Investments</span>
-          </div> -->
-          <div class="card-body">
-            <div *ngIf="!investmentData || investmentData.length === 0" class="text-center text-muted py-5">
-              <i class="bi bi-folder-x me-2 fs-4"></i> No records for this month.
-            </div>
-
-            <!-- Progress Bar Cards -->
-            <div *ngFor="let investment of investmentData" class="progress-card mb-3">
-              <div class="row align-items-center g-3">
-                <!-- Left Section: Type and Category -->
-                <div class="col-md-2">
-                  <div class="category-info">
-                    <h6 class="category-type mb-1">{{ investment.category }}</h6>
-                    <!-- <p class="category-name mb-0 text-muted">{{ expense.type }}</p> -->
-                  </div>
-                </div>
-
-                <!-- Middle Section: Progress Bar -->
-                <div class="col-md">
-                  <div class="progress-container">
-                    <div class="d-flex justify-content-between mb-1">
-                      <small class="text-muted">Projected: <strong>₹{{ investment.projected }}</strong></small>
-                      <small class="text-muted">Actual: <strong>₹{{ investment.actual }}</strong></small>
-                    </div>
-                    <div class="progress" style="height: 28px;">
-                      <div class="progress-bar fw-bold" [ngClass]="{
-                    'bg-success': getProgressPercentage(investment.actual, investment.projected) >= 100,
-                    'bg-warning': getProgressPercentage(investment.actual, investment.projected) > 50 && getProgressPercentage(investment.actual, investment.projected) < 100,
-                    'bg-danger': getProgressPercentage(investment.actual, investment.projected) < 50
-                  }" [style.width.%]="getProgressPercentage(investment.actual, investment.projected)"
-                        role="progressbar"
-                        [attr.aria-valuenow]="getProgressPercentage(investment.actual, investment.projected)"
-                        aria-valuemin="0" aria-valuemax="100">
-                        {{ getProgressPercentage(investment.actual, investment.projected) }}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Section: Difference -->
-                <div class="col-md-2 text-end">
-                  <div class="difference-info">
-                    <small class="text-muted d-block mb-1">Difference</small>
-                    <h5 class="mb-0"
-                      [ngClass]="{ 'text-success': investment.difference >= 0, 'text-danger': investment.difference < 0 }">
-                      ₹{{ investment.difference }}
-                    </h5>
-                  </div>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar rounded-pill" role="progressbar"
+                  [style.width.%]="getProgressPercentage(item.actual, item.projected)" [ngClass]="{
+                        'bg-success': getProgressPercentage(item.actual, item.projected) <= 50,
+                        'bg-warning': getProgressPercentage(item.actual, item.projected) > 50 && getProgressPercentage(item.actual, item.projected) <= 100,
+                        'bg-danger': getProgressPercentage(item.actual, item.projected) > 100
+                      }">
                 </div>
               </div>
-              <hr class="my-2">
-            </div>
-          </div>
-        </div>
-
-        <!-- Savings Progress section -->
-        <div *ngIf="showSavings" class="card shadow-sm mb-5">
-          <!-- <div class="card-header bg-secondry text-dark fw-bold d-flex justify-content-between align-items-center">
-            <span>Savings</span>
-          </div> -->
-          <div class="card-body">
-            <div *ngIf="!savingsData || savingsData.length === 0" class="text-center text-muted py-5">
-              <i class="bi bi-folder-x me-2 fs-4"></i> No records for this month.
-            </div>
-
-            <!-- Progress Bar Cards -->
-            <div *ngFor="let savings of savingsData" class="progress-card mb-3">
-              <div class="row align-items-center g-3">
-                <!-- Left Section: Type and Category -->
-                <div class="col-md-2">
-                  <div class="category-info">
-                    <h6 class="category-type mb-1">{{ savings.category }}</h6>
-                    <!-- <p class="category-name mb-0 text-muted">{{ expense.type }}</p> -->
-                  </div>
-                </div>
-
-                <!-- Middle Section: Progress Bar -->
-                <div class="col-md">
-                  <div class="progress-container">
-                    <div class="d-flex justify-content-between mb-1">
-                      <small class="text-muted">Projected: <strong>₹{{ savings.projected }}</strong></small>
-                      <small class="text-muted">Actual: <strong>₹{{ savings.actual }}</strong></small>
-                    </div>
-                    <div class="progress" style="height: 28px;">
-                      <div class="progress-bar progress-bar progress-bar-animated fw-bold" [ngClass]="{
-                    'bg-success': getProgressPercentage(savings.actual, savings.projected) >= 100,
-                    'bg-warning': getProgressPercentage(savings.actual, savings.projected) < 100 && getProgressPercentage(savings.actual, savings.projected) > 50,
-                    'bg-danger': getProgressPercentage(savings.actual, savings.projected) < 50
-                  }" [style.width.%]="getProgressPercentage(savings.actual, savings.projected)" role="progressbar"
-                        [attr.aria-valuenow]="getProgressPercentage(savings.actual, savings.projected)"
-                        aria-valuemin="0" aria-valuemax="100">
-                        {{ getProgressPercentage(savings.actual, savings.projected) }}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Section: Difference -->
-                <div class="col-md-2 text-end">
-                  <div class="difference-info">
-                    <small class="text-muted d-block mb-1">Difference</small>
-                    <h5 class="mb-0"
-                      [ngClass]="{ 'text-success': savings.difference >= 0, 'text-danger': savings.difference < 0 }">
-                      ₹{{ savings.difference }}
-                    </h5>
-                  </div>
-                </div>
+              <div class="d-flex justify-content-between mt-1 text-muted" style="font-size: 0.75rem;">
+                <span>Actual: <strong>₹{{ item.actual }}</strong></span>
+                <span>Projected: <strong>₹{{ item.projected }}</strong></span>
               </div>
-              <hr class="my-2">
             </div>
-          </div>
-        </div>
+            <!-- <hr class="text-muted opacity-25"> -->
+          </ng-container>
 
-        <!-- Income Progress section -->
-        <div *ngIf="showIncome" class="card shadow-sm mb-5">
-          <!-- <div class="card-header bg-secondry text-dark fw-bold d-flex justify-content-between align-items-center">
-            <span>Income</span>
-          </div> -->
-          <div class="card-body">
-            <div *ngIf="!incomeData || incomeData.length === 0" class="text-center text-muted py-5">
-              <i class="bi bi-folder-x me-2 fs-4"></i> No records for this month.
-            </div>
-
-            <!-- Progress Bar Cards -->
-            <div *ngFor="let income of incomeData" class="progress-card mb-3">
-              <div class="row align-items-center g-3">
-                <!-- Left Section: Type and Category -->
-                <div class="col-md-2">
-                  <div class="category-info">
-                    <h6 class="category-type mb-1">{{ income.category }}</h6>
-                    <!-- <p class="category-name mb-0 text-muted">{{ expense.type }}</p> -->
-                  </div>
-                </div>
-
-                <!-- Middle Section: Progress Bar -->
-                <div class="col-md">
-                  <div class="progress-container">
-                    <div class="d-flex justify-content-between mb-1">
-                      <small class="text-muted">Projected: <strong>₹{{ income.projected }}</strong></small>
-                      <small class="text-muted">Actual: <strong>₹{{ income.actual }}</strong></small>
-                    </div>
-                    <div class="progress" style="height: 28px;">
-                      <div class="progress-bar progress-bar-striped progress-bar-animated fw-bold" [ngClass]="{
-                    'bg-success': getProgressPercentage(income.actual, income.projected) >= 100,
-                    'bg-danger': getProgressPercentage(income.actual, income.projected) < 100
-                  }" [style.width.%]="getProgressPercentage(income.actual, income.projected)" role="progressbar"
-                        [attr.aria-valuenow]="getProgressPercentage(income.actual, income.projected)" aria-valuemin="0"
-                        aria-valuemax="100">
-                        {{ getProgressPercentage(income.actual, income.projected) }}%
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Right Section: Difference -->
-                <div class="col-md-2 text-end">
-                  <div class="difference-info">
-                    <small class="text-muted d-block mb-1">Difference</small>
-                    <h5 class="mb-0"
-                      [ngClass]="{ 'text-success': income.difference >= 0, 'text-danger': income.difference < 0 }">
-                      ₹{{ income.difference }}
-                    </h5>
-                  </div>
-                </div>
-              </div>
-              <hr class="my-2">
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </div>
-
-
 
 </div>
