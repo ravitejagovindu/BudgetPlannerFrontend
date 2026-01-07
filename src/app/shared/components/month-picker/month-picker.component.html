@@ -1,0 +1,41 @@
+<div class="month-navigator d-flex align-items-center bg-white shadow-sm p-2 rounded-pill border">
+    <button class="btn btn-icon btn-sm" (click)="prevMonth()">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="current-month-display position-relative mx-3">
+        <!-- Trigger Area -->
+        <div class="d-flex align-items-center justify-content-center gap-2" (click)="toggleDtPicker()"
+            title="Click to change month" style="cursor: pointer;">
+            <i class="bi bi-calendar3 text-secondary small"></i>
+            <span class="fw-bold text-dark">{{ formattedMonth }}</span>
+        </div>
+
+        <!-- Custom Popover Dropdown -->
+        <div class="dt-picker-popover shadow-lg" *ngIf="isDtPickerOpen">
+            <!-- Year Selector Header -->
+            <div class="dt-picker-header">
+                <button class="btn btn-sm btn-light btn-icon-small" (click)="changeDtPickerYear(-1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="fw-bold fs-6 mx-2">{{ dtPickerYear }}</span>
+                <button class="btn btn-sm btn-light btn-icon-small" (click)="changeDtPickerYear(1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Month Grid -->
+            <div class="dt-picker-grid">
+                <div *ngFor="let m of monthsList; let i = index" class="dt-month-item"
+                    [class.active]="(i + 1) === currentViewMonth && dtPickerYear === currentViewYear"
+                    (click)="selectDtPickerMonth(i)">
+                    {{ m }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn btn-icon btn-sm" (click)="nextMonth()">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+</div>

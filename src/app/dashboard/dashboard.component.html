@@ -10,13 +10,8 @@
     </div>
     <div class="col-md-3">
       <div class="header-controls">
-        <div class="input-group shadow-sm month-selector">
-          <span class="input-group-text bg-white border-end-0">
-            <i class="bi bi-calendar-event text-primary"></i>
-          </span>
-          <input type="month" id="monthPicker" [(ngModel)]="currentMonthYear" (change)="onMonthSelect(currentMonthYear)"
-            class="form-control border-start-0 ps-0 text-primary fw-bold" aria-label="Select month">
-        </div>
+        <app-month-picker [currentMonthYear]="currentMonthYear" (monthSelect)="onMonthSelect($event)">
+        </app-month-picker>
       </div>
     </div>
   </div>

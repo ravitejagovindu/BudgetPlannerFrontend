@@ -1,0 +1,90 @@
+/* Month Navigator Styles */
+.month-navigator {
+    min-width: 250px;
+    justify-content: space-between;
+}
+
+.btn-icon,
+.btn-icon-small {
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover,
+.btn-icon-small:hover {
+    background-color: #f8f9fa;
+    color: var(--primary);
+    transform: translateY(-1px);
+}
+
+/* Custom Date Picker Styles */
+.dt-picker-popover {
+    position: absolute;
+    top: 140%;
+    /* Below the text with some spacing */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    background: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    z-index: 1000;
+    border: 1px solid #e9ecef;
+}
+
+/* Triangle arrow pointing up */
+.dt-picker-popover::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+}
+
+.dt-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.dt-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.dt-month-item {
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: transparent;
+    color: var(--dark);
+}
+
+.dt-month-item:hover {
+    background-color: #f8f9fa;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.dt-month-item.active {
+    background-color: var(--primary);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(var(--primary-rgb), 0.2);
+}

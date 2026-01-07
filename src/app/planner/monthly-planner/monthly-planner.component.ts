@@ -54,9 +54,10 @@ export class MonthlyPlannerComponent implements OnInit {
     this.fetchRecords(this.currentMonthYear);
   }
 
-  fetchRecords(yearMonth: string) {
-    let selectedMonth = parseInt(yearMonth.split('-')[1]);
-    let selectedYear = parseInt(yearMonth.split('-')[0]);
+  fetchRecords(monthYear: string) {
+    this.currentMonthYear = monthYear;
+    let selectedMonth = parseInt(monthYear.split('-')[1]);
+    let selectedYear = parseInt(monthYear.split('-')[0]);
     this.incomeRecords = new Set();
     this.savingsRecords = new Set();
     this.investmentsRecords = new Set();

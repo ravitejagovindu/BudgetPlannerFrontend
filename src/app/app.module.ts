@@ -18,6 +18,7 @@ import { LoginComponent } from './login/login.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 import { JwtInterceptor } from './interceptor/jwt.interceptor';
 import { HttpErrorInterceptor } from './interceptor/http-error.interceptor';
+import { MonthPickerComponent } from './shared/components/month-picker/month-picker.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { HttpErrorInterceptor } from './interceptor/http-error.interceptor';
     ManagePlannerComponent,
     LoginComponent,
     PortfolioComponent,
+    MonthPickerComponent,
   ],
   imports: [
     BrowserModule,
@@ -55,4 +57,4 @@ import { HttpErrorInterceptor } from './interceptor/http-error.interceptor';
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

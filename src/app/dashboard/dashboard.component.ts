@@ -32,9 +32,8 @@ export class DashboardComponent implements AfterViewInit {
   date = new Date();
   selectedMonth = this.date.getMonth() + 1;
   year = this.date.getFullYear();
-  currentMonthYear = `${this.year}-${this.selectedMonth < 10 ? '0' : ''}${
-    this.selectedMonth
-  }`;
+  currentMonthYear = `${this.year}-${this.selectedMonth < 10 ? '0' : ''}${this.selectedMonth
+    }`;
   allLedgerData: Map<number, Map<string, ChartTable[]>> = new Map();
   tableData: ChartTable[] = [];
   expenseData: ChartTable[] = [];
@@ -64,7 +63,7 @@ export class DashboardComponent implements AfterViewInit {
   constructor(
     private chartServcie: ChartService,
     private apiService: ApiService
-  ) {}
+  ) { }
 
   ngAfterViewInit(): void {
     this.selectedCategory = '';
@@ -285,9 +284,14 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   onMonthSelect(monthYear: any) {
+    this.currentMonthYear = monthYear; // Update local state from event
     let monthNumber = monthYear.split('-')[1];
     let selectedMonth = this.getMonthName(monthNumber);
     let selectedYear = parseInt(monthYear.split('-')[0]);
+    this.expenseData = [];
+    this.savingsData = [];
+    this.investmentData = [];
+    this.incomeData = [];
     if (!this.allLedgerData.get(selectedYear)) {
       this.apiService
         .getAllLedgersByYear(selectedYear)
@@ -310,10 +314,6 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   populateChartTable(selectedMonth: string) {
-    this.expenseData = [];
-    this.savingsData = [];
-    this.investmentData = [];
-    this.incomeData = [];
     let allLedgersByYear = this.allLedgerData.get(this.year);
     if (!allLedgersByYear) allLedgersByYear = new Map();
     let allLedgersByMonth = allLedgersByYear.get(selectedMonth);
