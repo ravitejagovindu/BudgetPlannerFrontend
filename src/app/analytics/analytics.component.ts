@@ -111,6 +111,36 @@ export class AnalyticsComponent implements OnInit {
         const data = this.currentAnalyticsData;
         if (!data) return;
 
+        // --- 0. Update Summary Cards based on Selection ---
+        if (this.selectedDrilldownCategory && data.categoryBreakdown && data.categoryBreakdown[this.selectedDrilldownCategory]) {
+            // Calculate Total Spent for selected category
+            const categorySubItems: { name: string, y: number }[] = data.categoryBreakdown[this.selectedDrilldownCategory];
+            const categoryTotal = categorySubItems.reduce((sum: number, item: { y: number }) => sum + item.y, 0);
+            this.totalSpent = categoryTotal;
+
+            // Calculate Monthly Average for selected category
+            const categoryTrend = data.categoryMonthlyTrend && data.categoryMonthlyTrend[this.selectedDrilldownCategory];
+            if (categoryTrend && categoryTrend.length > 0) {
+                const monthsWithData = categoryTrend.filter((m: { amount: number }) => m.amount > 0).length;
+                this.monthlyAverage = monthsWithData > 0 ? categoryTotal / monthsWithData : 0;
+            } else {
+                this.monthlyAverage = 0;
+            }
+
+            // Find Highest Sub-Category within selected category
+            if (categorySubItems.length > 0) {
+                const sorted = [...categorySubItems].sort((a, b) => b.y - a.y);
+                this.highestCategory = { name: sorted[0].name, amount: sorted[0].y };
+            } else {
+                this.highestCategory = { name: '-', amount: 0 };
+            }
+        } else {
+            // Reset to global values
+            this.totalSpent = data.totalSpent;
+            this.monthlyAverage = data.monthlyAverage;
+            this.highestCategory = data.highestCategory;
+        }
+
         // --- 1. Update Bar Chart (Sub-Category) ---
         let barData = [];
         let barTitle = '';
