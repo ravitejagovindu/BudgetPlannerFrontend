@@ -11,9 +11,6 @@ import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HighchartsChartModule } from 'highcharts-angular';
-import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
-import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
-import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
 import { LoginComponent } from './login/login.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 import { JwtInterceptor } from './interceptor/jwt.interceptor';
@@ -31,9 +28,6 @@ import { AnalyticsModule } from './analytics/analytics.module';
     DashboardComponent,
     LedgerComponent,
     PlannerComponent,
-    MonthlyPlannerComponent,
-    AnnualPlannerComponent,
-    ManagePlannerComponent,
     LoginComponent,
     PortfolioComponent,
     MonthPickerComponent,

@@ -1,0 +1,357 @@
+<div class="planner-container fade-in px-4 py-4">
+    <!-- Unified Header -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-5">
+            <h1 class="page-title mb-0 d-flex align-items-center">
+                <i class="bi bi-calendar-check-fill me-2 text-primary"></i>Financial Planner
+            </h1>
+            <p class="text-muted small mb-0 mt-1">
+                Consolidated view of your monthly projections and budget structure
+            </p>
+        </div>
+
+        <!-- Tab Switcher & Month Picker -->
+        <div class="col-md-7 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
+            <div class="bg-white p-1 rounded-pill shadow-sm border d-inline-flex me-3">
+                <button class="btn btn-sm rounded-pill px-4 fw-bold transition-all"
+                    [class.btn-primary]="activeTab === 'monthly'" [class.text-muted]="activeTab !== 'monthly'"
+                    [class.bg-transparent]="activeTab !== 'monthly'" (click)="setActiveTab('monthly')">
+                    <i class="bi bi-graph-up me-2"></i>Monthly View
+                </button>
+                <button class="btn btn-sm rounded-pill px-4 fw-bold transition-all"
+                    [class.btn-primary]="activeTab === 'structure'" [class.text-muted]="activeTab !== 'structure'"
+                    [class.bg-transparent]="activeTab !== 'structure'" (click)="setActiveTab('structure')">
+                    <i class="bi bi-gear-wide-connected me-2"></i>Budget Structure
+                </button>
+            </div>
+
+            <div *ngIf="activeTab === 'monthly'" class="ms-md-2">
+                <app-month-picker [currentMonthYear]="currentMonthYear" (monthSelect)="fetchMonthlyRecords($event)">
+                </app-month-picker>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Alert -->
+    <div class="row mb-3 px-3" *ngIf="alertMessage">
+        <div class="col-12">
+            <div class="alert shadow-sm border-0 d-flex align-items-center"
+                [ngClass]="alertType === 'success' ? 'alert-success text-success bg-success-subtle' : 'alert-danger text-danger bg-danger-subtle'"
+                role="alert">
+                <i class="bi me-2 fs-5"
+                    [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+                <div>{{ alertMessage }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="tab-content-container fade-in">
+
+        <!-- TAB 1: MONTHLY VIEW -->
+        <div *ngIf="activeTab === 'monthly'" class="fade-in">
+
+            <!-- Summary Stats -->
+            <div class="row g-3 mb-4">
+                <!-- Summary Cards Loop -->
+                <div class="col-md-3" *ngFor="let type of ['INCOME', 'EXPENSE', 'SAVING', 'INVESTMENT']">
+                    <div class="card summary-card border-0 shadow-sm h-100" [ngClass]="type.toLowerCase() + '-card'">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="text-muted text-uppercase fw-bold mb-1 x-small tracking-wider">{{ type }}
+                                    </h6>
+                                    <h4 class="mb-0 fw-bold">₹{{ getTotalPlanned(type) | number:'1.2-2' }}</h4>
+                                </div>
+                                <div class="icon-shape rounded-3 p-2"
+                                    [ngClass]="{'bg-success-subtle text-success': type === 'INCOME', 'bg-danger-subtle text-danger': type === 'EXPENSE', 'bg-info-subtle text-info': type === 'SAVING', 'bg-warning-subtle text-warning': type === 'INVESTMENT'}">
+                                    <i class="bi"
+                                        [ngClass]="{'bi-arrow-up-circle': type === 'INCOME', 'bi-arrow-down-circle': type === 'EXPENSE', 'bi-piggy-bank': type === 'SAVING', 'bi-graph-up-arrow': type === 'INVESTMENT'}"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining Balance Banner -->
+            <div class="card border-0 shadow-sm mb-4 bg-light-soft border-start-primary">
+                <div class="card-body d-flex justify-content-between align-items-center p-3">
+                    <div>
+                        <h6 class="fw-bold text-secondary mb-1">REMAINING TO PLAN</h6>
+                        <small class="text-muted">Total Income - All Allocations</small>
+                    </div>
+                    <div class="text-end">
+                        <h2 class="mb-0 fw-bold" [ngClass]="getBalanceClass(remainingBalanceToPlan)">
+                            ₹{{ remainingBalanceToPlan | number:'1.2-2' }}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projections Explorer -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <div class="btn-group planner-type-toggle p-1 bg-light rounded-pill border">
+                        <input type="radio" class="btn-check" name="projType" id="pIncome"
+                            [(ngModel)]="activeProjectionType" value="INCOME">
+                        <label class="btn btn-sm rounded-pill px-3" for="pIncome">Income</label>
+
+                        <input type="radio" class="btn-check" name="projType" id="pExpense"
+                            [(ngModel)]="activeProjectionType" value="EXPENSE">
+                        <label class="btn btn-sm rounded-pill px-3" for="pExpense">Expenses</label>
+
+                        <input type="radio" class="btn-check" name="projType" id="pSaving"
+                            [(ngModel)]="activeProjectionType" value="SAVING">
+                        <label class="btn btn-sm rounded-pill px-3" for="pSaving">Savings</label>
+
+                        <input type="radio" class="btn-check" name="projType" id="pInvest"
+                            [(ngModel)]="activeProjectionType" value="INVESTMENT">
+                        <label class="btn btn-sm rounded-pill px-3" for="pInvest">Investments</label>
+                    </div>
+
+                    <button class="btn btn-primary rounded-pill btn-sm px-4 fw-bold shadow-sm"
+                        (click)="showProjectionForm = !showProjectionForm">
+                        <i class="bi" [ngClass]="showProjectionForm ? 'bi-x-lg' : 'bi-plus-lg'"></i>
+                        {{ showProjectionForm ? ' Close' : ' Add Entry' }}
+                    </button>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Add Form (Inline Alert style) -->
+                    <div class="collapse show mb-4" *ngIf="showProjectionForm">
+                        <div class="bg-light rounded-4 p-4 border border-primary-subtle position-relative">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-pencil-square me-2"></i>New Projection
+                                Entry</h6>
+                            <form [formGroup]="projectionForm" (ngSubmit)="saveProjection()">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold text-secondary">Budget Type</label>
+                                        <select class="form-select border-0 shadow-sm" formControlName="type"
+                                            (change)="updateProjectionCategories()">
+                                            <option value="" disabled>Select Type</option>
+                                            <option value="INCOME">Income</option>
+                                            <option value="EXPENSE">Expense</option>
+                                            <option value="SAVING">Saving</option>
+                                            <option value="INVESTMENT">Investment</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-secondary">Category</label>
+                                        <select class="form-select border-0 shadow-sm" formControlName="category">
+                                            <option value="" disabled>Select Category</option>
+                                            <option *ngFor="let cat of categoriesForTypeSet" [value]="cat">{{cat}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold text-secondary">Projected Amount
+                                            (₹)</label>
+                                        <input type="number" class="form-control border-0 shadow-sm"
+                                            formControlName="amount" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="submit"
+                                            class="btn btn-success w-100 rounded-pill fw-bold shadow-sm"
+                                            [disabled]="projectionForm.invalid">
+                                            <i class="bi bi-check2-circle me-1"></i>Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="alert alert-warning mt-3 py-2 px-3 small rounded-3 border-0 d-flex align-items-center"
+                                *ngIf="showHigherAmountAlert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Amount exceeds remaining balance.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Projections Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle custom-planner-table">
+                            <thead class="bg-light-soft text-secondary">
+                                <tr>
+                                    <th class="border-0 ps-4">Category</th>
+                                    <th class="border-0 text-end">Projected Amount</th>
+                                    <th class="border-0 text-center pe-4" style="width: 150px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filtered Records based on Active Tab -->
+                                <ng-container *ngFor="let record of allPlanners">
+                                    <tr *ngIf="record.type === activeProjectionType" class="border-bottom-soft">
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark" *ngIf="!record.canEdit">{{ record.category }}
+                                            </div>
+                                            <select *ngIf="record.canEdit" class="form-select form-select-sm"
+                                                [(ngModel)]="record.category">
+                                                <option *ngFor="let cat of categoriesForTypeSet" [value]="cat">{{cat}}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="h6 mb-0 fw-bold"
+                                                [ngClass]="activeProjectionType === 'INCOME' ? 'text-success' : 'text-primary'"
+                                                *ngIf="!record.canEdit">
+                                                ₹{{ record.projected | number:'1.2-2' }}
+                                            </span>
+                                            <input *ngIf="record.canEdit" type="number"
+                                                class="form-control form-control-sm text-end ms-auto"
+                                                style="width: 150px;" [(ngModel)]="record.projected">
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <div class="btn-group">
+                                                <button class="btn btn-link link-primary p-1"
+                                                    (click)="editProjection(record)"
+                                                    [title]="record.canEdit ? 'Save Changes' : 'Edit Projection'">
+                                                    <i class="bi fs-5"
+                                                        [ngClass]="record.canEdit ? 'bi-check-circle-fill text-success' : 'bi-pencil-square'"></i>
+                                                </button>
+                                                <button class="btn btn-link link-danger p-1"
+                                                    (click)="deleteProjection(record)" title="Delete Projection">
+                                                    <i class="bi bi-trash3 fs-5"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                                <tr *ngIf="getTotalPlanned(activeProjectionType) === 0">
+                                    <td colspan="3" class="text-center py-5 text-muted">
+                                        <i class="bi bi-folder-x fs-1 opacity-25 d-block mb-2"></i>
+                                        No projections found for {{ activeProjectionType | lowercase }}.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: STRUCTURE VIEW -->
+        <div *ngIf="activeTab === 'structure'" class="fade-in">
+            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                <div class="card-body p-4 p-md-5">
+                    <form [formGroup]="structureForm" (ngSubmit)="onStructureSubmit()">
+                        <div class="row mb-5 justify-content-center">
+                            <div class="col-md-8 text-center">
+                                <h5 class="fw-bold text-dark mb-4">Structure Management</h5>
+                                <div class="btn-group w-100 p-1 bg-light rounded-pill border" role="group">
+                                    <ng-container *ngFor="let type of budgetTypes">
+                                        <input type="radio" class="btn-check" formControlName="budgetType"
+                                            [value]="type" [id]="'type' + type">
+                                        <label class="btn btn-sm rounded-pill py-2" [for]="'type' + type">{{ type
+                                            }}</label>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="selectedType" class="fade-in">
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-secondary mb-3 small tracking-wider">CHOOSE
+                                        ACTION</label>
+                                    <div class="d-flex gap-3 mb-4">
+                                        <div class="action-card flex-fill">
+                                            <input type="radio" class="btn-check" formControlName="creationMode"
+                                                value="existing" id="mExist">
+                                            <label
+                                                class="btn btn-outline-primary w-100 py-3 rounded-4 shadow-sm border-2"
+                                                for="mExist">
+                                                <i class="bi bi-pencil-square fs-4 d-block mb-1"></i>
+                                                <strong>Edit Existing</strong>
+                                            </label>
+                                        </div>
+                                        <div class="action-card flex-fill">
+                                            <input type="radio" class="btn-check" formControlName="creationMode"
+                                                value="new" id="mNew">
+                                            <label
+                                                class="btn btn-outline-success w-100 py-3 rounded-4 shadow-sm border-2"
+                                                for="mNew">
+                                                <i class="bi bi-plus-lg fs-4 d-block mb-1"></i>
+                                                <strong>Create New</strong>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Details Section -->
+                            <div class="bg-light-soft rounded-4 p-4 mb-4 border border-light shadow-sm">
+                                <div class="row g-3">
+                                    <div class="col-md-6" *ngIf="creationMode === 'existing'">
+                                        <label class="form-label fw-bold text-secondary small">Select Category to
+                                            Manage</label>
+                                        <select class="form-select border-0 shadow-sm"
+                                            formControlName="selectedCategoryId">
+                                            <option value="" disabled>Select a category...</option>
+                                            <option *ngFor="let cat of filteredCategories" [value]="cat.id">
+                                                {{ cat.categoryName }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-secondary small">Category Name</label>
+                                        <input type="text" class="form-control border-0 shadow-sm"
+                                            formControlName="categoryName" placeholder="e.g. Household Supplies">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-secondary small">Base Monthly Amount
+                                            (₹)</label>
+                                        <input type="number" class="form-control border-0 shadow-sm"
+                                            formControlName="categoryAmount" placeholder="0.00">
+                                    </div>
+                                </div>
+
+                                <div class="mt-4"
+                                    *ngIf="creationMode === 'new' || structureForm.get('selectedCategoryId')?.value">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold text-dark mb-0"><i
+                                                class="bi bi-diagram-3 me-2 text-primary"></i>Subcategories</h6>
+                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill"
+                                            (click)="addSubCategory()">
+                                            <i class="bi bi-plus-lg me-1"></i>Add Sub
+                                        </button>
+                                    </div>
+
+                                    <div formArrayName="subCategories" class="row g-2">
+                                        <div *ngFor="let sub of subCategoriesFormArray.controls; let i = index"
+                                            [formGroupName]="i" class="col-12">
+                                            <div class="p-2 bg-white rounded-3 shadow-xs border d-flex gap-2">
+                                                <input type="text" class="form-control form-control-sm border-0"
+                                                    formControlName="name" placeholder="Subcategory name">
+                                                <button type="button" class="btn btn-link link-danger p-0 px-2"
+                                                    (click)="removeSubCategory(i)"><i class="bi bi-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between align-items-center pt-3 mt-4">
+                                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm"
+                                    *ngIf="creationMode === 'existing' && structureForm.get('selectedCategoryId')?.value"
+                                    (click)="deleteCategoryStructure()">
+                                    <i class="bi bi-trash-fill me-2"></i>Delete Category
+                                </button>
+                                <div class="ms-auto">
+                                    <button type="button" class="btn btn-light rounded-pill px-4 me-2 fw-bold"
+                                        (click)="resetStructureSelection()">Cancel</button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm"
+                                        [disabled]="loading || structureForm.invalid || subCategoriesFormArray.length === 0">
+                                        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                                        <i class="bi bi-check-lg me-2" *ngIf="!loading"></i>
+                                        {{ creationMode === 'new' ? 'Build Category' : 'Update Structure' }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

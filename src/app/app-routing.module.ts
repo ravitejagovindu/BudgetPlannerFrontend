@@ -4,9 +4,6 @@ import { HomeComponent } from './home/home.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PlannerComponent } from './planner/planner.component';
 import { LedgerComponent } from './ledger/ledger.component';
-import { MonthlyPlannerComponent } from './planner/monthly-planner/monthly-planner.component';
-import { AnnualPlannerComponent } from './planner/annual-planner/annual-planner.component';
-import { ManagePlannerComponent } from './profile/manage-planner/manage-planner.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './gaurd/auth.guard';
 import { PortfolioComponent } from './portfolio/portfolio.component';
@@ -20,19 +17,19 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'monthly-planner',
-    component: MonthlyPlannerComponent,
+    path: 'planner',
+    component: PlannerComponent,
     canActivate: [AuthGuard],
   },
   {
-    path: 'annual-planner',
-    component: AnnualPlannerComponent,
-    canActivate: [AuthGuard],
+    path: 'monthly-planner',
+    redirectTo: 'planner',
+    pathMatch: 'full'
   },
   {
     path: 'manage-planner',
-    component: ManagePlannerComponent,
-    canActivate: [AuthGuard],
+    redirectTo: 'planner',
+    pathMatch: 'full'
   },
   { path: 'ledger', component: LedgerComponent, canActivate: [AuthGuard] },
   {

@@ -9,6 +9,7 @@ import { LoginResponse } from '../model/LoginResponse';
 import { AuthStatusResponse } from '../model/AuthStatusResponse';
 import { environment } from '../../environments/environment';
 import { Portfolio } from '../model/portfolio';
+import { CategoryRequest } from '../model/CategoryRequest';
 
 export interface ApiResponse<T> {
   message: string;
@@ -220,33 +221,35 @@ export class ApiService {
   /**
    * Create a new category
    */
-  createCategory(category: any): Observable<any> {
-    // DUMMY IMPLEMENTATION
-    const mockResponse = {
-      success: true,
-      message: 'Category created successfully',
-      data: {
-        id: Math.floor(Math.random() * 1000),
-        ...category,
-      },
-    };
-    return of(mockResponse).pipe(delay(800));
+  createCategory(category: CategoryRequest): Observable<any> {
+    return this.http.post<any>(this.hostUrl + 'planner/categories', category);
   }
 
   /**
-   * Update an existing category (amount or subcategories)
+   * Update an existing category (using POST as per provided API specs)
    */
-  updateCategory(categoryId: number | undefined, category: any): Observable<any> {
-    // DUMMY IMPLEMENTATION
-    return of({ success: true, message: 'Category updated successfully', data: category }).pipe(delay(800));
+  updateCategory(categoryId: number | undefined, category: CategoryRequest): Observable<any> {
+    return this.http.post<any>(this.hostUrl + 'planner/categories', category);
   }
 
   /**
    * Delete a category
    */
-  deleteCategory(categoryId: number | undefined): Observable<any> {
-    // DUMMY IMPLEMENTATION
-    return of({ success: true, message: 'Category deleted successfully' }).pipe(delay(500));
+  deleteCategory(categoryId: number | string | undefined): Observable<any> {
+    return this.http.delete<any>(this.hostUrl + 'planner/categories/' + categoryId);
+  }
+
+  /**
+   * Delete specific subcategories
+   */
+  deleteSubcategories(subcategories: string[]): Observable<any> {
+    const options = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+      }),
+      body: subcategories,
+    };
+    return this.http.delete<any>(this.hostUrl + 'planner/subcategories', options);
   }
 
   // ========================================
