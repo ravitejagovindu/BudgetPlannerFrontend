@@ -122,3 +122,158 @@
     padding: 1rem 0.5rem;
   }
 }
+
+/* Sticky Full-Width Transition */
+.sticky-banner-container {
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  background-color: transparent !important;
+  /* Let the card background show */
+}
+
+.sticky-banner-container.sticky-active {
+  margin: 0 -1.5rem !important;
+  padding: 0 !important;
+  background-color: white !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Hero State (Non-sticky): Option A Premium Card */
+.sticky-banner-container:not(.sticky-active) .net-worth-card {
+  padding: 1.5rem 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  border-left: 6px solid #0d6efd !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
+  /* Extremely subtle shadow */
+  border-radius: 12px !important;
+  transition: all 0.4s ease;
+}
+
+/* Sticky Header State: Sleek and functional */
+.sticky-banner-container.sticky-active .net-worth-card {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+  border-left-width: 8px !important;
+  background: white !important;
+  /* Solid clean background for sticky header */
+}
+
+/* Remove bottom margin of the row when sticky to prevent gap at bottom */
+.sticky-banner-container.sticky-active .row.mb-4 {
+  margin-bottom: 0 !important;
+}
+
+/* Content adjustments based on state */
+.sticky-banner-container.sticky-active .card-body {
+  padding: 0.8rem 2.5rem !important;
+  /* Slimmer padding for sticky header */
+}
+
+.sticky-banner-container.sticky-active .net-worth-val {
+  font-size: 1.6rem !important;
+  /* Slightly smaller for header */
+}
+
+.sticky-banner-container.sticky-active .rupee-watermark {
+  opacity: 0.02;
+  /* Fade out watermark in sticky state */
+  font-size: 100px !important;
+}
+
+/* ==============================================
+   UI/UX ENHANCEMENTS (NET WORTH OPTIONS)
+   ============================================== */
+
+.backdrop-blur {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.hover-up {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.hover-up:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.tracking-wider {
+  letter-spacing: 1.5px;
+}
+
+.x-small {
+  font-size: 0.7rem;
+}
+
+.opacity-05 {
+  opacity: 0.05;
+}
+
+.border-end-md {
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 767.98px) {
+  .border-end-md {
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Custom Tooltip */
+.custom-tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.custom-tooltip-text {
+  visibility: hidden;
+  width: 250px;
+  background-color: #212529;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1070;
+  /* Higher than card */
+  top: 150%;
+  /* Position below the icon */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  text-transform: none;
+}
+
+.custom-tooltip-text::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  /* Arrow on top */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #212529 transparent;
+}
+
+.custom-tooltip-container:hover .custom-tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(5px);
+}

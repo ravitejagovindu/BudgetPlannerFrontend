@@ -8,6 +8,13 @@ import { LoginRequest } from '../model/LoginRequest';
 import { LoginResponse } from '../model/LoginResponse';
 import { AuthStatusResponse } from '../model/AuthStatusResponse';
 import { environment } from '../../environments/environment';
+import { Portfolio } from '../model/portfolio';
+
+export interface ApiResponse<T> {
+  message: string;
+  error: any;
+  data: T;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -103,6 +110,30 @@ export class ApiService {
 
   deleteLedger(id: number) {
     return this.http.delete(this.hostUrl + 'ledgers/' + id);
+  }
+
+  // ========================================
+  // PORTFOLIO MANAGEMENT METHODS (REAL)
+  // ========================================
+
+  getAllPortfolios(): Observable<ApiResponse<Portfolio[]>> {
+    return this.http.get<ApiResponse<Portfolio[]>>(this.hostUrl + 'portfolio/bank');
+  }
+
+  getPortfolioById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.hostUrl}portfolio/bank/${id}`);
+  }
+
+  createPortfolio(portfolio: Portfolio): Observable<ApiResponse<Portfolio>> {
+    return this.http.post<ApiResponse<Portfolio>>(this.hostUrl + 'portfolio/bank', portfolio);
+  }
+
+  updatePortfolio(id: number, portfolio: Portfolio): Observable<ApiResponse<Portfolio>> {
+    return this.http.put<ApiResponse<Portfolio>>(`${this.hostUrl}portfolio/bank/${id}`, portfolio);
+  }
+
+  deletePortfolio(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.hostUrl}portfolio/bank/${id}`);
   }
 
   // AUTHENTICATION METHODS - MOCK IMPLEMENTATION

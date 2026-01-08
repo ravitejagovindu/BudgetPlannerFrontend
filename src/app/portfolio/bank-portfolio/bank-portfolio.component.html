@@ -1,6 +1,6 @@
 <div class="row fade-in" *ngIf="!loading">
     <!-- Summary Section -->
-    <div class="col-12 mb-4">
+    <!-- <div class="col-12 mb-4">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="card summary-card border-left-primary h-100">
@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Bank Accounts Grid -->
     <div class="col-12 mb-4">
@@ -40,10 +40,21 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="bank-info">
-                                <h6 class="card-title fw-bold mb-1">{{ acc.bankName }}</h6>
-                                <p class="text-muted small mb-0">{{ acc.accountType }} • {{ acc.accountNumber }}</p>
+                                <h6 class="card-title fw-bold mb-1">{{ acc.name }}</h6>
+                                <p class="text-muted small mb-0">{{ acc.type }} • {{ acc.code }}</p>
                             </div>
-                            <span class="badge bg-light text-secondary border">{{ acc.accountType }}</span>
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="badge bg-light text-secondary border mb-2">{{ acc.type }}</span>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(acc)"
+                                        title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-link text-danger p-0" (click)="onDelete(acc)" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="balance-section mt-4 pt-3 border-top">
                             <small class="text-muted d-block mb-1">Available Balance</small>
@@ -72,6 +83,7 @@
                                 <th>Interest Rate</th>
                                 <th>Maturity Date</th>
                                 <th class="text-end pe-4">Value (₹)</th>
+                                <th class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -83,16 +95,28 @@
                                             <i class="bi bi-file-earmark-lock"></i>
                                         </div>
                                         <div>
-                                            <div class="fw-bold text-dark">{{ fd.bankName }}</div>
-                                            <div class="small text-muted">Fixed Deposit</div>
+                                            <div class="fw-bold text-dark">{{ fd.name }}</div>
+                                            <div class="small text-muted">{{ fd.type }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="font-monospace small">{{ fd.fdNumber }}</td>
-                                <td><span class="badge bg-success-subtle text-success">{{ fd.interestRate }}%</span>
+                                <td class="font-monospace small">{{ fd.code }}</td>
+                                <td><span class="badge bg-success-subtle text-success">N/A</span>
                                 </td>
-                                <td>{{ fd.maturityDate | date:'mediumDate' }}</td>
-                                <td class="text-end pe-4 fw-bold">₹{{ fd.maturityAmount | number:'1.2-2' }}</td>
+                                <td>{{ fd.startDate | date:'mediumDate' }}</td>
+                                <td class="text-end pe-4 fw-bold">₹{{ fd.balance | number:'1.2-2' }}</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(fd)"
+                                            title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-link text-danger p-0" (click)="onDelete(fd)"
+                                            title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             <!-- Recurring Deposits -->
                             <tr *ngFor="let rd of recurringDeposits">
@@ -102,16 +126,28 @@
                                             <i class="bi bi-arrow-repeat"></i>
                                         </div>
                                         <div>
-                                            <div class="fw-bold text-dark">{{ rd.bankName }}</div>
-                                            <div class="small text-muted">Recurring Deposit</div>
+                                            <div class="fw-bold text-dark">{{ rd.name }}</div>
+                                            <div class="small text-muted">{{ rd.type }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="font-monospace small">{{ rd.rdNumber }}</td>
-                                <td><span class="badge bg-success-subtle text-success">{{ rd.interestRate }}%</span>
+                                <td class="font-monospace small">{{ rd.code }}</td>
+                                <td><span class="badge bg-success-subtle text-success">N/A</span>
                                 </td>
-                                <td>{{ rd.maturityDate | date:'mediumDate' }}</td>
-                                <td class="text-end pe-4 fw-bold">₹{{ rd.accumulatedAmount | number:'1.2-2' }}</td>
+                                <td>{{ rd.startDate | date:'mediumDate' }}</td>
+                                <td class="text-end pe-4 fw-bold">₹{{ rd.balance | number:'1.2-2' }}</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(rd)"
+                                            title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-link text-danger p-0" (click)="onDelete(rd)"
+                                            title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

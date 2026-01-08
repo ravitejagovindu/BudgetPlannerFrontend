@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { ApiService } from '../../service/api.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpHeaders } from '@angular/common/http';
 import { PortfolioHolding } from '../../model/portfolioHolding';
 import { MutualFundHolding } from '../../model/mutualFundHoldings';
+import { Portfolio } from '../../model/portfolio';
+import { ApiResponse } from '../../service/api.service';
 
 // Interface for Zerodha broker status from backend
 export interface BrokerStatus {
@@ -28,7 +30,10 @@ export interface AccountState {
     templateUrl: './demat-portfolio.component.html',
     styleUrls: ['./demat-portfolio.component.css']
 })
-export class DematPortfolioComponent implements OnInit {
+export class DematPortfolioComponent implements OnInit, OnChanges {
+    @Input() allPortfolios: Portfolio[] = [];
+    @Output() edit = new EventEmitter<Portfolio>();
+    @Output() delete = new EventEmitter<Portfolio>();
     // Global state
     alertMessage: string = '';
     alertType: 'success' | 'error' = 'success';
@@ -50,11 +55,15 @@ export class DematPortfolioComponent implements OnInit {
     accountToDisconnect: AccountState | null = null;
     disconnecting: boolean = false;
 
-    // New Data Sections
+    loadingOtherAssets: boolean = false;
     otherMutualFunds: any[] = [];
     npsDetails: any = null;
     ppfDetails: any = null;
-    loadingOtherAssets: boolean = false;
+
+    // Internal lists for CRUD support
+    npsAccountsList: Portfolio[] = [];
+    ppfAccountsList: Portfolio[] = [];
+    mfAccountsList: Portfolio[] = [];
 
     constructor(
         private apiService: ApiService,
@@ -80,31 +89,51 @@ export class DematPortfolioComponent implements OnInit {
         this.loadOtherAssets();
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['allPortfolios']) {
+            this.loadOtherAssets();
+        }
+    }
+
     setActiveTab(tab: 'zerodha' | 'other') {
         this.activeTab = tab;
     }
 
     loadOtherAssets() {
-        this.loadingOtherAssets = true;
-        this.apiService.getOtherMutualFunds().subscribe({
-            next: (res) => {
-                this.otherMutualFunds = res.data;
-                this.apiService.getNPSDetails().subscribe({
-                    next: (res) => {
-                        this.npsDetails = res.data;
-                        this.apiService.getPPFDetails().subscribe({
-                            next: (res) => {
-                                this.ppfDetails = res.data;
-                                this.loadingOtherAssets = false;
-                            },
-                            error: () => this.loadingOtherAssets = false
-                        });
-                    },
-                    error: () => this.loadingOtherAssets = false
-                });
-            },
-            error: () => this.loadingOtherAssets = false
-        });
+        if (this.allPortfolios && this.allPortfolios.length > 0) {
+            const portfolios = this.allPortfolios;
+
+            // Filter Other Mutual Funds (Case-insensitive)
+            this.mfAccountsList = portfolios.filter(p =>
+                p.type.toUpperCase() === 'MUTUAL FUND' || p.type.toUpperCase() === 'MF');
+            this.otherMutualFunds = this.mfAccountsList.map(p => ({
+                id: p.id,
+                fundName: p.name,
+                nav: 'N/A',
+                currentValue: p.balance,
+                portfolioObj: p
+            }));
+
+            // Filter NPS (Case-insensitive)
+            this.npsAccountsList = portfolios.filter(p => p.type.toUpperCase() === 'NPS');
+
+            // Filter PPF (Case-insensitive)
+            this.ppfAccountsList = portfolios.filter(p => p.type.toUpperCase() === 'PPF');
+        } else {
+            this.mfAccountsList = [];
+            this.otherMutualFunds = [];
+            this.npsAccountsList = [];
+            this.ppfAccountsList = [];
+        }
+        this.loadingOtherAssets = false;
+    }
+
+    onEdit(portfolio: Portfolio) {
+        this.edit.emit(portfolio);
+    }
+
+    onDelete(portfolio: Portfolio) {
+        this.delete.emit(portfolio);
     }
 
     checkZerodhaConnection(): void {
