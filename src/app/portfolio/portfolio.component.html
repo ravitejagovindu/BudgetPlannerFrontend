@@ -1,6 +1,6 @@
 <div class="planner-container fade-in">
   <!-- Header Section -->
-  <div class="row mb-4 align-items-center">
+  <div class="row mb-5 align-items-center">
     <div class="col-md-5">
       <h1 class="page-title mb-0 d-flex align-items-center">
         <i class="bi bi-briefcase me-2 text-primary"></i>Portfolio
@@ -11,20 +11,8 @@
     </div>
 
     <!-- Tab Switcher & Add Button (Pill Style) -->
+    <!-- Tab Switcher removed. Button is standalone now -->
     <div class="col-md-7 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
-      <div class="bg-white p-1 rounded-pill shadow-sm border d-inline-flex me-3">
-        <button class="btn btn-sm rounded-pill px-4 fw-bold transition-all" [class.btn-primary]="activeTab === 'bank'"
-          [class.text-muted]="activeTab !== 'bank'" [class.bg-transparent]="activeTab !== 'bank'"
-          (click)="setActiveTab('bank')">
-          <i class="bi bi-bank me-2"></i>Bank Portfolio
-        </button>
-        <button class="btn btn-sm rounded-pill px-4 fw-bold transition-all" [class.btn-primary]="activeTab === 'demat'"
-          [class.text-muted]="activeTab !== 'demat'" [class.bg-transparent]="activeTab !== 'demat'"
-          (click)="setActiveTab('demat')">
-          <i class="bi bi-graph-up-arrow me-2"></i>Demat Portfolio
-        </button>
-      </div>
-
       <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" (click)="openAddModal()">
         <i class="bi bi-plus-lg me-2"></i>Add Asset
       </button>
@@ -35,7 +23,7 @@
   <div #stickySentinel style="height: 1px; margin-bottom: -1px; width: 100%;"></div>
 
   <!-- Option A: The "Financial Insight" Hero Banner (Sticky) -->
-  <div class=" sticky-top" [class.sticky-active]="isSticky" style="z-index: 1020; top: -1px;">
+  <div class=" sticky-top mt-3" [class.sticky-active]="isSticky" style="z-index: 1020; top: -1px;">
     <div class="row mb-4" *ngIf="!loading">
       <div class="col-12">
         <div class="card border-0 shadow-sm rounded-4 position-relative hover-up net-worth-card"
@@ -60,20 +48,23 @@
               </div>
               <div class="col-md-7 mt-3 mt-md-0">
                 <div class="row text-center text-md-start">
-                  <!-- STICKY STATE: Detailed Bifurcation (3 Columns) -->
+                  <!-- STICKY STATE: Detailed Bifurcation (4 Columns) -->
                   <ng-container>
-                    <div class="col-md-4 ps-md-4">
+                    <div class="col-md-3 ps-md-3 border-end-md">
                       <span class="text-muted small d-block mb-1"><i class="bi bi-bank me-1"></i>Bank Balance</span>
                       <span class="h6 fw-bold text-primary mb-0">₹ {{ bankBalance | number:'1.2-2' }}</span>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3 ps-md-3 border-end-md">
                       <span class="text-muted small d-block mb-1"><i class="bi bi-piggy-bank me-1"></i>Deposits</span>
                       <span class="h6 fw-bold text-success mb-0">₹ {{ totalDeposits | number:'1.2-2' }}</span>
                     </div>
-                    <div class="col-md-4">
-                      <span class="text-muted small d-block mb-1"><i class="bi bi-coin me-1"></i>Other
-                        Investments</span>
+                    <div class="col-md-3 ps-md-3 border-end-md">
+                      <span class="text-muted small d-block mb-1"><i class="bi bi-coin me-1"></i>Retirals</span>
                       <span class="h6 fw-bold text-info mb-0">₹ {{ otherInvestments | number:'1.2-2' }}</span>
+                    </div>
+                    <div class="col-md-3 ps-md-3">
+                      <span class="text-muted small d-block mb-1"><i class="bi bi-house me-1"></i>Real Estate</span>
+                      <span class="h6 fw-bold text-secondary mb-0">₹ {{ realEstate | number:'1.2-2' }}</span>
                     </div>
                   </ng-container>
                 </div>
@@ -101,19 +92,42 @@
     </div>
   </div>
 
-  <!-- Content Area -->
+  <!-- Content Area - Single View -->
   <div class="portfolio-content mt-2" *ngIf="!loading">
-    <!-- BANK PORTFOLIO -->
-    <div *ngIf="activeTab === 'bank'" class="fade-in">
+
+    <!-- BANK PORTFOLIO SECTION -->
+    <div *ngIf="allPortfolios.length > 0" class="mb-5 fade-in">
+      <!-- <div class="d-flex align-items-center mb-3">
+        <div class="icon-square bg-white shadow-sm text-primary rounded-circle me-3 p-2 border">
+            <i class="bi bi-bank fs-5"></i>
+        </div>
+        <div>
+            <h5 class="fw-bold mb-0 text-dark">Banking Assets</h5>
+            <p class="text-muted small mb-0">Savings, Linked Accounts & Deposits</p>
+        </div>
+       </div> -->
       <app-bank-portfolio [allPortfolios]="allPortfolios" (edit)="openEditModal($event)"
         (delete)="deletePortfolio($event)"></app-bank-portfolio>
     </div>
-  </div>
 
-  <!-- DEMAT PORTFOLIO -->
-  <div *ngIf="activeTab === 'demat' && !loading" class="fade-in">
-    <app-demat-portfolio [allPortfolios]="allPortfolios" (edit)="openEditModal($event)"
-      (delete)="deletePortfolio($event)"></app-demat-portfolio>
+    <!-- SEPARATOR -->
+    <!-- <hr class="my-5 opacity-10"> -->
+
+    <!-- DEMAT PORTFOLIO SECTION -->
+    <div *ngIf="!loading" class="fade-in">
+      <!-- <div class="d-flex align-items-center mb-3">
+            <div class="icon-square bg-white shadow-sm text-info rounded-circle me-3 p-2 border">
+                <i class="bi bi-graph-up-arrow fs-5"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">Investment Portfolio</h5>
+                <p class="text-muted small mb-0">Stocks, Mutual Funds & Government Schemes</p>
+            </div>
+        </div> -->
+      <app-demat-portfolio [allPortfolios]="allPortfolios" (edit)="openEditModal($event)"
+        (delete)="deletePortfolio($event)"></app-demat-portfolio>
+    </div>
+
   </div>
 
   <!-- Global Loading Spinner -->

@@ -39,7 +39,6 @@ export class DematPortfolioComponent implements OnInit, OnChanges {
     alertType: 'success' | 'error' = 'success';
     globalLoading: boolean = false;
     isConnected: boolean = false;
-    activeTab: 'zerodha' | 'other' = 'zerodha';
 
     // Zerodha Accounts
     brokerAccounts: AccountState[] = [];
@@ -63,6 +62,7 @@ export class DematPortfolioComponent implements OnInit, OnChanges {
     // Internal lists for CRUD support
     npsAccountsList: Portfolio[] = [];
     ppfAccountsList: Portfolio[] = [];
+    realEstateList: Portfolio[] = [];
     mfAccountsList: Portfolio[] = [];
 
     constructor(
@@ -95,10 +95,6 @@ export class DematPortfolioComponent implements OnInit, OnChanges {
         }
     }
 
-    setActiveTab(tab: 'zerodha' | 'other') {
-        this.activeTab = tab;
-    }
-
     loadOtherAssets() {
         if (this.allPortfolios && this.allPortfolios.length > 0) {
             const portfolios = this.allPortfolios;
@@ -119,11 +115,20 @@ export class DematPortfolioComponent implements OnInit, OnChanges {
 
             // Filter PPF (Case-insensitive)
             this.ppfAccountsList = portfolios.filter(p => p.type.toUpperCase() === 'PPF');
+
+            // Filter Real Estate
+            this.realEstateList = portfolios.filter(p =>
+                p.type.toUpperCase() === 'REAL ESTATE' ||
+                p.type.toUpperCase() === 'REAL_ESTATE' ||
+                p.type.toUpperCase() === 'PROPERT' ||
+                p.type.toUpperCase() === 'PROPERTY'
+            );
         } else {
             this.mfAccountsList = [];
             this.otherMutualFunds = [];
             this.npsAccountsList = [];
             this.ppfAccountsList = [];
+            this.realEstateList = [];
         }
         this.loadingOtherAssets = false;
     }

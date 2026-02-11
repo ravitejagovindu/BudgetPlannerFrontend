@@ -5,4 +5,5 @@ export interface Portfolio {
     name: string;
     balance: number;
     startDate?: string;
+    interestRate?: number;
 }

@@ -10,7 +10,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrl: './portfolio.component.css',
 })
 export class PortfolioComponent implements OnInit {
-  activeTab: 'bank' | 'demat' = 'bank';
   allPortfolios: Portfolio[] = [];
   isSticky: boolean = false;
 
@@ -26,7 +25,7 @@ export class PortfolioComponent implements OnInit {
   alertMessage: string = '';
   alertType: 'success' | 'error' = 'success';
 
-  portfolioTypes: string[] = ['SAVINGS', 'FD', 'RD', 'MUTUAL FUND', 'NPS', 'PPF'];
+  portfolioTypes: string[] = ['SAVINGS', 'FD', 'RD', 'MUTUAL FUND', 'NPS', 'PPF', 'REAL ESTATE'];
 
   get totalNetWorth(): number {
     return this.allPortfolios.reduce((sum, p) => sum + (p.balance || 0), 0);
@@ -60,8 +59,17 @@ export class PortfolioComponent implements OnInit {
       .reduce((sum, p) => sum + (p.balance || 0), 0);
   }
 
+  get realEstate(): number {
+    return this.allPortfolios
+      .filter(p => {
+        const type = p.type.toUpperCase();
+        return type === 'REAL ESTATE' || type === 'REAL_ESTATE' || type === 'PROPERT' || type === 'PROPERTY';
+      })
+      .reduce((sum, p) => sum + (p.balance || 0), 0);
+  }
+
   get totalInvestments(): number {
-    return this.totalDeposits + this.otherInvestments;
+    return this.totalDeposits + this.otherInvestments + this.realEstate;
   }
 
   constructor(
@@ -213,9 +221,5 @@ export class PortfolioComponent implements OnInit {
     this.alertMessage = message;
     this.alertType = type;
     setTimeout(() => this.alertMessage = '', 5000);
-  }
-
-  setActiveTab(tab: 'bank' | 'demat') {
-    this.activeTab = tab;
   }
 }

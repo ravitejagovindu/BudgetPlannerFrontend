@@ -1,50 +1,32 @@
 <div class="row fade-in" *ngIf="!loading">
-    <!-- Summary Section -->
-    <!-- <div class="col-12 mb-4">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="card summary-card border-left-primary h-100">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted fw-bold small mb-1">Total Bank Balance</h6>
-                            <h3 class="mb-0 fw-bold text-dark">₹{{ getTotalBalance() | number:'1.2-2' }}</h3>
-                        </div>
-                        <div class="icon-circle bg-primary-subtle text-primary">
-                            <i class="bi bi-wallet2 fs-4"></i>
-                        </div>
-                    </div>
-                </div>
+
+    <!-- ============================================== -->
+    <!-- SECTION: BANK ACCOUNTS -->
+    <!-- ============================================== -->
+    <div class="col-12 mb-5">
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div class="icon-square bg-white shadow-sm text-primary rounded-circle me-3 p-2 border">
+                <i class="bi bi-bank fs-5"></i>
             </div>
-            <div class="col-md-6">
-                <div class="card summary-card border-left-success h-100">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted fw-bold small mb-1">Total Deposits (FD + RD)</h6>
-                            <h3 class="mb-0 fw-bold text-dark">₹{{ getTotalDeposits() | number:'1.2-2' }}</h3>
-                        </div>
-                        <div class="icon-circle bg-success-subtle text-success">
-                            <i class="bi bi-piggy-bank fs-4"></i>
-                        </div>
-                    </div>
-                </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">Banking Accounts</h5>
+                <p class="text-muted small mb-0">Savings & Current Accounts</p>
             </div>
         </div>
-    </div> -->
 
-    <!-- Bank Accounts Grid -->
-    <div class="col-12 mb-4">
-        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-bank me-2 text-primary"></i>Bank Accounts</h5>
-        <div class="row g-3">
+        <div class="row g-4">
             <div class="col-md-4" *ngFor="let acc of bankAccounts">
-                <div class="card bank-card h-100 border-0 shadow-sm">
+                <div class="card summary-card h-100 border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
                             <div class="bank-info">
-                                <h6 class="card-title fw-bold mb-1">{{ acc.name }}</h6>
-                                <p class="text-muted small mb-0">{{ acc.type }} • {{ acc.code }}</p>
+                                <h6 class="card-title fw-bold mb-1 text-dark">{{ acc.name }}</h6>
+                                <p class="text-muted small mb-0 font-monospace">{{ acc.code }}</p>
                             </div>
                             <div class="d-flex flex-column align-items-end">
-                                <span class="badge bg-light text-secondary border mb-2">{{ acc.type }}</span>
+                                <span class="badge bg-light text-secondary border mb-1" style="font-size: 0.65rem;">{{
+                                    acc.type }}</span>
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(acc)"
                                         title="Edit">
@@ -56,102 +38,154 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="balance-section mt-4 pt-3 border-top">
-                            <small class="text-muted d-block mb-1">Available Balance</small>
+                        <div class="balance-section mt-3 pt-2 border-top border-light">
+                            <small class="text-muted d-block mb-1 text-uppercase fw-bold"
+                                style="font-size: 0.7rem;">Available Balance</small>
                             <h4 class="fw-bold text-success mb-0">₹{{ acc.balance | number:'1.2-2' }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Empty State for Bank Accounts -->
+            <div class="col-12" *ngIf="bankAccounts.length === 0">
+                <div class="text-center py-4 border rounded-3 bg-light border-dashed">
+                    <i class="bi bi-bank fs-3 text-muted opacity-50"></i>
+                    <p class="mt-2 text-muted small mb-0">No bank accounts added yet.</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Deposits Section -->
-    <div class="col-md-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 border-bottom">
-                <h5 class="card-title mb-0 fw-bold"><i class="bi bi-safe me-2 text-primary"></i>Deposits & Investments
-                </h5>
+    <!-- SEPARATOR -->
+    <!-- <hr class="my-5 opacity-10"> -->
+
+    <!-- ============================================== -->
+    <!-- SECTION: DEPOSITS (FD/RD) -->
+    <!-- ============================================== -->
+    <div class="col-12">
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div class="icon-square bg-white shadow-sm text-success rounded-circle me-3 p-2 border">
+                <i class="bi bi-safe fs-5"></i>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="ps-4">Bank & Type</th>
-                                <th>Account Number</th>
-                                <th>Interest Rate</th>
-                                <th>Maturity Date</th>
-                                <th class="text-end pe-4">Value (₹)</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Fixed Deposits -->
-                            <tr *ngFor="let fd of fixedDeposits">
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon-square bg-warning-subtle text-warning me-3 rounded p-2">
-                                            <i class="bi bi-file-earmark-lock"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">{{ fd.name }}</div>
-                                            <div class="small text-muted">{{ fd.type }}</div>
-                                        </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">Deposits</h5>
+                <p class="text-muted small mb-0">Fixed & Recurring Deposits</p>
+            </div>
+        </div>
+
+        <!-- Subsection: Fixed Deposits -->
+        <div class="mb-5 ps-4" *ngIf="fixedDeposits.length > 0">
+            <h6 class="fw-bold text-secondary text-uppercase small mb-3 border-bottom pb-2"
+                *ngIf="fixedDeposits.length > 0 && recurringDeposits.length > 0">
+                <i class="bi bi-file-earmark-lock me-2"></i>Fixed Deposits
+            </h6>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4" *ngFor="let fd of fixedDeposits">
+                    <div class="card summary-card border-none shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-square bg-warning-subtle text-warning me-2 rounded p-1">
+                                        <i class="bi bi-file-earmark-lock"></i>
                                     </div>
-                                </td>
-                                <td class="font-monospace small">{{ fd.code }}</td>
-                                <td><span class="badge bg-success-subtle text-success">N/A</span>
-                                </td>
-                                <td>{{ fd.startDate | date:'mediumDate' }}</td>
-                                <td class="text-end pe-4 fw-bold">₹{{ fd.balance | number:'1.2-2' }}</td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(fd)"
-                                            title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-link text-danger p-0" (click)="onDelete(fd)"
-                                            title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Recurring Deposits -->
-                            <tr *ngFor="let rd of recurringDeposits">
-                                <td class="ps-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon-square bg-info-subtle text-info me-3 rounded p-2">
-                                            <i class="bi bi-arrow-repeat"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark">{{ rd.name }}</div>
-                                            <div class="small text-muted">{{ rd.type }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="font-monospace small">{{ rd.code }}</td>
-                                <td><span class="badge bg-success-subtle text-success">N/A</span>
-                                </td>
-                                <td>{{ rd.startDate | date:'mediumDate' }}</td>
-                                <td class="text-end pe-4 fw-bold">₹{{ rd.balance | number:'1.2-2' }}</td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(rd)"
-                                            title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-link text-danger p-0" (click)="onDelete(rd)"
-                                            title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ fd.name }}</h6>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(fd)"
+                                        title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-link text-danger p-0" (click)="onDelete(fd)" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row g-0 mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted d-block" style="font-size: 0.65rem;">INTEREST RATE</small>
+                                    <span class="badge bg-light text-dark border p-1" style="font-size: 0.7rem;">{{
+                                        fd.interestRate }}%</span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted d-block" style="font-size: 0.65rem;">MATURITY DATE</small>
+                                    <span class="small fw-bold">{{ fd.startDate | date:'mediumDate' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-end pt-2 border-top border-light">
+                                <div class="w-100">
+                                    <small class="text-muted d-block mb-0" style="font-size: 0.7rem;">PRINCIPAL
+                                        AMOUNT</small>
+                                    <span class="fw-bold text-success fs-5">₹{{ fd.balance | number:'1.2-2' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Subsection: Recurring Deposits -->
+        <div class="mb-4 ps-4" *ngIf="recurringDeposits.length > 0">
+            <h6 class="fw-bold text-secondary text-uppercase small mb-3 border-bottom pb-2"
+                *ngIf="fixedDeposits.length > 0 && recurringDeposits.length > 0">
+                <i class="bi bi-arrow-repeat me-2"></i>Recurring Deposits
+            </h6>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4" *ngFor="let rd of recurringDeposits">
+                    <div class="card summary-card border-none shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-square bg-info-subtle text-info me-2 rounded p-1">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ rd.name }}</h6>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(rd)"
+                                        title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-link text-danger p-0" (click)="onDelete(rd)" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row g-0 mb-2">
+                                <div class="col-6">
+                                    <small class="text-muted d-block" style="font-size: 0.65rem;">INTEREST RATE</small>
+                                    <span class="badge bg-light text-dark border p-1" style="font-size: 0.7rem;">{{
+                                        rd.interestRate }}%</span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted d-block" style="font-size: 0.65rem;">MATURITY DATE</small>
+                                    <span class="small fw-bold">{{ rd.startDate | date:'mediumDate' }}</span>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-end pt-2 border-top border-light">
+                                <div class="w-100">
+                                    <small class="text-muted d-block mb-0" style="font-size: 0.7rem;">ACCUMULATED
+                                        VALUE</small>
+                                    <span class="fw-bold text-success fs-5">₹{{ rd.balance | number:'1.2-2' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State for Deposits -->
+        <div class="col-12" *ngIf="fixedDeposits.length === 0 && recurringDeposits.length === 0">
+            <div class="text-center py-4 border rounded-3 bg-light border-dashed">
+                <i class="bi bi-safe fs-3 text-muted opacity-50"></i>
+                <p class="mt-2 text-muted small mb-0">No deposits (FD/RD) added yet.</p>
             </div>
         </div>
     </div>
