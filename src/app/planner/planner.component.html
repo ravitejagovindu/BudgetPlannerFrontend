@@ -36,7 +36,7 @@
     <div class="row mb-3 px-3" *ngIf="alertMessage">
         <div class="col-12">
             <div class="alert shadow-sm border-0 d-flex align-items-center"
-                [ngClass]="alertType === 'success' ? 'alert-success text-success bg-success-subtle' : 'alert-danger text-danger bg-danger-subtle'"
+                [ngClass]="alertType === 'success' ? 'text-success bg-success-subtle' : 'text-danger bg-danger-subtle'"
                 role="alert">
                 <i class="bi me-2 fs-5"
                     [ngClass]="alertType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
@@ -137,12 +137,9 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label small fw-bold text-secondary">Category</label>
-                                        <select class="form-select border-0 shadow-sm" formControlName="category">
-                                            <option value="" disabled>Select Category</option>
-                                            <option *ngFor="let cat of categoriesForTypeSet" [value]="cat">{{cat}}
-                                            </option>
-                                        </select>
+                                        <label class="form-label small fw-bold text-secondary">Category Name</label>
+                                        <input type="text" class="form-control border-0 shadow-sm"
+                                            formControlName="category" placeholder="Enter new category">
                                     </div>
                                     <div class="col-md-3">
                                         <label class="form-label small fw-bold text-secondary">Projected Amount
@@ -151,11 +148,39 @@
                                             formControlName="amount" placeholder="0.00">
                                     </div>
                                     <div class="col-md-2 d-flex align-items-end">
-                                        <button type="submit"
-                                            class="btn btn-success w-100 rounded-pill fw-bold shadow-sm"
-                                            [disabled]="projectionForm.invalid">
-                                            <i class="bi bi-check2-circle me-1"></i>Save
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm"
+                                            [disabled]="projectionForm.invalid || projectionSubcategoriesArray.length === 0 || loading">
+                                            <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                                            Save
                                         </button>
+                                    </div>
+
+                                    <!-- Simple Subcategories Row -->
+                                    <div class="col-12 mt-2 pt-2 border-top">
+                                        <div class="d-flex align-items-center flex-wrap gap-2">
+                                            <span class="small fw-bold text-secondary mb-0">Sub Categories:</span>
+                                            <button type="button"
+                                                class="btn btn-outline-primary btn-sm rounded-circle p-0"
+                                                style="width: 28px; height: 28px;" (click)="addProjectionSubCategory()">
+                                                <i class="bi bi-plus fs-5"></i>
+                                            </button>
+
+                                            <div formArrayName="subCategories" class="d-flex flex-wrap gap-2 ms-2">
+                                                <div *ngFor="let sub of projectionSubcategoriesArray.controls; let i = index"
+                                                    [formGroupName]="i"
+                                                    class="d-flex align-items-center bg-white border rounded-2 px-2 py-1 shadow-xs">
+                                                    <input type="text" class="form-control form-control-sm border-0 p-0"
+                                                        style="width: 100px; font-size: 0.85rem;" formControlName="name"
+                                                        placeholder="Name">
+                                                    <button type="button" class="btn btn-link text-danger p-0 ms-1"
+                                                        (click)="removeProjectionSubCategory(i)">
+                                                        <i class="bi bi-x"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div *ngIf="projectionSubcategoriesArray.length === 0"
+                                                class="text-muted small italic">At least one subcategory required</div>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
@@ -178,44 +203,36 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Filtered Records based on Active Tab -->
-                                <ng-container *ngFor="let record of allPlanners">
-                                    <tr *ngIf="record.type === activeProjectionType" class="border-bottom-soft">
-                                        <td class="ps-4">
-                                            <div class="fw-bold text-dark" *ngIf="!record.canEdit">{{ record.category }}
-                                            </div>
-                                            <select *ngIf="record.canEdit" class="form-select form-select-sm"
-                                                [(ngModel)]="record.category">
-                                                <option *ngFor="let cat of categoriesForTypeSet" [value]="cat">{{cat}}
-                                                </option>
-                                            </select>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="h6 mb-0 fw-bold"
-                                                [ngClass]="activeProjectionType === 'INCOME' ? 'text-success' : 'text-primary'"
-                                                *ngIf="!record.canEdit">
-                                                ₹{{ record.projected | number:'1.2-2' }}
+                                <tr *ngFor="let cat of getMonthlyCategoriesByType(activeProjectionType)"
+                                    class="border-bottom-soft">
+                                    <td class="ps-4 py-3">
+                                        <div class="fw-bold text-dark mb-1">{{ cat.category }}</div>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <span *ngFor="let sub of cat.subCategories"
+                                                class="badge bg-light text-dark border p-1 x-small fw-normal">
+                                                {{sub}}
                                             </span>
-                                            <input *ngIf="record.canEdit" type="number"
-                                                class="form-control form-control-sm text-end ms-auto"
-                                                style="width: 150px;" [(ngModel)]="record.projected">
-                                        </td>
-                                        <td class="text-center pe-4">
-                                            <div class="btn-group">
-                                                <button class="btn btn-link link-primary p-1"
-                                                    (click)="editProjection(record)"
-                                                    [title]="record.canEdit ? 'Save Changes' : 'Edit Projection'">
-                                                    <i class="bi fs-5"
-                                                        [ngClass]="record.canEdit ? 'bi-check-circle-fill text-success' : 'bi-pencil-square'"></i>
-                                                </button>
-                                                <button class="btn btn-link link-danger p-1"
-                                                    (click)="deleteProjection(record)" title="Delete Projection">
-                                                    <i class="bi bi-trash3 fs-5"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </ng-container>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="h6 mb-0 fw-bold"
+                                            [ngClass]="activeProjectionType === 'INCOME' ? 'text-success' : 'text-primary'">
+                                            ₹{{ cat.amount | number:'1.2-2' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <div class="btn-group">
+                                            <button class="btn btn-link link-primary p-1 me-2"
+                                                (click)="openEditModal(cat)" title="Edit Category">
+                                                <i class="bi bi-pencil-square fs-5"></i>
+                                            </button>
+                                            <button class="btn btn-link link-danger p-1"
+                                                (click)="confirmDeleteCategory(cat)" title="Delete Category">
+                                                <i class="bi bi-trash3 fs-5"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
                                 <tr *ngIf="getTotalPlanned(activeProjectionType) === 0">
                                     <td colspan="3" class="text-center py-5 text-muted">
                                         <i class="bi bi-folder-x fs-1 opacity-25 d-block mb-2"></i>
@@ -249,7 +266,7 @@
                         </div>
 
                         <div *ngIf="selectedType" class="fade-in">
-                            <div class="row mb-4">
+                            <!-- <div class="row mb-4">
                                 <div class="col-12">
                                     <label class="form-label fw-bold text-secondary mb-3 small tracking-wider">CHOOSE
                                         ACTION</label>
@@ -276,22 +293,22 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
 
                             <!-- Details Section -->
                             <div class="bg-light-soft rounded-4 p-4 mb-4 border border-light shadow-sm">
                                 <div class="row g-3">
-                                    <div class="col-md-6" *ngIf="creationMode === 'existing'">
+                                    <!-- <div class="col-md-6" *ngIf="creationMode === 'existing'">
                                         <label class="form-label fw-bold text-secondary small">Select Category to
                                             Manage</label>
                                         <select class="form-select border-0 shadow-sm"
                                             formControlName="selectedCategoryId">
                                             <option value="" disabled>Select a category...</option>
                                             <option *ngFor="let cat of filteredCategories" [value]="cat.id">
-                                                {{ cat.categoryName }}
+                                                {{ cat.category }}
                                             </option>
                                         </select>
-                                    </div>
+                                    </div> -->
                                     <div class="col-md-6">
                                         <label class="form-label fw-bold text-secondary small">Category Name</label>
                                         <input type="text" class="form-control border-0 shadow-sm"
@@ -310,7 +327,7 @@
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="fw-bold text-dark mb-0"><i
                                                 class="bi bi-diagram-3 me-2 text-primary"></i>Subcategories</h6>
-                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill"
+                                        <button type="button" class="btn btn-outline-success btn-sm rounded-pill"
                                             (click)="addSubCategory()">
                                             <i class="bi bi-plus-lg me-1"></i>Add Sub
                                         </button>
@@ -350,6 +367,144 @@
                             </div>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal Overlay -->
+    <div class="custom-modal-backdrop fade show" *ngIf="showEditModal" (click)="closeEditModal()"></div>
+    <div class="custom-modal fade show d-block" *ngIf="showEditModal">
+        <div class="modal-dialog modal-dialog-centered modal-sm-custom">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden bg-white">
+                <div class="modal-header border-bottom py-3 px-4">
+                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                        Category</h5>
+                    <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form [formGroup]="editForm" (ngSubmit)="onUpdateCategory()">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label x-small fw-bold text-secondary text-uppercase mb-1">Category
+                                    Name</label>
+                                <input type="text" class="form-control border-0 shadow-sm" formControlName="category"
+                                    placeholder="e.g. Shopping">
+                            </div>
+
+                            <div class="col-6">
+                                <label
+                                    class="form-label x-small fw-bold text-secondary text-uppercase mb-1">Type</label>
+                                <select class="form-select border-0 shadow-sm" formControlName="type">
+                                    <option value="INCOME">Income</option>
+                                    <option value="EXPENSE">Expense</option>
+                                    <option value="SAVING">Saving</option>
+                                    <option value="INVESTMENT">Investment</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label x-small fw-bold text-secondary text-uppercase mb-1">Amount
+                                    (₹)</label>
+                                <input type="number" class="form-control border-0 shadow-sm" formControlName="amount"
+                                    placeholder="0.00">
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label
+                                        class="form-label x-small fw-bold text-secondary text-uppercase mb-0">Subcategories</label>
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                        (click)="addEditSubCategory()">
+                                        <i class="bi bi-plus"></i> Add
+                                    </button>
+                                </div>
+                                <div formArrayName="subCategories"
+                                    class="list-group list-group-flush rounded-3 border max-vh-20 overflow-auto bg-white">
+                                    <div *ngFor="let sub of editSubCategoriesArray.controls; let i = index"
+                                        [formGroupName]="i"
+                                        class="list-group-item d-flex gap-2 align-items-center p-2 border-0 border-bottom">
+                                        <input type="text" class="form-control border-0 bg-transparent"
+                                            formControlName="name" placeholder="Name">
+                                        <button type="button" class="btn btn-link link-danger p-0"
+                                            (click)="removeEditSubCategory(i)">
+                                            <i class="bi bi-x-circle fs-5"></i>
+                                        </button>
+                                    </div>
+                                    <div *ngIf="editSubCategoriesArray.length === 0"
+                                        class="p-3 text-center text-muted x-small italic">
+                                        No subcategories.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4 pt-3">
+                            <button type="button" class="btn btn-light rounded-pill flex-fill fw-bold py-2"
+                                (click)="closeEditModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary rounded-pill flex-fill fw-bold py-2 shadow-sm"
+                                [disabled]="editForm.invalid || loading">
+                                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                                Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Confirmation Modal -->
+    <div class="custom-modal-backdrop fade show" *ngIf="showDeleteModal" (click)="cancelDeleteCategory()"></div>
+    <div class="custom-modal fade show d-block" *ngIf="showDeleteModal">
+        <div class="modal-dialog modal-dialog-centered modal-sm-custom">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden bg-white">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-4">
+                        <div class="icon-shape bg-danger-subtle text-danger rounded-circle mx-auto mb-3"
+                            style="width: 60px; height: 60px;">
+                            <i class="bi bi-trash3 fs-2"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark">Confirm Deletion</h5>
+                        <p class="text-muted small">Are you sure you want to delete
+                            <strong>{{categoryToDelete?.category}}</strong>? This action cannot be undone and will
+                            remove it from your budget structure.
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light rounded-pill flex-fill fw-bold py-2"
+                            (click)="cancelDeleteCategory()">Cancel</button>
+                        <button type="button" class="btn btn-danger rounded-pill flex-fill fw-bold py-2 shadow-sm"
+                            (click)="executeDeleteCategory()" [disabled]="loading">
+                            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subcategory Delete Confirmation Modal -->
+    <div class="custom-modal-backdrop fade show" *ngIf="showSubDeleteModal" (click)="cancelDeleteSub()"></div>
+    <div class="custom-modal fade show d-block" *ngIf="showSubDeleteModal">
+        <div class="modal-dialog modal-dialog-centered modal-sm-custom">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden bg-white text-center p-4">
+                <div class="icon-shape bg-warning-subtle text-warning rounded-circle mx-auto mb-3"
+                    style="width: 50px; height: 50px;">
+                    <i class="bi bi-exclamation-triangle fs-3"></i>
+                </div>
+                <h6 class="fw-bold text-dark">Delete Subcategory?</h6>
+                <p class="text-muted x-small mb-4">Are you sure you want to remove
+                    <strong>{{subToDelete?.name}}</strong>? This will permanently delete it from the budget structure.
+                </p>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill flex-fill fw-bold py-2"
+                        (click)="cancelDeleteSub()">Cancel</button>
+                    <button type="button" class="btn btn-danger btn-sm rounded-pill flex-fill fw-bold py-2 shadow-sm"
+                        (click)="executeDeleteSub()" [disabled]="loading">
+                        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+                        Delete
+                    </button>
                 </div>
             </div>
         </div>

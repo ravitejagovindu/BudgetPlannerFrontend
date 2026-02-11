@@ -177,66 +177,31 @@ export class ApiService {
   // ========================================
 
   /**
-   * Get all categories
+   * Get all categories from budget types
    */
   getAllCategories(): Observable<any> {
-    // DUMMY IMPLEMENTATION - Mock data with subcategory amounts
-    const mockCategories = [
-      {
-        id: 1,
-        budgetType: 'Expense',
-        categoryName: 'Groceries',
-        categoryAmount: 15000,
-        subCategories: [
-          { name: 'Vegetables', amount: 5000 },
-          { name: 'Fruits', amount: 3000 },
-          { name: 'Provisions', amount: 7000 }
-        ],
-      },
-      {
-        id: 2,
-        budgetType: 'Income',
-        categoryName: 'Salary',
-        categoryAmount: 80000,
-        subCategories: [
-          { name: 'Base Pay', amount: 60000 },
-          { name: 'Bonus', amount: 20000 }
-        ],
-      },
-      {
-        id: 3,
-        budgetType: 'Investments',
-        categoryName: 'Mutual Funds',
-        categoryAmount: 20000,
-        subCategories: [
-          { name: 'SIP', amount: 15000 },
-          { name: 'Lumpsum', amount: 5000 }
-        ],
-      }
-    ];
-
-    return of(mockCategories).pipe(delay(500));
+    return this.http.get<any>(this.hostUrl + 'budget/types');
   }
 
   /**
    * Create a new category
    */
   createCategory(category: CategoryRequest): Observable<any> {
-    return this.http.post<any>(this.hostUrl + 'planner/categories', category);
+    return this.http.post<any>(this.hostUrl + 'planners/categories', category);
   }
 
   /**
    * Update an existing category (using POST as per provided API specs)
    */
   updateCategory(categoryId: number | undefined, category: CategoryRequest): Observable<any> {
-    return this.http.post<any>(this.hostUrl + 'planner/categories', category);
+    return this.http.post<any>(this.hostUrl + 'planners/categories', category);
   }
 
   /**
    * Delete a category
    */
   deleteCategory(categoryId: number | string | undefined): Observable<any> {
-    return this.http.delete<any>(this.hostUrl + 'planner/categories/' + categoryId);
+    return this.http.delete<any>(this.hostUrl + 'planners/categories/' + categoryId);
   }
 
   /**
@@ -249,7 +214,7 @@ export class ApiService {
       }),
       body: subcategories,
     };
-    return this.http.delete<any>(this.hostUrl + 'planner/subcategories', options);
+    return this.http.delete<any>(this.hostUrl + 'planners/subcategories', options);
   }
 
   // ========================================

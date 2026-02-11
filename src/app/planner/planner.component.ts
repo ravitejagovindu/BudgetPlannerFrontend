@@ -4,18 +4,22 @@ import { ApiService } from '../service/api.service';
 import { Planner } from '../model/planner';
 import { CategoryRequest } from '../model/CategoryRequest';
 
-/* Local Interfaces for Structure Management */
-export interface SubCategory {
-  name: string;
-  amount: number;
-}
-
 export interface Category {
   id?: number;
-  budgetType: string;
-  categoryName: string;
-  categoryAmount: number;
-  subCategories: SubCategory[];
+  type: string;
+  category: string;
+  amount: number;
+  subCategories: string[];
+}
+
+export interface PlannerDTO {
+  baseId: number;
+  updatedId: number;
+  year: number;
+  month: string;
+  category: string;
+  type: string;
+  projected: number;
 }
 
 @Component({
@@ -40,13 +44,12 @@ export class PlannerComponent implements OnInit {
   currentMonthYear = `${this.year}-${this.month < 10 ? '0' : ''}${this.month}`;
 
   // ========================================
-  // 1. MONTHLY PROJECTIONS DATA
+  // 1. MONTHLY PROJECTIONS DATA (NOW CATEGORY-BASED)
   // ========================================
-  allPlanners: Planner[] = [];
-  incomeRecords: Set<Planner> = new Set();
-  savingsRecords: Set<Planner> = new Set();
-  investmentsRecords: Set<Planner> = new Set();
-  expenseRecords: Set<Planner> = new Set();
+  incomeCategories: Category[] = [];
+  savingsCategories: Category[] = [];
+  investmentsCategories: Category[] = [];
+  expenseCategories: Category[] = [];
 
   remainingBalanceToPlan: number = 0;
   showHigherAmountAlert: boolean = false;
@@ -55,19 +58,28 @@ export class PlannerComponent implements OnInit {
   showProjectionForm: boolean = false;
   activeProjectionType: string = 'INCOME';
 
-  // Projection Form
-  projectionForm: FormGroup = new FormGroup({
-    month: new FormControl(this.currentMonthYear, Validators.required),
-    type: new FormControl('', Validators.required),
-    category: new FormControl('', Validators.required),
-    amount: new FormControl(null, [Validators.required, Validators.min(0)]),
-  });
+  // Edit Modal State
+  showEditModal: boolean = false;
+  editForm!: FormGroup;
+  categoryToEdit?: Category;
+
+  // Delete Modal State
+  showDeleteModal: boolean = false;
+  categoryToDelete?: Category;
+
+  // Subcategory Delete State
+  showSubDeleteModal: boolean = false;
+  subToDelete: { name: string, index: number, source: 'edit' | 'structure' } | null = null;
+
+  // Projection Form (Enhanced to include subcategories)
+  projectionForm!: FormGroup;
 
   // ========================================
   // 2. BUDGET STRUCTURE DATA
   // ========================================
   budgetTypes: string[] = ['Income', 'Expense', 'Investments', 'Savings'];
   allCategories: Category[] = [];
+  monthlyPlanners: PlannerDTO[] = [];
   filteredCategories: Category[] = [];
   categoriesForTypeSet: Set<string> = new Set();
 
@@ -76,15 +88,36 @@ export class PlannerComponent implements OnInit {
   creationMode: 'existing' | 'new' = 'existing';
   selectedType: string = '';
 
-  constructor(private fb: FormBuilder, private apiService: ApiService) {
+  constructor(private fb: FormBuilder, private apiService: ApiService) { }
+
+  ngOnInit(): void {
+    this.initializeStructureForm();
+    this.initializeEditForm();
+    this.initializeProjectionForm();
+    this.loadGlobalData();
+  }
+
+  initializeProjectionForm(): void {
+    this.projectionForm = this.fb.group({
+      month: [this.currentMonthYear, Validators.required],
+      type: ['', Validators.required],
+      category: ['', Validators.required],
+      amount: [null, [Validators.required, Validators.min(0)]],
+      subCategories: this.fb.array([])
+    });
+
     this.projectionForm.controls['category'].disable();
     this.projectionForm.controls['amount'].disable();
   }
 
-  ngOnInit(): void {
-    this.initializeStructureForm();
-    this.loadGlobalData();
-    this.fetchMonthlyRecords(this.currentMonthYear);
+  initializeEditForm(): void {
+    this.editForm = this.fb.group({
+      id: [0],
+      type: ['', Validators.required],
+      category: ['', Validators.required],
+      amount: ['', [Validators.required, Validators.min(1)]],
+      subCategories: this.fb.array([])
+    });
   }
 
   initializeStructureForm(): void {
@@ -97,20 +130,17 @@ export class PlannerComponent implements OnInit {
       subCategories: this.fb.array([])
     });
 
-    // Watch for Type changes in Structure Form
     this.structureForm.get('budgetType')?.valueChanges.subscribe(type => {
       this.selectedType = type;
       this.filterCategoriesByType(type);
       this.resetStructureSelection();
     });
 
-    // Watch for Mode changes
     this.structureForm.get('creationMode')?.valueChanges.subscribe(mode => {
       this.creationMode = mode;
       this.resetStructureSelection();
     });
 
-    // Watch for Category Selection
     this.structureForm.get('selectedCategoryId')?.valueChanges.subscribe(id => {
       if (this.creationMode === 'existing' && id) {
         this.selectCategoryForEdit(id);
@@ -120,18 +150,31 @@ export class PlannerComponent implements OnInit {
 
   loadGlobalData(): void {
     this.loading = true;
+    // 1. Load Global Categories (Structure)
     this.apiService.getAllCategories().subscribe({
-      next: (response: any) => {
-        this.allCategories = response;
-        this.loading = false;
-        // Update dropdowns for projection form if type is selected
-        if (this.projectionForm.get('type')?.value) {
-          this.updateProjectionCategories();
-        }
+      next: (catRes) => {
+        this.allCategories = catRes.data;
+
+        // 2. Load Monthly Planner Records (Projections)
+        const [year, month] = this.currentMonthYear.split('-').map(Number);
+        this.apiService.getAllPlanners(year, month).subscribe({
+          next: (planRes) => {
+            this.monthlyPlanners = planRes.data || [];
+            this.processCategoryRecords(this.allCategories, this.monthlyPlanners);
+            this.loading = false;
+            if (this.projectionForm.get('type')?.value) {
+              this.updateProjectionCategories();
+            }
+          },
+          error: () => {
+            this.loading = false;
+            this.processCategoryRecords(this.allCategories, []);
+          }
+        });
       },
       error: (error: any) => {
         this.loading = false;
-        console.error('Error loading categories', error);
+        console.error('Error loading budget types', error);
       }
     });
   }
@@ -142,69 +185,266 @@ export class PlannerComponent implements OnInit {
 
   fetchMonthlyRecords(monthYear: string) {
     this.currentMonthYear = monthYear;
-    let selectedMonth = parseInt(monthYear.split('-')[1]);
-    let selectedYear = parseInt(monthYear.split('-')[0]);
+    if (this.projectionForm) {
+      this.projectionForm.patchValue({ month: monthYear });
+    }
+    this.loadGlobalData();
+  }
 
-    this.incomeRecords = new Set();
-    this.savingsRecords = new Set();
-    this.investmentsRecords = new Set();
-    this.expenseRecords = new Set();
+  // ========================================
+  // EDIT MODAL ACTIONS
+  // ========================================
+
+  get editSubCategoriesArray(): FormArray {
+    return this.editForm.get('subCategories') as FormArray;
+  }
+
+  openEditModal(cat: Category): void {
+    this.categoryToEdit = cat;
+    this.editForm.patchValue({
+      id: cat.id,
+      type: cat.type,
+      category: cat.category,
+      amount: cat.amount
+    });
+
+    this.editSubCategoriesArray.clear();
+    cat.subCategories.forEach(sub => {
+      this.editSubCategoriesArray.push(this.fb.group({
+        name: [sub, Validators.required]
+      }));
+    });
+    this.showEditModal = true;
+  }
+
+  closeEditModal(): void {
+    this.showEditModal = false;
+    this.categoryToEdit = undefined;
+  }
+
+  addEditSubCategory(): void {
+    this.editSubCategoriesArray.push(this.fb.group({
+      name: ['', Validators.required]
+    }));
+  }
+
+  removeEditSubCategory(index: number): void {
+    const subCategory = this.editSubCategoriesArray.at(index).value;
+    if (subCategory.name) {
+      this.subToDelete = { name: subCategory.name, index: index, source: 'edit' };
+      this.showSubDeleteModal = true;
+    } else {
+      this.editSubCategoriesArray.removeAt(index);
+    }
+  }
+
+  confirmDeleteSub(name: string, index: number, source: 'edit' | 'structure'): void {
+    this.subToDelete = { name, index, source };
+    this.showSubDeleteModal = true;
+  }
+
+  cancelDeleteSub(): void {
+    this.showSubDeleteModal = false;
+    this.subToDelete = null;
+  }
+
+  executeDeleteSub(): void {
+    if (!this.subToDelete) return;
+    const { name, index, source } = this.subToDelete;
 
     this.loading = true;
-    this.apiService.getAllPlanners(selectedYear, selectedMonth).subscribe((response) => {
-      this.allPlanners = response.data;
-      this.processPlannerRecords(this.allPlanners);
-      this.loading = false;
+    this.apiService.deleteSubcategories([name]).subscribe({
+      next: () => {
+        if (source === 'edit') {
+          this.editSubCategoriesArray.removeAt(index);
+        } else {
+          this.subCategoriesFormArray.removeAt(index);
+        }
+        this.loading = false;
+        this.showAlert('Subcategory deleted', 'success');
+        this.loadGlobalData(); // Refresh all data to keep UI in sync
+        this.cancelDeleteSub();
+      },
+      error: () => {
+        this.loading = false;
+        this.showAlert('Failed to delete subcategory', 'error');
+        this.cancelDeleteSub();
+      }
     });
   }
 
-  processPlannerRecords(data: Planner[]) {
+  onUpdateCategory(): void {
+    if (this.editForm.invalid) {
+      this.showAlert('Please fill all required fields.', 'error');
+      return;
+    }
+
+    const formVal = this.editForm.getRawValue();
+    const categoryRequest: CategoryRequest = {
+      id: formVal.id,
+      type: formVal.type,
+      category: formVal.category,
+      amount: formVal.amount,
+      subcategories: formVal.subCategories.map((s: any) => s.name)
+    };
+
+    const [year, month] = this.currentMonthYear.split('-').map(Number);
+    const plannerData = new Planner(
+      formVal.id,
+      0,
+      year,
+      month.toString(),
+      formVal.category,
+      formVal.type,
+      formVal.amount,
+      "",
+      true
+    );
+
+    this.loading = true;
+    // Step 1: Update Global Category
+    this.apiService.createCategory(categoryRequest).subscribe({
+      next: () => {
+        // Step 2: Update Monthly Planner
+        this.apiService.createPlanner(plannerData).subscribe({
+          next: () => {
+            this.showAlert('Category and Projection updated!', 'success');
+            this.loadGlobalData();
+            this.closeEditModal();
+          },
+          error: () => {
+            this.loading = false;
+            this.showAlert('Category updated, but projection failed.', 'error');
+          }
+        });
+      },
+      error: () => {
+        this.loading = false;
+        this.showAlert('Failed to update category.', 'error');
+      }
+    });
+  }
+
+  confirmDeleteCategory(cat: Category): void {
+    this.categoryToDelete = cat;
+    this.showDeleteModal = true;
+  }
+
+  cancelDeleteCategory(): void {
+    this.showDeleteModal = false;
+    this.categoryToDelete = undefined;
+  }
+
+  executeDeleteCategory(): void {
+    if (!this.categoryToDelete) return;
+
+    this.loading = true;
+    this.apiService.deleteCategory(this.categoryToDelete.id).subscribe({
+      next: () => {
+        this.showAlert('Category deleted successfully', 'success');
+        this.loadGlobalData();
+        this.cancelDeleteCategory();
+      },
+      error: () => {
+        this.loading = false;
+        this.showAlert('Failed to delete category', 'error');
+        this.cancelDeleteCategory();
+      }
+    });
+  }
+
+  processCategoryRecords(categories: Category[], planners: PlannerDTO[]) {
     let income: number = 0;
     let spent: number = 0;
-    for (let plan of data) {
-      if (plan.type === 'INCOME') {
-        this.incomeRecords.add(plan);
-        income += plan.projected;
-      } else if (plan.type === 'SAVING') {
-        this.savingsRecords.add(plan);
-        spent += plan.projected;
-      } else if (plan.type === 'INVESTMENT') {
-        this.investmentsRecords.add(plan);
-        spent += plan.projected;
-      } else if (plan.type === 'EXPENSE') {
-        this.expenseRecords.add(plan);
-        spent += plan.projected;
+
+    this.incomeCategories = [];
+    this.savingsCategories = [];
+    this.investmentsCategories = [];
+    this.expenseCategories = [];
+
+    // Map categories and override amount with monthly projected value if available
+    const displayCategories = categories.map(cat => {
+      const planner = planners.find(p => p.baseId === cat.id || p.category === cat.category);
+      return {
+        ...cat,
+        amount: planner ? planner.projected : 0 // Show 0 if no projection for this month
+      };
+    });
+
+    for (let cat of displayCategories) {
+      const type = cat.type.toUpperCase();
+      if (type === 'INCOME') {
+        this.incomeCategories.push(cat);
+        income += cat.amount;
+      } else if (type === 'SAVING' || type === 'SAVINGS') {
+        this.savingsCategories.push(cat);
+        spent += cat.amount;
+      } else if (type === 'INVESTMENT' || type === 'INVESTMENTS') {
+        this.investmentsCategories.push(cat);
+        spent += cat.amount;
+      } else if (type === 'EXPENSE' || type === 'EXPENSES') {
+        this.expenseCategories.push(cat);
+        spent += cat.amount;
       }
     }
     this.remainingBalanceToPlan = income - spent;
   }
 
-  updateProjectionCategories() {
-    const selectedType = this.projectionForm.value.type;
-    // Map backend types to match the getAllCategories format if necessary
-    // Currently MonthlyPlanner uses allData from getAllBudgetTypes which has {type, category, subCategories}
-    // We'll use allCategories which we loaded in loadGlobalData
-    this.categoriesForTypeSet = new Set(
-      this.allCategories
-        .filter(c => c.budgetType.toUpperCase() === selectedType.toUpperCase())
-        .map(c => c.categoryName)
-    );
-
-    let firstCategory = this.categoriesForTypeSet.values().next().value;
-    if (firstCategory) {
-      this.projectionForm.patchValue({ category: firstCategory });
-      this.projectionForm.controls['category'].enable();
-      this.projectionForm.controls['amount'].enable();
-    } else {
-      this.projectionForm.controls['category'].disable();
-      this.projectionForm.controls['amount'].disable();
+  getMonthlyCategoriesByType(type: string): Category[] {
+    switch (type.toUpperCase()) {
+      case 'INCOME': return this.incomeCategories;
+      case 'SAVING': return this.savingsCategories;
+      case 'INVESTMENT': return this.investmentsCategories;
+      case 'EXPENSE': return this.expenseCategories;
+      default: return [];
     }
   }
 
-  saveProjection() {
-    if (this.projectionForm.invalid) return;
+  updateProjectionCategories() {
+    const selectedType = this.projectionForm.value.type;
+    this.categoriesForTypeSet = new Set(
+      this.allCategories
+        .filter(c => c.type.toUpperCase() === selectedType.toUpperCase())
+        .map(c => c.category)
+    );
 
-    let entry = this.projectionForm.value;
+    // Enable fields if type is selected
+    if (selectedType) {
+      this.projectionForm.controls['category'].enable();
+      this.projectionForm.controls['amount'].enable();
+    }
+  }
+
+  // ========================================
+  // PROJECTION FORM ACTIONS
+  // ========================================
+
+  get projectionSubcategoriesArray(): FormArray {
+    return this.projectionForm.get('subCategories') as FormArray;
+  }
+
+  addProjectionSubCategory(): void {
+    this.projectionSubcategoriesArray.push(this.fb.group({
+      name: ['', Validators.required]
+    }));
+  }
+
+  removeProjectionSubCategory(index: number): void {
+    this.projectionSubcategoriesArray.removeAt(index);
+  }
+
+  saveProjection() {
+    if (this.projectionForm.invalid) {
+      this.showAlert('Please fill all required fields.', 'error');
+      return;
+    }
+
+    if (this.projectionSubcategoriesArray.length === 0) {
+      this.showAlert('At least one subcategory is required.', 'error');
+      return;
+    }
+
+    let entry = this.projectionForm.getRawValue();
     this.showHigherAmountAlert = false;
 
     if (entry.amount > this.remainingBalanceToPlan && entry.type !== 'INCOME') {
@@ -212,37 +452,35 @@ export class PlannerComponent implements OnInit {
       return;
     }
 
+    // Find existing category to get ID if it exists (upsert)
+    const existingCat = this.allCategories.find(c =>
+      c.category === entry.category && c.type.toUpperCase() === entry.type.toUpperCase()
+    );
+
+    // Call createCategory as requested
+    const categoryRequest: CategoryRequest = {
+      id: existingCat ? (existingCat.id || 0) : 0,
+      type: entry.type.charAt(0) + entry.type.slice(1).toLowerCase(),
+      category: entry.category,
+      amount: entry.amount,
+      subcategories: entry.subCategories.map((s: any) => s.name)
+    };
+
     this.loading = true;
-    // Note: The backend expects 'month' as a number and year as a number based on previous edits
-    // But createPlanner might need the object as defined in model
-    this.apiService.createPlanner(entry).subscribe(() => {
-      this.fetchMonthlyRecords(this.currentMonthYear);
-      this.projectionForm.reset({ month: this.currentMonthYear });
-      this.showProjectionForm = false;
-      this.loading = false;
-      this.showAlert('Projection added successfully', 'success');
+    this.apiService.createCategory(categoryRequest).subscribe({
+      next: () => {
+        this.loadGlobalData();
+        this.projectionForm.reset({ month: this.currentMonthYear });
+        this.projectionSubcategoriesArray.clear();
+        this.showProjectionForm = false;
+        this.loading = false;
+        this.showAlert('Budget entry and category saved', 'success');
+      },
+      error: () => {
+        this.loading = false;
+        this.showAlert('Failed to save category', 'error');
+      }
     });
-  }
-
-  editProjection(record: Planner) {
-    record.canEdit = !record.canEdit;
-    if (!record.canEdit) {
-      record.month = this.currentMonthYear.split('-')[1];
-      record.year = parseInt(this.currentMonthYear.split('-')[0]);
-      this.apiService.editPlanner(record.baseId, record).subscribe(() => {
-        this.fetchMonthlyRecords(this.currentMonthYear);
-        this.showAlert('Projection updated', 'success');
-      });
-    }
-  }
-
-  deleteProjection(record: Planner) {
-    if (confirm('Delete this projection?')) {
-      this.apiService.deletePlanner(record.baseId).subscribe(() => {
-        this.fetchMonthlyRecords(this.currentMonthYear);
-        this.showAlert('Projection deleted', 'success');
-      });
-    }
   }
 
   // ========================================
@@ -250,7 +488,7 @@ export class PlannerComponent implements OnInit {
   // ========================================
 
   filterCategoriesByType(type: string): void {
-    this.filteredCategories = this.allCategories.filter(c => c.budgetType === type);
+    this.filteredCategories = this.allCategories.filter(c => c.type.toLowerCase() === type.toLowerCase());
   }
 
   get subCategoriesFormArray(): FormArray {
@@ -274,18 +512,17 @@ export class PlannerComponent implements OnInit {
   }
 
   selectCategoryForEdit(id: string): void {
-    const category = this.filteredCategories.find(c => c.id?.toString() === id);
+    const category = this.allCategories.find(c => c.id?.toString() === id);
     if (category) {
       this.structureForm.patchValue({
-        categoryName: category.categoryName,
-        categoryAmount: category.categoryAmount
+        categoryName: category.category,
+        categoryAmount: category.amount
       }, { emitEvent: false });
 
       this.subCategoriesFormArray.clear();
-      category.subCategories.forEach(sub => {
+      category.subCategories.forEach(subName => {
         this.subCategoriesFormArray.push(this.fb.group({
-          name: [sub.name, Validators.required],
-          amount: [sub.amount, [Validators.required, Validators.min(1)]]
+          name: [subName, Validators.required]
         }));
       });
     }
@@ -293,28 +530,15 @@ export class PlannerComponent implements OnInit {
 
   addSubCategory(): void {
     this.subCategoriesFormArray.push(this.fb.group({
-      name: ['', Validators.required],
-      amount: [0, [Validators.required, Validators.min(1)]]
+      name: ['', Validators.required]
     }));
   }
 
   removeSubCategory(index: number): void {
     const subCategory = this.subCategoriesFormArray.at(index).value;
     if (this.creationMode === 'existing' && subCategory.name) {
-      if (confirm(`Delete subcategory "${subCategory.name}"?`)) {
-        this.loading = true;
-        this.apiService.deleteSubcategories([subCategory.name]).subscribe({
-          next: () => {
-            this.subCategoriesFormArray.removeAt(index);
-            this.loading = false;
-            this.showAlert('Subcategory deleted', 'success');
-          },
-          error: () => {
-            this.loading = false;
-            this.showAlert('Failed to delete subcategory', 'error');
-          }
-        });
-      }
+      this.subToDelete = { name: subCategory.name, index: index, source: 'structure' };
+      this.showSubDeleteModal = true;
     } else {
       this.subCategoriesFormArray.removeAt(index);
     }
@@ -322,7 +546,7 @@ export class PlannerComponent implements OnInit {
 
   onStructureSubmit(): void {
     if (this.structureForm.invalid || this.subCategoriesFormArray.length === 0) {
-      this.showAlert('Please fill all fields and add at least one subcategory.', 'error');
+      this.showAlert('Please fill all fields.', 'error');
       return;
     }
 
@@ -338,32 +562,22 @@ export class PlannerComponent implements OnInit {
     this.loading = true;
     this.apiService.createCategory(categoryRequest).subscribe({
       next: () => {
-        this.showAlert(this.creationMode === 'new' ? 'Category created!' : 'Category updated!', 'success');
+        this.showAlert('Saved!', 'success');
         this.loadGlobalData();
         this.resetStructureSelection();
       },
       error: () => {
         this.loading = false;
-        this.showAlert('Operation failed.', 'error');
+        this.showAlert('Failed to save.', 'error');
       }
     });
   }
 
   deleteCategoryStructure(): void {
     const id = this.structureForm.get('selectedCategoryId')?.value;
-    if (id && confirm('Delete this category and all its settings?')) {
-      this.loading = true;
-      this.apiService.deleteCategory(id).subscribe({
-        next: () => {
-          this.showAlert('Category deleted', 'success');
-          this.loadGlobalData();
-          this.resetStructureSelection();
-        },
-        error: () => {
-          this.loading = false;
-          this.showAlert('Failed to delete category', 'error');
-        }
-      });
+    const category = this.allCategories.find(c => c.id?.toString() === id);
+    if (category) {
+      this.confirmDeleteCategory(category);
     }
   }
 
@@ -379,10 +593,7 @@ export class PlannerComponent implements OnInit {
 
   getTotalPlanned(type: string): number {
     let total = 0;
-    const records = type === 'INCOME' ? this.incomeRecords :
-      type === 'EXPENSE' ? this.expenseRecords :
-        type === 'SAVING' ? this.savingsRecords : this.investmentsRecords;
-    records.forEach(r => total += r.projected);
+    this.getMonthlyCategoriesByType(type).forEach(c => total += c.amount);
     return total;
   }
 
@@ -395,7 +606,7 @@ export class PlannerComponent implements OnInit {
   setActiveTab(tab: 'monthly' | 'structure') {
     this.activeTab = tab;
     if (tab === 'monthly') {
-      this.fetchMonthlyRecords(this.currentMonthYear);
+      this.loadGlobalData();
     }
   }
 }

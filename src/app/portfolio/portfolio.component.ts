@@ -139,7 +139,8 @@ export class PortfolioComponent implements OnInit {
 
     if (this.editingPortfolio && this.editingPortfolio.id) {
       // Update
-      this.apiService.updatePortfolio(this.editingPortfolio.id, portfolioData).subscribe({
+      const updatedPortfolio = { ...portfolioData, id: this.editingPortfolio.id };
+      this.apiService.updatePortfolio(this.editingPortfolio.id, updatedPortfolio).subscribe({
         next: () => {
           this.showAlert('Portfolio updated successfully', 'success');
           this.loadAllPortfolios();

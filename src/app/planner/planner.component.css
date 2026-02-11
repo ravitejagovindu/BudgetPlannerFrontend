@@ -102,13 +102,15 @@
 .action-card .btn-check:checked+label[for="mExist"] {
     border-color: var(--primary);
     color: var(--primary);
-    background: rgba(13, 110, 253, 0.04);
+    background: #f0f7ff;
+    /* Solid light blue */
 }
 
 .action-card .btn-check:checked+label[for="mNew"] {
     border-color: var(--success);
     color: var(--success);
-    background: rgba(25, 135, 84, 0.04);
+    background: #f0fff4;
+    /* Solid light green */
 }
 
 /* Form Controls Customization */
@@ -150,4 +152,98 @@
     .btn-group.w-md-50 {
         width: 100% !important;
     }
+}
+
+/* Custom Modal Overlay */
+.custom-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    /* Darker and more solid for consistency */
+    z-index: 1050;
+}
+
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1060;
+    outline: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    /* Allows backdrop click */
+}
+
+.custom-modal .modal-dialog {
+    pointer-events: all;
+    /* Re-enable for modal content */
+    margin: 0;
+    /* Let flex handle it */
+    width: 100%;
+}
+
+.max-vh-20 {
+    max-height: 20vh;
+}
+
+.x-small {
+    font-size: 0.65rem;
+    color: #6c757d;
+}
+
+.form-control-xs {
+    height: calc(1.2em + 0.3rem + 2px);
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.last-border-0:last-child {
+    border-bottom: 0 !important;
+}
+
+.modal-sm-custom {
+    max-width: 380px;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.tracking-wider {
+    letter-spacing: 0.05em;
+}
+
+.bg-success-subtle {
+    background-color: #e6f4ea !important;
+    /* Solid light green */
+}
+
+.bg-danger-subtle {
+    background-color: #fce8e6 !important;
+    /* Solid light red */
+}
+
+.bg-info-subtle {
+    background-color: #e8f0fe !important;
+    /* Solid light blue */
+}
+
+.bg-warning-subtle {
+    background-color: #fef7e0 !important;
+    /* Solid light yellow */
+}
+
+.icon-shape {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
