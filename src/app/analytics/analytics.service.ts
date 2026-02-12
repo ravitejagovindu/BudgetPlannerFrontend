@@ -33,23 +33,30 @@ export class AnalyticsService {
         return of(years);
     }
 
-    getAnalyticsData(year: number, categories: string[] = []): Observable<AnalyticsDashboardData> {
-        return this.apiService.getAllExpensesByYear(year).pipe(
-            map((response: any) => this.processLedgerData(response.data || [], year, categories))
+    getAnalyticsData(year: number, type: string = 'EXPENSE', categories: string[] = []): Observable<AnalyticsDashboardData> {
+        // We need granular data for all types, so we fetch all 12 months of ledgers
+        const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        const observables = months.map(month => this.apiService.getAllLedgersByMonthAndYear(year, month));
+
+        return forkJoin(observables).pipe(
+            map((responses: any[]) => {
+                // Combine all months' data
+                const allLedgers = responses.flatMap(r => r.data || []);
+                return this.processLedgerData(allLedgers, year, type, categories);
+            })
         );
     }
 
-    private processLedgerData(ledgers: any[], year: number, categories: string[]): AnalyticsDashboardData {
-        // getAllExpensesByYear returns Ledger objects (with subCategory and amount)
-        // detailed expense entries.
-        let expenseLedgers = ledgers; // API name implies expenses, but we can verify type if needed.
-        // If the API returns mixed types (unlikely for 'expenses' endpoint), we could filter:
-        // expenseLedgers = ledgers.filter(l => l.type === 'EXPENSE');
+    private processLedgerData(ledgers: any[], year: number, type: string, categories: string[]): AnalyticsDashboardData {
+        // Filter by Type
+        let filteredLedgers = ledgers.filter(l => l.type === type);
 
         // Filter by categories if selected
         if (categories && categories.length > 0) {
-            expenseLedgers = expenseLedgers.filter(l => categories.includes(l.category));
+            filteredLedgers = filteredLedgers.filter(l => categories.includes(l.category));
         }
+
+        const expenseLedgers = filteredLedgers;
 
         // 1. Total Spent
         const totalSpent = expenseLedgers.reduce((sum, l) => sum + (l.amount || 0), 0);

@@ -21,14 +21,14 @@
 
             <div class="row g-4 mb-5">
                 <!-- NPS Cards -->
-                <div class="col-md-6 col-lg-4" *ngFor="let nps of npsAccountsList">
+                <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let nps of npsAccountsList">
                     <div class="card summary-card border-none shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-square bg-warning-subtle text-warning me-2 rounded p-1"><i
                                             class="bi bi-umbrella"></i></div>
-                                    <h6 class="fw-bold mb-0 text-dark">NPS</h6>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ nps.name }}</h6>
                                 </div>
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(nps)"
@@ -40,11 +40,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">Account</span>
-                                <span class="fw-bold small text-truncate" style="max-width: 150px;"
-                                    title="{{ nps.name }}">{{ nps.name }}</span>
-                            </div>
+
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted small">Total Holdings</span>
                                 <span class="fw-bold text-success">₹{{ nps.balance | number:'1.2-2' }}</span>
@@ -54,14 +50,14 @@
                 </div>
 
                 <!-- PPF Cards -->
-                <div class="col-md-6 col-lg-4" *ngFor="let ppf of ppfAccountsList">
+                <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let ppf of ppfAccountsList">
                     <div class="card summary-card border-none shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-square bg-info-subtle text-info me-2 rounded p-1"><i
                                             class="bi bi-piggy-bank"></i></div>
-                                    <h6 class="fw-bold mb-0 text-dark">PPF</h6>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ ppf.name }}</h6>
                                 </div>
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(ppf)"
@@ -99,7 +95,7 @@
                 </div>
 
                 <!-- Real Estate Cards -->
-                <div class="col-md-6 col-lg-4" *ngFor="let re of realEstateList">
+                <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let re of realEstateList">
                     <div class="card summary-card border-none shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -107,7 +103,7 @@
                                     <div class="icon-square bg-secondary-subtle text-secondary me-2 rounded p-1">
                                         <i class="bi bi-building"></i>
                                     </div>
-                                    <h6 class="fw-bold mb-0 text-dark">Property</h6>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ re.name }}</h6>
                                 </div>
                                 <div class="btn-group btn-group-sm">
                                     <button class="btn btn-link text-primary p-0 me-2" (click)="onEdit(re)"
@@ -119,15 +115,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">Name</span>
-                                <span class="fw-bold small text-truncate" style="max-width: 150px;"
-                                    title="{{ re.name }}">{{ re.name }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">Purchase Date</span>
-                                <span class="fw-bold small">{{ re.startDate | date }}</span>
-                            </div>
+
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted small">Value</span>
                                 <span class="fw-bold text-success">₹{{ re.balance | number:'1.2-2' }}</span>
@@ -197,7 +185,8 @@
                 <ng-container *ngFor="let account of brokerAccounts; let i = index">
 
                     <!-- DYNAMIC GRID COLUMN: Full width if showing holdings, else compact -->
-                    <div [ngClass]="(account.showHoldings || account.showMutualFunds) ? 'col-12' : 'col-md-6 col-lg-4'">
+                    <div
+                        [ngClass]="(account.showHoldings || account.showMutualFunds) ? 'col-12' : 'col-xl-3 col-lg-4 col-md-6'">
 
                         <!-- CASE 1: NOT CONNECTED (SIMPLIFIED) -->
                         <div *ngIf="!account.broker.authenticated"

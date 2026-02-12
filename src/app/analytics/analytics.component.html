@@ -12,6 +12,35 @@
         </div>
     </div> -->
 
+    <!-- Type Selector -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-center">
+            <div class="bg-white p-1 rounded-pill d-inline-flex border shadow-sm">
+                <button class="btn btn-sm rounded-pill px-3 fw-bold transition-all"
+                    [class.btn-danger]="selectedType === 'EXPENSE'" [class.text-white]="selectedType === 'EXPENSE'"
+                    [class.text-muted]="selectedType !== 'EXPENSE'" (click)="onTypeChange('EXPENSE')">
+                    Expenses
+                </button>
+                <button class="btn btn-sm rounded-pill px-3 fw-bold transition-all"
+                    [class.btn-success]="selectedType === 'INCOME'" [class.text-white]="selectedType === 'INCOME'"
+                    [class.text-muted]="selectedType !== 'INCOME'" (click)="onTypeChange('INCOME')">
+                    Income
+                </button>
+                <button class="btn btn-sm rounded-pill px-3 fw-bold transition-all"
+                    [class.btn-info]="selectedType === 'SAVING'" [class.text-white]="selectedType === 'SAVING'"
+                    [class.text-muted]="selectedType !== 'SAVING'" (click)="onTypeChange('SAVING')">
+                    Savings
+                </button>
+                <button class="btn btn-sm rounded-pill px-3 fw-bold transition-all"
+                    [class.btn-primary]="selectedType === 'INVESTMENT'"
+                    [class.text-white]="selectedType === 'INVESTMENT'"
+                    [class.text-muted]="selectedType !== 'INVESTMENT'" (click)="onTypeChange('INVESTMENT')">
+                    Investments
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Filters -->
     <div class="filter-bar">
         <div class="row g-3">
@@ -61,9 +90,9 @@
     <div class="row g-4 mb-4">
         <div class="col-md-4">
             <div class="summary-card">
-                <div class="summary-title">Total Spent ({{ selectedYear }})</div>
-                <div class="summary-value text-danger">₹{{ totalSpent | number:'1.2-2' }}</div>
-                <div class="summary-trend text-muted">Thinking about budget...</div>
+                <div class="summary-title">Total {{ getTypeLabel() }} ({{ selectedYear }})</div>
+                <div class="summary-value" [style.color]="getTypeColor()">₹{{ totalSpent | number:'1.2-2' }}</div>
+                <div class="summary-trend text-muted">For selected period</div>
             </div>
         </div>
         <div class="col-md-4">
@@ -75,7 +104,7 @@
         </div>
         <div class="col-md-4">
             <div class="summary-card" style="border-left-color: var(--warning);">
-                <div class="summary-title">Highest Spend Category</div>
+                <div class="summary-title">Highest {{ getTypeLabel() }} Category</div>
                 <div class="summary-value text-warning" style="font-size: 1.4rem;">{{ highestCategory.name }}</div>
                 <div class="summary-trend">₹{{ highestCategory.amount | number:'1.2-2' }}</div>
             </div>

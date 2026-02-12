@@ -16,7 +16,7 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-md-4" *ngFor="let acc of bankAccounts">
+            <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let acc of bankAccounts">
                 <div class="card summary-card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -40,7 +40,7 @@
                         </div>
                         <div class="balance-section mt-3 pt-2 border-top border-light">
                             <small class="text-muted d-block mb-1 text-uppercase fw-bold"
-                                style="font-size: 0.7rem;">Available Balance</small>
+                                style="font-size: 0.7rem;">Balance</small>
                             <h4 class="fw-bold text-success mb-0">₹{{ acc.balance | number:'1.2-2' }}</h4>
                         </div>
                     </div>
@@ -82,7 +82,7 @@
                 <i class="bi bi-file-earmark-lock me-2"></i>Fixed Deposits
             </h6>
             <div class="row g-4">
-                <div class="col-md-6 col-lg-4" *ngFor="let fd of fixedDeposits">
+                <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let fd of fixedDeposits">
                     <div class="card summary-card border-none shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -135,7 +135,7 @@
                 <i class="bi bi-arrow-repeat me-2"></i>Recurring Deposits
             </h6>
             <div class="row g-4">
-                <div class="col-md-6 col-lg-4" *ngFor="let rd of recurringDeposits">
+                <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let rd of recurringDeposits">
                     <div class="card summary-card border-none shadow-sm h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">

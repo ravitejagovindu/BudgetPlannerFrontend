@@ -25,6 +25,7 @@ export class AnalyticsComponent implements OnInit {
     years: number[] = [];
     // selectedYear: number = new Date().getFullYear();
     selectedYear: number = 2025;
+    selectedType: string = 'EXPENSE';
     categories: string[] = [];
     selectedCategories: string[] = [];
 
@@ -55,8 +56,8 @@ export class AnalyticsComponent implements OnInit {
         this.monthlyAverage = 0;
         this.highestCategory = { name: '-', amount: 0 };
         this.selectedDrilldownCategory = null; // Reset drill-down on reload
-        console.log('Loading data for year:', this.selectedYear, 'Categories:', this.selectedCategories);
-        this.analyticsService.getAnalyticsData(this.selectedYear, this.selectedCategories).subscribe((data: any) => {
+        console.log('Loading data for year:', this.selectedYear, 'Type:', this.selectedType, 'Categories:', this.selectedCategories);
+        this.analyticsService.getAnalyticsData(this.selectedYear, this.selectedType, this.selectedCategories).subscribe((data: any) => {
             console.log('Analytics Data Received:', data);
             this.currentAnalyticsData = data;
             this.totalSpent = data.totalSpent;
@@ -78,6 +79,13 @@ export class AnalyticsComponent implements OnInit {
     }
 
     onYearChange(): void {
+        this.loadData();
+    }
+
+    onTypeChange(type: string): void {
+        this.selectedType = type;
+        this.selectedCategories = []; // Reset category filter when type changes
+        this.selectedDrilldownCategory = null; // Reset drilldown
         this.loadData();
     }
 
@@ -152,7 +160,7 @@ export class AnalyticsComponent implements OnInit {
         } else {
             // Show global top 10 sub-categories
             barData = data.subCategoryBreakdown;
-            barTitle = 'Top Expense Sub-Categories';
+            barTitle = `Top ${this.getTypeLabel()} Sub-Categories`;
         }
 
         this.subCategoryBarChartOptions = {
@@ -186,10 +194,10 @@ export class AnalyticsComponent implements OnInit {
                 valuePrefix: '₹'
             },
             series: [{
-                name: 'Spent',
+                name: this.getTypeLabel(),
                 type: 'bar',
                 data: barData.map((d: any) => d.y),
-                color: '#3b82f6'
+                color: this.getTypeColor()
             }]
         };
 
@@ -204,7 +212,7 @@ export class AnalyticsComponent implements OnInit {
         } else {
             // Global Trend
             trendData = data.monthlyTrend;
-            trendTitle = 'Monthly Expense Trend'; // Reset title or keep generic
+            trendTitle = `Monthly ${this.getTypeLabel()} Trend`;
         }
 
         this.trendChartOptions = {
@@ -215,11 +223,7 @@ export class AnalyticsComponent implements OnInit {
                     fontFamily: 'Inter, sans-serif'
                 }
             },
-            title: { text: '' }, // Keep title empty or use trendTitle if you add a header to the chart config
-            // Note: HTML might have hardcoded title? No, we removed it. 
-            // Let's add the title inside Highcharts for clarity now, or update a property bound in HTML?
-            // User asked for the chart to change. Visual feedback is key.
-            // Let's set the title in Highcharts configuration.
+            title: { text: '' },
             subtitle: {
                 text: trendTitle,
                 align: 'left',
@@ -245,14 +249,14 @@ export class AnalyticsComponent implements OnInit {
                 style: { color: '#333' }
             },
             series: [{
-                name: 'Expenses',
+                name: this.getTypeLabel(),
                 data: trendData.map((d: any) => d.amount),
-                color: '#2563eb', // var(--primary)
+                color: this.getTypeColor(),
                 type: 'spline',
                 marker: {
                     fillColor: '#ffffff',
                     lineWidth: 2,
-                    lineColor: '#2563eb'
+                    lineColor: this.getTypeColor()
                 }
             }]
         };
@@ -316,5 +320,23 @@ export class AnalyticsComponent implements OnInit {
                 data: data.categoryDistribution
             }]
         };
+    }
+
+    getTypeLabel(): string {
+        switch (this.selectedType) {
+            case 'INCOME': return 'Income';
+            case 'SAVING': return 'Savings';
+            case 'INVESTMENT': return 'Investments';
+            default: return 'Expenses';
+        }
+    }
+
+    getTypeColor(): string {
+        switch (this.selectedType) {
+            case 'INCOME': return '#198754'; // Success/Green
+            case 'SAVING': return '#0dcaf0'; // Info/Cyan
+            case 'INVESTMENT': return '#0d6efd'; // Primary/Blue
+            default: return '#dc3545'; // Danger/Red
+        }
     }
 }
