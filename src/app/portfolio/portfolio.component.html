@@ -222,6 +222,20 @@
               </div>
             </div>
 
+            <!-- Interest Rate -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary small">Interest Rate (%)</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="interestRate" placeholder="0.0"
+                  [class.is-invalid]="portfolioForm.get('interestRate')?.invalid && portfolioForm.get('interestRate')?.touched">
+                <span class="input-group-text bg-light border-start-0">%</span>
+              </div>
+              <div class="text-danger small mt-1"
+                *ngIf="portfolioForm.get('interestRate')?.invalid && portfolioForm.get('interestRate')?.touched">
+                Minimum rate is 0.
+              </div>
+            </div>
+
             <!-- Start Date -->
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary small">Start/Maturity Date</label>

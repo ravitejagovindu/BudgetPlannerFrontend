@@ -81,6 +81,7 @@ export class PortfolioComponent implements OnInit {
       code: ['', Validators.required],
       name: ['', Validators.required],
       balance: [0, [Validators.required, Validators.min(0)]],
+      interestRate: [0, [Validators.required, Validators.min(0)]],
       startDate: ['']
     });
   }
@@ -124,7 +125,7 @@ export class PortfolioComponent implements OnInit {
   // CRUD Methods
   openAddModal() {
     this.editingPortfolio = null;
-    this.portfolioForm.reset({ balance: 0, type: '' });
+    this.portfolioForm.reset({ balance: 0, interestRate: 0, type: '' });
     this.showModal = true;
   }
 

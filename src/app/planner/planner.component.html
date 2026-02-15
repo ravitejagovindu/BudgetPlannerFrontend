@@ -12,7 +12,7 @@
 
         <!-- Tab Switcher & Month Picker -->
         <div class="col-md-7 d-flex justify-content-md-end align-items-center mt-3 mt-md-0">
-            <div class="bg-white p-1 rounded-pill shadow-sm border d-inline-flex me-3">
+            <!-- <div class="bg-white p-1 rounded-pill shadow-sm border d-inline-flex me-3">
                 <button class="btn btn-sm rounded-pill px-4 fw-bold transition-all"
                     [class.btn-primary]="activeTab === 'monthly'" [class.text-muted]="activeTab !== 'monthly'"
                     [class.bg-transparent]="activeTab !== 'monthly'" (click)="setActiveTab('monthly')">
@@ -23,9 +23,9 @@
                     [class.bg-transparent]="activeTab !== 'structure'" (click)="setActiveTab('structure')">
                     <i class="bi bi-gear-wide-connected me-2"></i>Budget Structure
                 </button>
-            </div>
+            </div> -->
 
-            <div *ngIf="activeTab === 'monthly'" class="ms-md-2">
+            <div class="ms-md-2">
                 <app-month-picker [currentMonthYear]="currentMonthYear" (monthSelect)="fetchMonthlyRecords($event)">
                 </app-month-picker>
             </div>
@@ -49,7 +49,7 @@
     <div class="tab-content-container fade-in">
 
         <!-- TAB 1: MONTHLY VIEW -->
-        <div *ngIf="activeTab === 'monthly'" class="fade-in">
+        <div class="fade-in">
 
             <!-- Summary Stats -->
             <div class="row g-3 mb-4">
@@ -130,10 +130,10 @@
                                         <select class="form-select border-0 shadow-sm" formControlName="type"
                                             (change)="updateProjectionCategories()">
                                             <option value="" disabled>Select Type</option>
-                                            <option value="INCOME">Income</option>
-                                            <option value="EXPENSE">Expense</option>
-                                            <option value="SAVING">Saving</option>
-                                            <option value="INVESTMENT">Investment</option>
+                                            <option value="INCOME">INCOME</option>
+                                            <option value="EXPENSE">EXPENSE</option>
+                                            <option value="SAVING">SAVING</option>
+                                            <option value="INVESTMENT">INVESTMENT</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
@@ -247,7 +247,7 @@
         </div>
 
         <!-- TAB 2: STRUCTURE VIEW -->
-        <div *ngIf="activeTab === 'structure'" class="fade-in">
+        <!-- <div *ngIf="activeTab === 'structure'" class="fade-in">
             <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
                 <div class="card-body p-4 p-md-5">
                     <form [formGroup]="structureForm" (ngSubmit)="onStructureSubmit()">
@@ -266,110 +266,70 @@
                         </div>
 
                         <div *ngIf="selectedType" class="fade-in">
-                            <!-- <div class="row mb-4">
-                                <div class="col-12">
-                                    <label class="form-label fw-bold text-secondary mb-3 small tracking-wider">CHOOSE
-                                        ACTION</label>
-                                    <div class="d-flex gap-3 mb-4">
-                                        <div class="action-card flex-fill">
-                                            <input type="radio" class="btn-check" formControlName="creationMode"
-                                                value="existing" id="mExist">
-                                            <label
-                                                class="btn btn-outline-primary w-100 py-3 rounded-4 shadow-sm border-2"
-                                                for="mExist">
-                                                <i class="bi bi-pencil-square fs-4 d-block mb-1"></i>
-                                                <strong>Edit Existing</strong>
-                                            </label>
-                                        </div>
-                                        <div class="action-card flex-fill">
-                                            <input type="radio" class="btn-check" formControlName="creationMode"
-                                                value="new" id="mNew">
-                                            <label
-                                                class="btn btn-outline-success w-100 py-3 rounded-4 shadow-sm border-2"
-                                                for="mNew">
-                                                <i class="bi bi-plus-lg fs-4 d-block mb-1"></i>
-                                                <strong>Create New</strong>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> -->
 
-                            <!-- Details Section -->
-                            <div class="bg-light-soft rounded-4 p-4 mb-4 border border-light shadow-sm">
-                                <div class="row g-3">
-                                    <!-- <div class="col-md-6" *ngIf="creationMode === 'existing'">
-                                        <label class="form-label fw-bold text-secondary small">Select Category to
-                                            Manage</label>
-                                        <select class="form-select border-0 shadow-sm"
-                                            formControlName="selectedCategoryId">
-                                            <option value="" disabled>Select a category...</option>
-                                            <option *ngFor="let cat of filteredCategories" [value]="cat.id">
-                                                {{ cat.category }}
-                                            </option>
-                                        </select>
-                                    </div> -->
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold text-secondary small">Category Name</label>
-                                        <input type="text" class="form-control border-0 shadow-sm"
-                                            formControlName="categoryName" placeholder="e.g. Household Supplies">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-bold text-secondary small">Base Monthly Amount
-                                            (₹)</label>
-                                        <input type="number" class="form-control border-0 shadow-sm"
-                                            formControlName="categoryAmount" placeholder="0.00">
-                                    </div>
-                                </div>
+                            [Details Section]
+        <div class="bg-light-soft rounded-4 p-4 mb-4 border border-light shadow-sm">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Category Name</label>
+                    <input type="text" class="form-control border-0 shadow-sm" formControlName="categoryName"
+                        placeholder="e.g. Household Supplies">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-secondary small">Base Monthly Amount
+                        (₹)</label>
+                    <input type="number" class="form-control border-0 shadow-sm" formControlName="categoryAmount"
+                        placeholder="0.00">
+                </div>
+            </div>
 
-                                <div class="mt-4"
-                                    *ngIf="creationMode === 'new' || structureForm.get('selectedCategoryId')?.value">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6 class="fw-bold text-dark mb-0"><i
-                                                class="bi bi-diagram-3 me-2 text-primary"></i>Subcategories</h6>
-                                        <button type="button" class="btn btn-outline-success btn-sm rounded-pill"
-                                            (click)="addSubCategory()">
-                                            <i class="bi bi-plus-lg me-1"></i>Add Sub
-                                        </button>
-                                    </div>
+            <div class="mt-4" *ngIf="creationMode === 'new' || structureForm.get('selectedCategoryId')?.value">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark mb-0"><i class="bi bi-diagram-3 me-2 text-primary"></i>Subcategories
+                    </h6>
+                    <button type="button" class="btn btn-outline-success btn-sm rounded-pill"
+                        (click)="addSubCategory()">
+                        <i class="bi bi-plus-lg me-1"></i>Add Sub
+                    </button>
+                </div>
 
-                                    <div formArrayName="subCategories" class="row g-2">
-                                        <div *ngFor="let sub of subCategoriesFormArray.controls; let i = index"
-                                            [formGroupName]="i" class="col-12">
-                                            <div class="p-2 bg-white rounded-3 shadow-xs border d-flex gap-2">
-                                                <input type="text" class="form-control form-control-sm border-0"
-                                                    formControlName="name" placeholder="Subcategory name">
-                                                <button type="button" class="btn btn-link link-danger p-0 px-2"
-                                                    (click)="removeSubCategory(i)"><i class="bi bi-trash"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Form Actions -->
-                            <div class="d-flex justify-content-between align-items-center pt-3 mt-4">
-                                <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm"
-                                    *ngIf="creationMode === 'existing' && structureForm.get('selectedCategoryId')?.value"
-                                    (click)="deleteCategoryStructure()">
-                                    <i class="bi bi-trash-fill me-2"></i>Delete Category
-                                </button>
-                                <div class="ms-auto">
-                                    <button type="button" class="btn btn-light rounded-pill px-4 me-2 fw-bold"
-                                        (click)="resetStructureSelection()">Cancel</button>
-                                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm"
-                                        [disabled]="loading || structureForm.invalid || subCategoriesFormArray.length === 0">
-                                        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-                                        <i class="bi bi-check-lg me-2" *ngIf="!loading"></i>
-                                        {{ creationMode === 'new' ? 'Build Category' : 'Update Structure' }}
-                                    </button>
-                                </div>
-                            </div>
+                <div formArrayName="subCategories" class="row g-2">
+                    <div *ngFor="let sub of subCategoriesFormArray.controls; let i = index" [formGroupName]="i"
+                        class="col-12">
+                        <div class="p-2 bg-white rounded-3 shadow-xs border d-flex gap-2">
+                            <input type="text" class="form-control form-control-sm border-0" formControlName="name"
+                                placeholder="Subcategory name">
+                            <button type="button" class="btn btn-link link-danger p-0 px-2"
+                                (click)="removeSubCategory(i)"><i class="bi bi-trash"></i></button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
+
+        [Form Actions]
+        <div class="d-flex justify-content-between align-items-center pt-3 mt-4">
+            <button type="button" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm"
+                *ngIf="creationMode === 'existing' && structureForm.get('selectedCategoryId')?.value"
+                (click)="deleteCategoryStructure()">
+                <i class="bi bi-trash-fill me-2"></i>Delete Category
+            </button>
+            <div class="ms-auto">
+                <button type="button" class="btn btn-light rounded-pill px-4 me-2 fw-bold"
+                    (click)="resetStructureSelection()">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm"
+                    [disabled]="loading || structureForm.invalid || subCategoriesFormArray.length === 0">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                    <i class="bi bi-check-lg me-2" *ngIf="!loading"></i>
+                    {{ creationMode === 'new' ? 'Build Category' : 'Update Structure' }}
+                </button>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+</div>
+</div> -->
     </div>
 
     <!-- Edit Category Modal Overlay -->

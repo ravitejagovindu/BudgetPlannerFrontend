@@ -460,7 +460,7 @@ export class PlannerComponent implements OnInit {
     // Call createCategory as requested
     const categoryRequest: CategoryRequest = {
       id: existingCat ? (existingCat.id || 0) : 0,
-      type: entry.type.charAt(0) + entry.type.slice(1).toLowerCase(),
+      type: entry.type.charAt(0) + entry.type.slice(1).toUpperCase(),
       category: entry.category,
       amount: entry.amount,
       subcategories: entry.subCategories.map((s: any) => s.name)
