@@ -37,6 +37,16 @@
                     [class.text-muted]="selectedType !== 'INVESTMENT'" (click)="onTypeChange('INVESTMENT')">
                     Investments
                 </button>
+                <button class="btn btn-sm rounded-pill px-3 fw-bold transition-all"
+                    [class.btn-secondary]="selectedType === 'TRANSFER'" [class.text-white]="selectedType === 'TRANSFER'"
+                    [class.text-muted]="selectedType !== 'TRANSFER'" (click)="onTypeChange('TRANSFER')">
+                    Transfers
+                </button>
+                <button class="btn btn-sm rounded-pill px-3 fw-bold transition-all"
+                    [class.btn-warning]="selectedType === 'VACATION'" [class.text-dark]="selectedType === 'VACATION'"
+                    [class.text-muted]="selectedType !== 'VACATION'" (click)="onTypeChange('VACATION')">
+                    Vacations
+                </button>
             </div>
         </div>
     </div>

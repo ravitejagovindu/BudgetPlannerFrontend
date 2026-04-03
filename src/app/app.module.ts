@@ -1,5 +1,9 @@
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { registerLocaleData } from '@angular/common';
+import localeIn from '@angular/common/locales/en-IN';
+
+registerLocaleData(localeIn);
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -46,6 +50,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AnalyticsModule
   ],
   providers: [
+    { provide: LOCALE_ID, useValue: 'en-IN' },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,

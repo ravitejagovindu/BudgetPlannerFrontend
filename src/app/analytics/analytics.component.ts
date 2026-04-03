@@ -327,6 +327,8 @@ export class AnalyticsComponent implements OnInit {
             case 'INCOME': return 'Income';
             case 'SAVING': return 'Savings';
             case 'INVESTMENT': return 'Investments';
+            case 'TRANSFER': return 'Transfers';
+            case 'VACATION': return 'Vacations';
             default: return 'Expenses';
         }
     }
@@ -336,6 +338,8 @@ export class AnalyticsComponent implements OnInit {
             case 'INCOME': return '#198754'; // Success/Green
             case 'SAVING': return '#0dcaf0'; // Info/Cyan
             case 'INVESTMENT': return '#0d6efd'; // Primary/Blue
+            case 'TRANSFER': return '#6c757d'; // Secondary/Grey
+            case 'VACATION': return '#ffc107'; // Warning/Yellow
             default: return '#dc3545'; // Danger/Red
         }
     }

@@ -27,7 +27,7 @@ export class AnalyticsService {
         // Generate ranges from 2020 to current year + 1
         const currentYear = new Date().getFullYear();
         const years = [];
-        for (let i = 2023; i <= currentYear - 1; i++) {
+        for (let i = 2025; i <= currentYear; i++) {
             years.push(i);
         }
         return of(years);
